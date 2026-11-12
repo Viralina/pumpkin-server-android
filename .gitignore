@@ -1,0 +1,25 @@
+# Build output
+.gradle/
+build/
+app/build/
+local.properties
+
+# Panel hasil bundling (dibuat oleh tools/bundle-panel.sh / build.sh)
+app/src/main/assets/index.html
+app/src/main/assets/*.tmp.*
+
+# Binary Pumpkin tidak pernah di-commit; build full memakai folder staging
+app/src/main/assets/pumpkin-aarch64-android
+app/src/main/assets/pumpkin
+
+# Android Studio / IDE
+*.iml
+.idea/
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Jangan pernah commit kunci atau token
+*.jks
+*.keystore

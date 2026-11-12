@@ -1,0 +1,29 @@
+Pumpkin Panel for Android
+Copyright 2026 Viralina
+
+This repository contains an unofficial, community-made Android control panel
+for the Pumpkin Minecraft server. It is not affiliated with, endorsed by, or
+sponsored by Pumpkin-MC or Mojang Studios.
+
+Pumpkin
+  https://github.com/Pumpkin-MC/Pumpkin
+  Pumpkin is licensed under the GNU General Public License v3.0.
+  No Pumpkin source code is included in this repository. The plain APK
+  downloads or imports the official Pumpkin Android binary at runtime.
+  An optional locally built "full" APK embeds that official binary unmodified;
+  the binary remains under GPLv3, is not part of this repository or its Git
+  history, and is not covered by this project's Apache-2.0 license. Anyone
+  redistributing the full APK must also comply with GPLv3 (including source).
+
+Minecraft
+  Minecraft is a trademark of Mojang Studios / Microsoft.
+  The panel's button-click sound is derived from Minecraft and is not covered
+  by this project's license. It remains the property of its respective owner.
+
+Names
+  "Pumpkin" and "Minecraft" are used descriptively to indicate compatibility.
+  No trademark license or official endorsement is claimed.
+
+Artwork
+  docs/assets/banner.svg is original artwork created for this project and is
+  licensed under Apache-2.0. It is not the official Pumpkin logo.

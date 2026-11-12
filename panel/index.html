@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#101010">
+<meta name="color-scheme" content="dark light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pumpkin Panel</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/minecraft.css">
+<link rel="stylesheet" href="css/minecraft-extra.css">
+</head>
+<body>
+<!-- ============================ icon sprite ============================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V21h5v-6h4v6h5V9.8"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="3"/><path d="m7 9 3 3-3 3M12.5 15H17"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h9M17 18h3"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/><circle cx="9" cy="7" r="3.5"/><path d="M17 4.2a3.5 3.5 0 0 1 0 6.6M22 20v-1.5a4 4 0 0 0-3-3.8"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5 19 12 7 19.5z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M15 6V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h1"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.5 6.5h17M9 6.5V4h6v2.5M6 6.5 7 21h10l1-14.5"/><path d="M10 10.5v6M14 10.5v6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-ram" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="2"/><path d="M6 17v3M10 17v3M14 17v3M18 17v3M7 11h2M12 11h2M17 11h1"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 4 5.7 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.7-4-9s1.4-6.5 4-9z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 2.8 21 7.4v9.2L12 21.2 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21.5 2.5 11 13M21.5 2.5 15 21.5l-4-8.5-8.5-4z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.9-6.6"/><path d="M21 3.5V9h-5.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12.5 5 5 10-11"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v4.5M12 17.2v.3"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 8.5a15 15 0 0 1 19 0M5.8 12.4a10 10 0 0 1 12.4 0M9.2 16.2a5 5 0 0 1 5.6 0"/><circle cx="12" cy="19.5" r="1"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.8 20 6v6c0 5-3.4 8.2-8 9.2-4.6-1-8-4.2-8-9.2V6z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.8A8.6 8.6 0 0 1 9.2 3.5 8.8 8.8 0 1 0 20.5 14.8z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v11M7.5 10 12 14.5 16.5 10M4 20h16"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4.5" rx="1.5"/><path d="M5 8.5V20h14V8.5M10 12.5h4"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M15.5 4.5 19.5 8.5 8.5 19.5 4 20l.5-4.5z"/><path d="M13.5 6.5 17.5 10.5"/></symbol>
+  <symbol id="i-grassblock" viewBox="0 0 16 16" shape-rendering="crispEdges">
+    <rect width="16" height="16" fill="#6b4423"/>
+    <rect width="16" height="5" fill="#4f8f2f"/>
+    <rect width="16" height="1" fill="#7cc24d"/>
+    <rect y="2" width="16" height="1" fill="#3f7a26"/>
+    <rect y="4" width="16" height="1" fill="#2f5c1c"/>
+    <rect x="2" y="5" width="2" height="2" fill="#4f8f2f"/>
+    <rect x="9" y="5" width="2" height="1" fill="#3f7a26"/>
+    <rect x="3" y="8" width="2" height="2" fill="#8b5a2b"/>
+    <rect x="10" y="9" width="2" height="2" fill="#4a2d16"/>
+    <rect x="6" y="12" width="2" height="2" fill="#7a4a23"/>
+    <rect x="12" y="13" width="2" height="1" fill="#8b5a2b"/>
+    <rect x="1" y="13" width="2" height="1" fill="#4a2d16"/>
+    <rect x="8" y="7" width="1" height="1" fill="#4a2d16"/>
+    <rect x="14" y="6" width="1" height="1" fill="#8b5a2b"/>
+  </symbol>
+  <symbol id="i-bedrockblock" viewBox="0 0 16 16" shape-rendering="crispEdges">
+    <rect width="16" height="16" fill="#6b6b6b"/>
+    <rect width="5" height="5" fill="#565656"/>
+    <rect x="5" width="6" height="3" fill="#8a8a8a"/>
+    <rect x="11" width="5" height="6" fill="#4c4c4c"/>
+    <rect y="5" width="4" height="6" fill="#909090"/>
+    <rect x="4" y="5" width="4" height="4" fill="#3e3e3e"/>
+    <rect x="8" y="5" width="3" height="2" fill="#7d7d7d"/>
+    <rect x="8" y="7" width="3" height="3" fill="#585858"/>
+    <rect x="11" y="6" width="5" height="3" fill="#767676"/>
+    <rect y="11" width="6" height="5" fill="#5e5e5e"/>
+    <rect x="6" y="10" width="4" height="6" fill="#8f8f8f"/>
+    <rect x="10" y="9" width="6" height="3" fill="#454545"/>
+    <rect x="10" y="12" width="6" height="4" fill="#6f6f6f"/>
+    <rect x="2" y="6" width="1" height="1" fill="#a8a8a8"/>
+    <rect x="13" y="4" width="1" height="1" fill="#333"/>
+    <rect x="7" y="13" width="1" height="1" fill="#b0b0b0"/>
+  </symbol>
+  <symbol id="i-app" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+</svg>
+
+<div id="app">
+  <!-- ============================= sidebar ============================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">🎃</div>
+      <div>
+        <h1 id="brandName">Pumpkin Panel</h1>
+        <small>Server control</small>
+      </div>
+    </div>
+    <div class="nav-label">Menu</div>
+    <a class="nav-item active" data-tab="home"><svg class="ic"><use href="#i-home"/></svg><span>Ringkasan</span></a>
+    <a class="nav-item" data-tab="console"><svg class="ic"><use href="#i-term"/></svg><span>Console</span><span class="badge-dot" id="navDot" hidden></span></a>
+    <a class="nav-item" data-tab="config"><svg class="ic"><use href="#i-sliders"/></svg><span>Konfigurasi</span></a>
+    <a class="nav-item" data-tab="players"><svg class="ic"><use href="#i-users"/></svg><span>Pemain</span></a>
+    <a class="nav-item" data-tab="more"><svg class="ic"><use href="#i-more"/></svg><span>Pengaturan</span></a>
+    <div class="side-foot">
+      <div class="side-conn"><span class="dot" id="sideDot"></span><span id="sideConn">Menghubungkan…</span></div>
+      <div id="sideInfo" class="mono" style="font-size:11px;color:var(--muted2)">panel v1</div>
+    </div>
+  </aside>
+
+  <!-- ============================== main ============================== -->
+  <div class="main">
+    <header class="topbar" id="topbar">
+      <div class="tb-title">
+        <h2 id="pageTitle">Ringkasan</h2>
+        <div class="sub" id="pageSub">Memuat status server…</div>
+      </div>
+      <div class="top-actions">
+        <span class="pill" id="statusPill"><span class="dot"></span><span>Offline</span></span>
+        <div class="lang-switch" id="langSwitch" role="group" aria-label="Bahasa / Language">
+          <button type="button" data-lang="id" title="Indonesia" aria-label="Bahasa Indonesia" aria-pressed="true"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="8" fill="#e11d2e"/><rect y="8" width="24" height="8" fill="#fff"/></svg></button>
+          <button type="button" data-lang="en" title="English" aria-label="English" aria-pressed="false"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0 24 16M24 0 0 16" stroke="#fff" stroke-width="4"/><path d="M0 0 24 16M24 0 0 16" stroke="#c8102e" stroke-width="2"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="6"/><path d="M12 0v16M0 8h24" stroke="#c8102e" stroke-width="3"/></svg></button>
+        </div>
+        <button class="icon-btn" id="btnAppMenu" title="Menu aplikasi" aria-label="Menu aplikasi"><svg class="ic"><use href="#i-app"/></svg></button>
+        <button class="icon-btn" id="btnReload" title="Muat ulang" aria-label="Muat ulang"><svg class="ic"><use href="#i-refresh"/></svg></button>
+        <button class="power-fab" id="btnPowerTop" title="Mulai / hentikan server" aria-label="Mulai atau hentikan server"><svg class="ic"><use href="#i-power"/></svg></button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div id="connBanner" class="banner err compact" hidden>
+        <svg class="ic"><use href="#i-alert"/></svg>
+        <div style="min-width:0"><b>Panel belum terhubung.</b> <span class="hint" id="connHint">Panel lokal tidak merespons.</span></div>
+        <button class="btn btn-sm btn-soft" id="btnRetryConn">Coba lagi</button>
+      </div>
+
+      <!-- ============================ HOME ============================ -->
+      <section class="view active" id="view-home">
+        <div class="hero" id="hero">
+          <div class="hero-top">
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="dot" id="heroDot"></span>
+              <div>
+                <div class="hero-status" id="heroStatus">Memeriksa…</div>
+                <div class="hero-sub" id="heroSub">Menunggu data dari server</div>
+              </div>
+            </div>
+            <div class="hero-ver"><span class="pill accent" id="heroVer">Pumpkin</span></div>
+          </div>
+          <div class="hero-stats">
+            <div class="hstat"><div class="k">Uptime</div><div class="v" id="hUptime">—</div></div>
+            <div class="hstat"><div class="k">Pemain</div><div class="v" id="hPlayers">—</div></div>
+            <div class="hstat"><div class="k">CPU</div><div class="v" id="hCpu">—<small>%</small></div></div>
+            <div class="hstat"><div class="k">RAM</div><div class="v" id="hRam">—<small>MB</small></div></div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" id="btnPower"><svg class="ic"><use href="#i-play"/></svg><span>Mulai server</span></button>
+            <button class="btn btn-lg btn-soft btn-restart" id="btnRestart"><svg class="ic"><use href="#i-restart"/></svg><span>Restart</span></button>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="card-h">
+            <h3><svg class="ic" style="width:17px;height:17px"><use href="#i-globe"/></svg>Alamat koneksi</h3>
+            <p>IPv4 saja · maksimal 2 alamat per edisi · ketuk untuk menyalin</p>
+          </div>
+          <div class="game-card">
+            <div class="gc-head">
+              <span class="gico"><svg class="block"><use href="#i-grassblock"/></svg></span>
+              <span class="gmeta">
+                <span class="gname">Java Edition</span>
+                <span class="gsub">Port <b id="portJava">25565</b></span>
+              </span>
+            </div>
+            <div class="gc-list" id="javaAddrList"></div>
+          </div>
+          <div class="game-card">
+            <div class="gc-head">
+              <span class="gico"><svg class="block"><use href="#i-bedrockblock"/></svg></span>
+              <span class="gmeta">
+                <span class="gname">Bedrock Edition</span>
+                <span class="gsub" id="bedrockSub">Port <b id="portBedrock">19132</b></span>
+              </span>
+            </div>
+            <div class="gc-list" id="bedrockAddrList"></div>
+          </div>
+          <div class="motd" id="pillMotd"><svg class="ic"><use href="#i-edit"/></svg><span>—</span></div>
+        </div>
+
+        <div class="home-bottom">
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-box"/></svg>Ukuran world</h3><p>penyimpanan</p></div>
+            <div class="metric-xl" id="sWorld">—<small>MB</small></div>
+            <div class="bar mt-s"><i id="sWorldBar" style="width:0%"></i></div>
+            <div class="hint mt-s" id="sWorldLbl">—</div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-wifi"/></svg>Traffic real-time</h3><p>sampel 100 ms · tetap</p></div>
+            <div class="net-line"><span class="net-lbl">Unduh</span><span class="net-val down" id="netDown">—</span></div>
+            <div class="net-line"><span class="net-lbl">Unggah</span><span class="net-val up" id="netUp">—</span></div>
+            <div class="net-line"><span class="net-lbl">Total sesi</span><span class="net-val" id="netTotal">—</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-shield"/></svg>Saran</h3><p>Berdasarkan kondisi server</p></div>
+            <div class="tips" id="homeTips"></div>
+          </div>
+        </div>
+
+        <div class="quick">
+          <button class="quick-btn" id="btnSaveWorld">
+            <span class="qico"><svg class="ic"><use href="#i-save"/></svg></span>
+            <span>Simpan</span>
+          </button>
+          <button class="quick-btn" id="btnBackup" hidden>
+            <span class="qico blue"><svg class="ic"><use href="#i-archive"/></svg></span>
+            <span>Backup</span>
+            <span class="qsub" id="backupHint">tar.gz</span>
+          </button>
+          <button class="quick-btn" data-tab="config">
+            <span class="qico green"><svg class="ic"><use href="#i-sliders"/></svg></span>
+            <span>Config</span>
+          </button>
+        </div>
+
+        <div class="card mt">
+          <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-term"/></svg>Aktivitas terakhir</h3><p>Tiga baris log terbaru</p></div>
+          <div class="act-list" id="homeAct"></div>
+          <div class="act-actions">
+            <span class="hint" id="homeActHint">Menunggu aktivitas…</span>
+            <button class="btn btn-sm btn-soft" data-tab="console">Buka Console</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================== CONSOLE =========================== -->
+      <section class="view" id="view-console">
+        <div class="console-tools">
+          <input class="input" id="logSearch" placeholder="Cari di log…" aria-label="Cari log" style="flex:2">
+          <div class="row" style="gap:6px">
+            <button class="chip active" data-level="ALL">Semua</button>
+            <button class="chip" data-level="INFO">Info</button>
+            <button class="chip" data-level="WARN">Warn</button>
+            <button class="chip" data-level="ERROR">Error</button>
+          </div>
+        </div>
+        <div class="term">
+          <div class="term-bar">
+            <div class="term-dots"><i></i><i></i><i></i></div>
+            <span class="term-title">pumpkin — console</span>
+            <div class="term-tools">
+              <button class="tbtn on" id="btnAutoScroll" title="Auto-scroll"><svg class="ic"><use href="#i-download"/></svg><span>Auto</span></button>
+              <button class="tbtn" id="btnClearLog" title="Bersihkan tampilan"><svg class="ic"><use href="#i-trash"/></svg></button>
+              <button class="tbtn" id="btnDownloadLog" title="Unduh log"><svg class="ic"><use href="#i-save"/></svg></button>
+            </div>
+          </div>
+          <form class="term-input" id="cmdForm" autocomplete="off">
+            <span class="prompt">&gt;</span>
+            <input id="cmdInput" placeholder="Ketik perintah server… (mis. list, say halo, time set day)" aria-label="Perintah server">
+            <button class="btn btn-sm btn-primary" type="submit" style="min-height:32px"><svg class="ic" style="width:15px;height:15px"><use href="#i-send"/></svg></button>
+          </form>
+          <div id="logWrap" tabindex="0"><div id="logList"></div></div>
+        </div>
+        <div class="chips" id="quickCmds">
+          <button class="chip" data-cmd="list">list</button>
+          <button class="chip" data-cmd="save-all">save-all</button>
+          <button class="chip" data-cmd="say Halo semua!">say</button>
+          <button class="chip" data-cmd="time set day">time day</button>
+          <button class="chip" data-cmd="weather clear">cuaca cerah</button>
+          <button class="chip" data-cmd="gamerule keepInventory true">keepInventory</button>
+          <button class="chip" data-cmd="difficulty normal">difficulty</button>
+          <button class="chip" data-cmd="stop">stop</button>
+        </div>
+        <p class="hint mt-s">Perintah hanya bisa dikirim jika server dijalankan dari panel ini. Gunakan tombol Mulai di Ringkasan.</p>
+      </section>
+
+      <!-- =========================== CONFIG =========================== -->
+      <section class="view" id="view-config">
+        <div class="banner ok" id="cfgSavedBanner" hidden>
+          <svg class="ic"><use href="#i-check"/></svg>
+          <div><b>Tersimpan.</b> Restart server agar perubahan berlaku.</div>
+          <button class="btn btn-sm btn-primary" id="btnRestartFromCfg">Restart</button>
+        </div>
+        <div class="seg" id="cfgSeg">
+          <button data-cfg="umum" class="active">Umum</button>
+          <button data-cfg="java">Java</button>
+          <button data-cfg="bedrock">Bedrock</button>
+          <button data-cfg="world">World</button>
+          <button data-cfg="full">Full</button>
+        </div>
+        <div class="stack" id="cfgPanels">
+          <div class="card show" data-cfg="umum">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-edit"/></svg>Umum</h3><p>Identitas dan aturan dasar</p></div>
+            <div class="grid g2">
+              <label class="field" style="grid-column:1/-1"><span>MOTD</span><input class="input" data-key="networking.java.motd" placeholder="Selamat datang!"></label>
+              <label class="field"><span>Max pemain</span><input class="input" type="number" min="1" data-key="networking.java.max_players"></label>
+              <label class="field"><span>Gamemode default</span>
+                <select class="input" data-key="default_gamemode">
+                  <option>Survival</option><option>Creative</option><option>Adventure</option><option>Spectator</option>
+                </select>
+              </label>
+              <label class="field"><span>Difficulty</span>
+                <select class="input" data-key="default_difficulty">
+                  <option>Peaceful</option><option>Easy</option><option>Normal</option><option>Hard</option>
+                </select>
+              </label>
+              <label class="field"><span>Nama world</span><input class="input" data-key="default_level_name"></label>
+              <label class="field"><span>Spawn protection (blok)</span><input class="input" type="number" min="0" data-key="spawn_protection"></label>
+              <label class="field"><span>OP permission level</span>
+                <select class="input" data-key="op_permission_level"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+              </label>
+            </div>
+            <div class="switches">
+              <label class="switch"><input type="checkbox" data-key="allow_nether"><span class="track"></span><span class="sw-txt">Nether</span></label>
+              <label class="switch"><input type="checkbox" data-key="allow_end"><span class="track"></span><span class="sw-txt">The End</span></label>
+              <label class="switch"><input type="checkbox" data-key="hardcore"><span class="track"></span><span class="sw-txt">Hardcore</span></label>
+              <label class="switch"><input type="checkbox" data-key="white_list"><span class="track"></span><span class="sw-txt">Whitelist</span></label>
+              <label class="switch"><input type="checkbox" data-key="enforce_whitelist"><span class="track"></span><span class="sw-txt">Wajib whitelist</span></label>
+              <label class="switch"><input type="checkbox" data-key="pvp.enabled"><span class="track"></span><span class="sw-txt">PvP</span></label>
+            </div>
+          </div>
+          <div class="card" data-cfg="java">
+              <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-cpu"/></svg>Java Edition</h3><p>Port dan jarak render</p></div>
+              <div class="grid g2">
+                <label class="field"><span>Alamat / port</span><input class="input mono" data-key="networking.java.address" placeholder="0.0.0.0:25565"></label>
+                <label class="field"><span>View distance</span><input class="input" type="number" min="2" max="64" data-key="networking.java.view_distance"></label>
+                <label class="field"><span>Simulation distance</span><input class="input" type="number" min="2" max="32" data-key="networking.java.simulation_distance"></label>
+              </div>
+              <div class="switches">
+                <label class="switch"><input type="checkbox" data-key="networking.java.enabled"><span class="track"></span><span class="sw-txt">Aktif</span></label>
+                <label class="switch"><input type="checkbox" data-key="networking.java.online_mode"><span class="track"></span><span class="sw-txt">Online mode</span></label>
+                <label class="switch"><input type="checkbox" data-key="networking.java.compression.enabled"><span class="track"></span><span class="sw-txt">Kompresi</span></label>
+              </div>
+            </div>
+          <div class="card" data-cfg="bedrock">
+              <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-box"/></svg>Bedrock Edition</h3><p>Mobile & console</p></div>
+              <div class="grid g2">
+                <label class="field" style="grid-column:1/-1"><span>MOTD Bedrock</span><input class="input" data-key="networking.bedrock.motd"></label>
+                <label class="field"><span>View distance</span><input class="input" type="number" min="2" max="32" data-key="networking.bedrock.view_distance"></label>
+                <label class="field"><span>Simulation distance</span><input class="input" type="number" min="2" max="32" data-key="networking.bedrock.simulation_distance"></label>
+              </div>
+              <div class="switches">
+                <label class="switch"><input type="checkbox" data-key="networking.bedrock.enabled"><span class="track"></span><span class="sw-txt">Aktif</span></label>
+                <label class="switch"><input type="checkbox" data-key="networking.bedrock.online_mode"><span class="track"></span><span class="sw-txt">Online mode</span></label>
+                <label class="switch"><input type="checkbox" data-key="networking.bedrock.nethernet.enabled"><span class="track"></span><span class="sw-txt">NetherNet</span></label>
+              </div>
+            </div>
+          <div class="card" data-cfg="world">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-box"/></svg>World</h3><p id="worldSub">Kelola world & seed</p></div>
+            <label class="field"><span>Seed</span><input class="input mono" id="worldSeed" placeholder="contoh: 1794660286376045931"></label>
+            <div class="row wrap mt-s">
+              <button class="btn btn-primary btn-sm" id="btnSeedSave"><svg class="ic" style="width:15px;height:15px"><use href="#i-save"/></svg>Simpan seed</button>
+              <button class="btn btn-soft btn-sm" id="btnSeedRandom"><svg class="ic" style="width:15px;height:15px"><use href="#i-refresh"/></svg>Acak</button>
+            </div>
+            <p class="hint mt-s">Seed baru berlaku saat world dibuat ulang atau world baru dibuat.</p>
+            <div class="sep"></div>
+            <div id="worldList" class="list"></div>
+            <p class="hint mt-s" style="margin-bottom:0">Hapus &amp; regenerate hanya bisa saat server berhenti.</p>
+          </div>
+          <div class="stack" data-cfg="full" id="cfgFull"></div>
+        </div>
+
+        <div class="actions-bar">
+          <span class="msg" id="cfgDirty">Tidak ada perubahan</span>
+          <button class="btn btn-ghost btn-sm" id="btnCfgReset">Reset</button>
+          <button class="btn btn-primary" id="btnCfgSave" disabled><svg class="ic" style="width:16px;height:16px"><use href="#i-save"/></svg>Simpan</button>
+        </div>
+      </section>
+
+      <!-- =========================== PLAYERS ========================== -->
+      <section class="view" id="view-players">
+        <div class="card">
+          <div class="card-h row between">
+            <div><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-wifi"/></svg>Online sekarang</h3><p id="onlineSub">0 pemain</p></div>
+            <button class="btn btn-sm btn-soft" id="btnRefreshPlayers"><svg class="ic" style="width:15px;height:15px"><use href="#i-refresh"/></svg>Muat</button>
+          </div>
+          <div id="onlineList" class="list"></div>
+        </div>
+
+        <div class="grid g2 mt">
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-shield"/></svg>Operator (OP)</h3><p>Beri akses perintah admin</p></div>
+            <div class="row" style="gap:8px">
+              <input class="input" id="opName" placeholder="Nama pemain" list="knownNames">
+              <select class="input" id="opLevel" style="width:92px"><option value="4">Lv 4</option><option value="3">Lv 3</option><option value="2">Lv 2</option><option value="1">Lv 1</option></select>
+              <button class="btn btn-primary" id="btnAddOp" style="min-height:42px"><svg class="ic" style="width:15px;height:15px"><use href="#i-plus"/></svg>OP</button>
+            </div>
+            <div id="opsList" class="list mt"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-check"/></svg>Whitelist</h3><p id="wlSub">Nonaktif</p></div>
+            <div class="row between">
+              <span class="hint">Wajib whitelist</span>
+              <label class="switch"><input type="checkbox" id="wlToggle"><span class="track"></span><span class="sw-txt" id="wlTxt">Nonaktif</span></label>
+            </div>
+            <div class="sep"></div>
+            <div class="row" style="gap:8px">
+              <input class="input" id="wlName" placeholder="Nama pemain" list="knownNames">
+              <button class="btn btn-primary" id="btnAddWl" style="min-height:42px"><svg class="ic" style="width:15px;height:15px"><use href="#i-plus"/></svg>Tambah</button>
+            </div>
+            <div id="wlList" class="list mt"></div>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="card-h row between">
+            <div>
+              <h3><svg class="ic" style="width:17px;height:17px"><use href="#i-alert"/></svg>Daftar ban</h3>
+              <p id="banSub">0 pemain</p>
+            </div>
+          </div>
+          <div class="row wrap" style="gap:8px">
+            <input class="input" id="banName" placeholder="Nama pemain" style="flex:1;min-width:130px">
+            <input class="input" id="banReason" placeholder="Alasan (opsional)" style="flex:2;min-width:160px">
+            <button class="btn btn-danger" id="btnAddBan" style="min-height:42px"><svg class="ic" style="width:15px;height:15px"><use href="#i-trash"/></svg>Ban</button>
+          </div>
+          <div id="banList" class="list mt"></div>
+        </div>
+
+        <div class="card mt">
+          <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-user"/></svg>Pemain dikenal</h3><p>Dari usercache — ketuk untuk mengisi nama</p></div>
+          <div class="row wrap" id="knownList" style="gap:8px"></div>
+        </div>
+        <datalist id="knownNames"></datalist>
+      </section>
+
+      <!-- ============================ MORE ============================ -->
+      <section class="view" id="view-more">
+        <div class="more-seg" id="moreSeg" role="tablist" aria-label="Bagian pengaturan">
+          <button type="button" class="active" data-more="umum" role="tab" aria-selected="true">Umum</button>
+          <button type="button" data-more="exp" role="tab" aria-selected="false"><span class="exp-dot"></span>Eksperimental</button>
+        </div>
+        <div id="moreUmum">
+        <div class="grid g2">
+          <input type="hidden" id="setBase">
+
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-sun"/></svg>Tampilan</h3><p>Tema dan warna aksen</p></div>
+            <div class="row between">
+              <span class="hint">Mode gelap</span>
+              <label class="switch"><input type="checkbox" id="themeToggle" checked><span class="track"></span><span class="sw-txt" id="themeTxt">Gelap</span></label>
+            </div>
+            <div class="row between mt-s">
+              <span class="hint">Suara tombol Minecraft</span>
+              <label class="switch"><input type="checkbox" id="sfxToggle" checked><span class="track"></span><span class="sw-txt" id="sfxTxt">Aktif</span></label>
+            </div>
+            <div class="sep"></div>
+            <div class="hint" style="margin-bottom:8px">Warna aksen</div>
+            <div class="dd accent-pick" id="accentPick">
+              <button class="input dd-btn" id="accentBtn" type="button" aria-haspopup="listbox" aria-label="Warna aksen">
+                <span class="accent-dot" id="accentDot"></span>
+                <span class="dd-txt" id="accentName">Hijau</span>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="dd-menu" id="accentMenu" role="listbox" aria-label="Pilihan warna aksen"></div>
+            </div>          </div>
+
+          <div class="card" id="appCard">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-app"/></svg>Aplikasi Android</h3><p>Menu native: ganti binary Pumpkin &amp; data server</p></div>
+            <div class="row wrap">
+              <button class="btn btn-primary" id="btnAppMenu2"><svg class="ic" style="width:16px;height:16px"><use href="#i-app"/></svg>Buka menu aplikasi</button>
+              <button class="btn btn-soft" id="btnSwapBin"><svg class="ic" style="width:16px;height:16px"><use href="#i-refresh"/></svg>Tukar binary Pumpkin</button>
+            </div>
+            <p class="hint mt-s" style="margin-bottom:0">Binary aktif bisa diganti kapan saja dari menu ini (impor dari /sdcard atau file lain). Versi lama disimpan sebagai cadangan dan bisa ditukar balik. Tombol Back Android juga membuka menu ini.</p>
+          </div>
+
+          <div class="card" id="aboutCard">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-shield"/></svg>Tentang &amp; catatan</h3><p>Panduan singkat untuk pengguna</p></div>
+            <p class="hint" style="margin:0 0 10px">Cara memakai panel, keamanan token, akses dari HP lain, dan tips merawat world.</p>
+            <button class="btn btn-primary" id="btnAbout"><svg class="ic" style="width:16px;height:16px"><use href="#i-shield"/></svg>Baca tentang &amp; catatan</button>
+          </div>
+
+          <div class="card" id="backupCard" hidden>
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-archive"/></svg>Backup world</h3><p id="backupSub">Belum ada backup</p></div>
+            <div class="row">
+              <button class="btn btn-primary" id="btnBackup2"><svg class="ic" style="width:16px;height:16px"><use href="#i-archive"/></svg>Buat backup</button>
+              <span class="hint" id="backupRun" hidden><svg class="ic spin" style="width:14px;height:14px;vertical-align:-2px"><use href="#i-restart"/></svg> berjalan…</span>
+            </div>
+            <div id="backupList" class="list mt"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-sliders"/></svg>Path & runtime</h3><p>Ketuk ikon pensil untuk mengubah path</p></div>
+            <div class="path-list">
+              <div class="path-row">
+                <div class="path-main"><span class="path-lbl">Folder server (host)</span><span class="path-val" id="pathServerDir" title="">—</span></div>
+                <button class="icon-btn" data-path="serverDir" title="Ubah folder server" aria-label="Ubah folder server"><svg class="ic" style="width:15px;height:15px"><use href="#i-edit"/></svg></button>
+              </div>
+              <div class="path-row">
+                <div class="path-main"><span class="path-lbl">Perintah start</span><span class="path-val" id="pathGuestCmd" title="">—</span></div>
+                <button class="icon-btn" data-path="guestCmd" title="Ubah perintah start" aria-label="Ubah perintah start"><svg class="ic" style="width:15px;height:15px"><use href="#i-edit"/></svg></button>
+              </div>
+              <div class="path-row">
+                <div class="path-main"><span class="path-lbl">Launcher</span><span class="path-val" id="pathLauncher" title="">—</span></div>
+                <button class="icon-btn" data-path="launcher" title="Ubah launcher" aria-label="Ubah launcher"><svg class="ic" style="width:15px;height:15px"><use href="#i-edit"/></svg></button>
+              </div>
+            </div>
+            <div class="row between mt">
+              <span class="hint" id="runtimeInfo">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-alert"/></svg>Zona bahaya</h3><p>Aksi ini langsung menghentikan proses server</p></div>
+          <div class="row wrap">
+            <button class="btn btn-danger" id="btnKill">Matikan paksa (SIGKILL)</button>
+            <button class="btn btn-ghost" id="btnReloadCfg"><svg class="ic" style="width:16px;height:16px"><use href="#i-refresh"/></svg>Muat ulang semua data</button>
+          </div>
+          <div class="sep"></div>
+          <p class="hint" style="margin:0">Panel v1 · dibuat untuk Pumpkin Server · semua kontrol berjalan lokal di perangkat ini.</p>
+        </div>
+        </div><!-- /moreUmum -->
+
+        <div id="moreExp" hidden>
+          <div class="grid g2">
+            <div class="card">
+              <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-wifi"/></svg>Panel web <span class="exp-badge">Eksperimental</span></h3><p>Buka panel dari perangkat lain di jaringan yang sama</p></div>
+              <div class="net-toggle">
+                <div class="nt-txt"><b>Panel web online</b><small>Default mati. Panel tetap bisa dipakai di HP ini.</small></div>
+                <div class="row" style="gap:8px;align-items:center">
+                  <span class="nt-state" id="panelOnlineState">Mati</span>
+                  <label class="switch"><input type="checkbox" id="panelOnlineToggle"><span class="track"></span><span class="sw-txt"></span></label>
+                </div>
+              </div>
+              <div class="net-lock" id="netLock" data-ro="1">
+                <label class="field"><span>Nama server</span><input class="input" id="setName" placeholder="Pumpkin Server"></label>
+                <label class="field mt-s"><span>Alamat panel</span>
+                  <select class="input" id="setHostMode">
+                    <option value="localhost">Localhost</option>
+                    <option value="current">IP saat ini</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </label>
+                <label class="field mt-s" id="hostCurrentWrap"><span>Pilih IP</span><select class="input mono" id="setHostPick"></select></label>
+                <label class="field mt-s" id="hostCustomWrap" hidden><span>Host custom</span><input class="input mono" id="setHostCustom" placeholder="192.168.1.10"></label>
+                <label class="field mt-s"><span>Port panel</span><input class="input mono" id="setPort" type="number" min="1" max="65535" placeholder="8087"></label>
+                <label class="field mt-s"><span>Token akses panel</span><input class="input mono" id="setToken" type="password" placeholder="kosong = tidak diubah"></label>
+                <div class="row wrap" style="gap:8px;margin-top:6px"><button class="btn btn-sm btn-soft" id="btnCopyToken" type="button">Salin token</button><span class="hint" id="tokenHint">Token dibuat otomatis. Untuk LAN buka http://IP:PORT/?token=TOKEN</span></div>
+                <p class="hint" style="margin:2px 0 0">Panel privat: tanpa token, HTML panel tidak dikirim ke jaringan. Untuk akses dari perangkat lain buka <span class="inline-code">http://IP:PORT/?token=TOKEN</span>.</p>
+                <div class="row mt"><button class="btn btn-primary" id="btnSaveNet">Simpan &amp; terapkan</button></div>
+              </div>
+              <p class="hint mt-s" id="netHint">Saat ini hanya bisa dibuka dari HP ini.</p>
+              <div id="netUrls" class="hint mt-s"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-globe"/></svg>Alamat server Pumpkin <span class="exp-badge">Eksperimental</span></h3><p>Java &amp; Bedrock memakai alamat bind yang sama</p></div>
+              <label class="field"><span>Alamat bind server</span>
+                <select class="input" id="srvBindMode">
+                  <option value="localhost">Localhost (hanya HP ini)</option>
+                  <option value="current">IP saat ini (LAN)</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </label>
+              <label class="field mt-s" id="srvPickWrap"><span>Pilih IP</span><select class="input mono" id="srvBindPick"></select></label>
+              <label class="field mt-s" id="srvCustomWrap" hidden><span>IP custom</span><input class="input mono" id="srvBindCustom" placeholder="192.168.1.10"></label>
+              <div class="row mt"><button class="btn btn-primary" id="btnSaveSrv">Simpan alamat server</button></div>
+              <p class="hint mt-s" id="srvBindHint">Alamat ini ditulis ke pumpkin.toml. Restart server agar berlaku.</p>
+              <div id="srvAddrPreview" class="hint mt-s"></div>
+            </div>
+          </div>
+        </div><!-- /moreExp -->
+      </section>
+    </main>
+
+    <!-- ============================ tabbar ============================ -->
+    <nav class="tabbar">
+      <a class="tab active" data-tab="home"><span class="tab-ico"><svg class="ic"><use href="#i-home"/></svg></span><span>Beranda</span></a>
+      <a class="tab" data-tab="console"><span class="tab-ico"><svg class="ic"><use href="#i-term"/></svg></span><span>Console</span></a>
+      <a class="tab" data-tab="config"><span class="tab-ico"><svg class="ic"><use href="#i-sliders"/></svg></span><span>Config</span></a>
+      <a class="tab" data-tab="players"><span class="tab-ico"><svg class="ic"><use href="#i-users"/></svg></span><span>Pemain</span></a>
+      <a class="tab" data-tab="more"><span class="tab-ico"><svg class="ic"><use href="#i-more"/></svg></span><span>Lainnya</span></a>
+    </nav>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="sheet-handle"></div>
+    <h3 id="modalTitle">Konfirmasi</h3>
+    <p id="modalMsg">Yakin?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel">Batal</button>
+      <button class="btn btn-primary" id="modalOk">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="choiceModal">
+  <div class="modal-box">
+    <div class="sheet-handle"></div>
+    <h3 id="choiceTitle">Pilih</h3>
+    <p id="choiceMsg"></p>
+    <div class="row wrap" id="choiceBtns" style="gap:8px;margin-top:16px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="choiceCancel">Batal</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="textModal">
+  <div class="modal-box">
+    <div class="sheet-handle"></div>
+    <h3 id="textTitle">Edit</h3>
+    <p id="textMsg"></p>
+    <input class="input mono" id="textInput" autocomplete="off" spellcheck="false">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="textCancel">Batal</button>
+      <button class="btn btn-primary" id="textOk">Simpan</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="aboutModal">
+  <div class="modal-box">
+    <div class="sheet-handle"></div>
+    <h3>Tentang Pumpkin Panel</h3>
+    <p>Panel lokal untuk mengatur server Pumpkin langsung dari HP ini.</p>
+    <div class="about-body">
+      <div class="about-item"><svg class="ic"><use href="#i-home"/></svg><div><b>Satu tempat untuk server</b><span>Mulai dan hentikan server di Beranda, baca log dan kirim perintah di Console, ubah pumpkin.toml di Config, lalu kelola OP dan whitelist di Pemain.</span></div></div>
+      <div class="about-item"><svg class="ic"><use href="#i-wifi"/></svg><div><b>Bekerja tanpa internet</b><span>Semua kontrol berjalan di perangkat ini. Hanya tombol Unduh Pumpkin di aplikasi yang memakai koneksi internet.</span></div></div>
+      <div class="about-item"><svg class="ic"><use href="#i-shield"/></svg><div><b>Token adalah kunci panel</b><span>Token dibuat otomatis dan wajib dipakai. Jangan bagikan tautan yang berisi token. Ganti token kapan saja di Eksperimental &rarr; Panel web.</span></div></div>
+      <div class="about-item"><svg class="ic"><use href="#i-globe"/></svg><div><b>Buka dari perangkat lain</b><span>Panel web default mati, jadi panel hanya bisa dibuka dari HP ini. Nyalakan Panel web online, pilih IP saat ini, lalu buka tautan bertoken dari HP atau laptop lain di Wi-Fi yang sama.</span></div></div>
+      <div class="about-item"><svg class="ic"><use href="#i-globe"/></svg><div><b>Alamat server terpisah</b><span>Alamat panel dan alamat server Pumpkin diatur terpisah. Gunakan IP saat ini agar pemain di Wi-Fi yang sama bisa masuk, atau Localhost bila hanya untuk HP ini.</span></div></div>
+      <div class="about-item"><svg class="ic"><use href="#i-archive"/></svg><div><b>Rawat world</b><span>Buat backup world secara berkala, terutama sebelum mengganti versi Pumpkin atau memasang plugin. Backup disimpan di folder server.</span></div></div>
+      <div class="about-item"><svg class="ic"><use href="#i-term"/></svg><div><b>Kalau panel bermasalah</b><span>Tutup lalu buka kembali aplikasi. Di Console tersedia tombol unduh log untuk melihat penyebab masalah.</span></div></div>
+    </div>
+    <p class="hint" style="margin:14px 0 0;text-align:center">Proyek tidak resmi. Pumpkin &copy; Pumpkin-MC (GPLv3); Minecraft &copy; Mojang Studios. Tidak berafiliasi.</p>
+    <div class="modal-actions one"><button class="btn btn-primary" id="aboutClose">Mengerti</button></div>
+  </div>
+</div>
+<script src="js/core.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/status.js"></script>
+<script src="js/network.js"></script>
+<script src="js/home.js"></script>
+<script src="js/commands.js"></script>
+<script src="js/toml.js"></script>
+<script src="js/config.js"></script>
+<script src="js/players.js"></script>
+<script src="js/worlds.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/events.js"></script>
+<script src="js/init.js"></script>
+<script src="js/interactions.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+/* ---------- app bar / nav / sidebar ---------- */
+.topbar{background:rgba(16,16,16,.92);border-bottom-color:transparent}
+.topbar.scrolled{background:#111;border-bottom-color:#000;box-shadow:0 2px 0 rgba(255,255,255,.05)}
+html[data-theme="light"] .topbar{background:rgba(223,227,216,.94)}
+html[data-theme="light"] .topbar.scrolled{background:#dfe3d8;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+
+.sidebar{
+  background:#1c1c1c;border-right:2px solid #000;box-shadow:inset -2px 0 0 #2c2c2c;backdrop-filter:none;
+}
+html[data-theme="light"] .sidebar{background:#bcbcbc;box-shadow:inset -2px 0 0 #d8d8d8}
+.brand-badge{
+  border-radius:0;background:var(--mc-grass);border:2px solid #000;
+  box-shadow:inset 2px 2px 0 var(--mc-grass-l),inset -2px -2px 0 var(--mc-grass-d);
+}
+.nav-label{text-transform:uppercase;letter-spacing:1.4px;color:#8f8f8f}
+.nav-item{
+  border-radius:0;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;
+  color:#bdbdbd;text-shadow:1px 1px 0 rgba(0,0,0,.55);transition:none;
+}
+.nav-item:hover{background:#2c2c2c;color:#fff}
+.nav-item.active{
+  background:#3a3a3a;color:#fff;
+  box-shadow:inset 2px 2px 0 #565656,inset -2px -2px 0 #1a1a1a;
+}
+.nav-item.active::before{background:var(--accent);width:4px;border-radius:0;height:20px}
+.side-foot{border-top:2px solid #000}
+.side-conn{font-family:var(--pixel);font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+#sideInfo{color:#8f8f8f}
+
+.tabbar{background:#232323;border-top:2px solid #000;box-shadow:inset 0 2px 0 #3d3d3d}
+html[data-theme="light"] .tabbar{background:#c6c6c6;box-shadow:inset 0 2px 0 #e2e2e2}
+.tab{border-radius:0;font-family:var(--pixel);font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;
+  color:#9a9a9a;text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.tab .tab-ico{
+  border-radius:0;width:54px;height:28px;background:transparent;border:2px solid transparent;
+}
+.tab.active{color:#fff}
+.tab.active .tab-ico{
+  background:#1b1b1b;border-color:#f2f2f2;transform:none;
+  box-shadow:inset 2px 2px 0 #000,inset -2px -2px 0 #4a4a4a,0 0 0 2px #000;
+}
+.tab.active .ic{stroke:#fff}
+.tab:active .tab-ico{transform:translateY(2px)}
+
+/* ---------- quick actions / misc ---------- */
+.quick-btn{
+  border-radius:0;background:#4a4a4a;border:2px solid #000;color:#fff;
+  box-shadow:inset 2px 2px 0 #6a6a6a,inset -2px -2px 0 #2a2a2a;
+  text-shadow:var(--shadow-txt);transition:none;
+}
+.quick-btn:active{transform:translateY(2px);box-shadow:inset -2px -2px 0 #6a6a6a,inset 2px 2px 0 #2a2a2a}
+.quick-btn span{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px}
+.qico{
+  border-radius:0;background:var(--mc-grass);border:2px solid #000;color:#eaffea;
+  box-shadow:inset 1px 1px 0 var(--mc-grass-l),inset -1px -1px 0 var(--mc-grass-d);
+}
+.qico.blue{background:#2f6f8f;color:#e6ffff;box-shadow:inset 1px 1px 0 #5aa8cc,inset -1px -1px 0 #173a4a}
+.qico.green{background:var(--mc-grass);color:#eaffea;box-shadow:inset 1px 1px 0 var(--mc-grass-l),inset -1px -1px 0 var(--mc-grass-d)}
+.qsub{font-family:var(--pixel);font-size:8px;color:#d6d6d6;text-transform:none;letter-spacing:0;margin-top:-2px}
+
+.inline-code{border-radius:0;background:#1b1b1b;border:2px solid #000;color:#e6e6e6;font-size:10px}
+
+#cfgPanels > [data-cfg]{border-radius:0}
+details[open] > summary{text-shadow:var(--shadow-txt)}
+
+@media (max-width:980px){
+  #cfgSeg{background:#202020;box-shadow:0 2px 0 #000}
+  #statusPill{font-size:9px}
+}
+@media (min-width:981px){
+  .btn:hover{transform:none}
+}
+
+/* ---------- penyesuaian tema terang ---------- */
+html[data-theme="light"] .hero.on{background-color:color-mix(in srgb,var(--mc-grass) 22%,#e7e7e7);background-image:linear-gradient(rgba(0,0,0,.03) 50%,transparent 50%)}
+html[data-theme="light"] .nav-item{color:#3a3a3a;text-shadow:none}
+html[data-theme="light"] .nav-item:hover{background:#a8a8a8;color:#111}
+html[data-theme="light"] .nav-item.active{
+  background:#a8a8a8;color:#111;
+  box-shadow:inset 2px 2px 0 #d0d0d0,inset -2px -2px 0 #7a7a7a;
+}
+html[data-theme="light"] .nav-label{color:#4a4a4a}
+html[data-theme="light"] .brand-badge{box-shadow:inset 2px 2px 0 var(--mc-grass-l),inset -2px -2px 0 var(--mc-grass-d)}
+html[data-theme="light"] .tab{color:#5a5a5a;text-shadow:none}
+html[data-theme="light"] .tab.active{color:#111}
+html[data-theme="light"] .actions-bar .msg{color:#d0d0d0}
+html[data-theme="light"] .banner{
+  background:#f4e2b0;color:#5a4300;
+  box-shadow:inset 1px 1px 0 #fff6dc,inset -1px -1px 0 #b89a50;
+}
+html[data-theme="light"] .banner .hint{color:#6a5210}
+html[data-theme="light"] .banner.err{background:#f4c9c9;color:#6a1010;box-shadow:inset 1px 1px 0 #ffe0e0,inset -1px -1px 0 #b07070}
+html[data-theme="light"] .banner.ok{background:#c9edc9;color:#0a4f0a;box-shadow:inset 1px 1px 0 #e6ffe6,inset -1px -1px 0 #6a9a6a}
+html[data-theme="light"] .toast{color:#fff}
+.platform-hint{font-family:var(--pixel);font-size:9.5px;color:var(--ink-dim)}
+
+/* ---------- pengaman layout: cegah teks/objek tumpang tindih ---------- */
+body{max-width:100%}
+.btn{white-space:normal;line-height:1.14;text-align:center;overflow-wrap:anywhere}
+.btn .ic{flex:0 0 auto}
+.card-h{flex-wrap:wrap;row-gap:8px}
+.card-h h3{flex-wrap:wrap;line-height:1.3;overflow-wrap:anywhere}
+.card-h p{overflow-wrap:anywhere}
+.hero-top{flex-wrap:wrap;row-gap:8px}
+.hero-top > *{min-width:0}
+.hero-status{overflow-wrap:anywhere}
+.hero-ver{margin-left:auto;max-width:46%;min-width:0}
+.hero-ver .pill{max-width:100%;min-width:0;height:24px;font-size:9px;padding:0 8px;gap:5px}
+.hero-actions .btn-restart{border-radius:0}
+.tab{overflow:visible}
+.tab > span:not(.tab-ico){max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions-bar{flex-wrap:wrap}
+.banner{flex-wrap:wrap}
+.banner > div{min-width:0}
+.inline-code{overflow-wrap:anywhere}
+#statusPill{min-width:0;flex:0 1 auto}
+#statusPill span{min-width:0}
+@media (max-width:420px){
+  .hero-status{font-size:18px}
+  .hero-ver .pill{font-size:8px;height:22px}
+  .tab{font-size:8.5px}
+}
+
+/* ---------- pemilih IP + kartu game (Java / Bedrock) ---------- */
+.ip-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.ip-chip{
+  display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;
+  padding:5px 8px;border:2px solid #000;background:#3a3a3a;color:#ddd;cursor:pointer;
+  box-shadow:inset 1px 1px 0 #5a5a5a,inset -1px -1px 0 #1c1c1c;
+  font-family:var(--pixel);font-size:9px;text-transform:uppercase;letter-spacing:.3px;
+  max-width:100%;
+}
+.ip-chip .ipn{font-size:8px;color:#a8a8a8}
+.ip-chip .ipa{font-size:10.5px;color:#fff;text-transform:none;word-break:break-all}
+.ip-chip.active{
+  background:var(--mc-grass);color:#fff;
+  box-shadow:inset 1px 1px 0 var(--mc-grass-l),inset -1px -1px 0 var(--mc-grass-d);
+}
+.ip-chip.active .ipn{color:color-mix(in srgb,var(--mc-grass-l) 45%,#fff)}
+.ip-chip:active{transform:translateY(1px)}
+
+.game-btn{
+  display:flex;align-items:center;gap:10px;width:100%;margin-top:8px;padding:8px 10px;
+  border:2px solid #000;background:#4a4a4a;color:#fff;text-align:left;cursor:pointer;
+  box-shadow:inset 2px 2px 0 #6a6a6a,inset -2px -2px 0 #2a2a2a;
+  font-family:var(--pixel);
+}
+.game-btn:hover{background:#565656}
+.game-btn:active{transform:translateY(2px);box-shadow:inset -2px -2px 0 #6a6a6a,inset 2px 2px 0 #2a2a2a}
+.game-btn[disabled]{opacity:.55}
+.gico{
+  flex:0 0 auto;display:grid;place-items:center;width:42px;height:42px;background:#202020;
+  border:2px solid #000;box-shadow:inset 2px 2px 0 #000,inset -2px -2px 0 #4a4a4a;
+}
+.gico .block{width:32px;height:32px;image-rendering:pixelated;display:block}
+.gmeta{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.gname{
+  font-size:9.5px;letter-spacing:.8px;text-transform:uppercase;color:#dcdcdc;
+  text-shadow:1px 1px 0 rgba(0,0,0,.6);
+}
+.gaddr{
+  font-size:13px;color:#fff;text-shadow:var(--shadow-txt);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.gcopy{flex:0 0 auto;display:grid;place-items:center;width:30px;height:30px;color:#cfcfcf}
+.gcopy .ic{width:16px;height:16px}
+html[data-theme="light"] .gname{color:#3a3a3a;text-shadow:none}
+html[data-theme="light"] .gaddr{color:#111;text-shadow:none}
+html[data-theme="light"] .ip-chip{background:#b8b8b8;color:#333}
+html[data-theme="light"] .ip-chip .ipa{color:#111}
+html[data-theme="light"] .ip-chip .ipn{color:#4a4a4a}
+html[data-theme="light"] .ip-chip.active{background:#4f8f2f;color:#fff}
+html[data-theme="light"] .ip-chip.active .ipa{color:#fff}
+
+/* ---------- aksi pemain ---------- */
+.icon-btn.sm{width:34px;height:34px}
+.icon-btn.sm .ic{width:15px;height:15px}
+.li-actions{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.list-item{flex-wrap:wrap}
+@media (max-width:520px){
+  .li-actions{width:100%;margin-left:0;justify-content:flex-start}
+}
+
+/* ---------- kartu alamat per edisi Minecraft ---------- */
+.game-card{
+  margin-top:9px;border:2px solid #000;background:#3f3f3f;
+  box-shadow:inset 2px 2px 0 #5a5a5a,inset -2px -2px 0 #222;
+}
+.gc-head{display:flex;align-items:center;gap:9px;padding:7px 9px;border-bottom:2px solid #000;background:#4a4a4a}
+.gc-head .gico{width:36px;height:36px}
+.gc-head .gico .block{width:26px;height:26px}
+.gc-head .gmeta{gap:1px}
+.gc-list{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:8px}
+.addr-row{
+  display:flex;align-items:center;gap:8px;width:100%;padding:6px 8px;
+  border:2px solid #000;background:#202020;color:#fff;text-align:left;cursor:pointer;
+  box-shadow:inset 1px 1px 0 #000,inset -1px -1px 0 #4a4a4a;font-family:var(--pixel);
+}
+.addr-row:hover{background:#2b2b2b}
+.addr-row:active{transform:translateY(1px)}
+.addr-row .ar-main{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.addr-row .ar-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#a8a8a8}
+.addr-row .ar-val{font-family:var(--mono);font-size:12px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.addr-row .ar-tag{flex:0 0 auto;font-size:7.5px;padding:2px 4px;border:1px solid #000;background:#2f6f8f;color:#e6ffff;letter-spacing:.4px}
+.addr-row .ic{width:14px;height:14px;color:#cfcfcf;flex:0 0 auto}
+.addr-row.ipv6{opacity:.82}
+.addr-row.off{opacity:.6;cursor:default}
+.addr-empty{font-family:var(--pixel);font-size:9px;color:#b8b8b8;padding:2px}
+html[data-theme="light"] .game-card{background:#b8b8b8;box-shadow:inset 2px 2px 0 #d8d8d8,inset -2px -2px 0 #8a8a8a}
+html[data-theme="light"] .gc-head{background:#c8c8c8}
+html[data-theme="light"] .addr-row{background:#4a4a4a}
+html[data-theme="light"] .addr-row:hover{background:#565656}
+html[data-theme="light"] .game-card .gname{color:#222;text-shadow:none}
+
+/* ---------- informasi server (beranda) ---------- */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
+.info-item{
+  display:flex;flex-direction:column;gap:2px;padding:6px 8px;min-width:0;
+  border:2px solid #000;background:#3a3a3a;
+  box-shadow:inset 1px 1px 0 #5a5a5a,inset -1px -1px 0 #1c1c1c;
+}
+.info-item .ii-k{font-family:var(--pixel);font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:#a8a8a8}
+.info-item .ii-v{font-family:var(--mono);font-size:11.5px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.info-item .ii-v.good{color:#7ee787}
+.info-item .ii-v.bad{color:#ff9a9a}
+.info-item[data-copy]{cursor:pointer}
+.info-item[data-copy]:active{transform:translateY(1px)}
+.info-item.wide{grid-column:1/-1}
+html[data-theme="light"] .info-item{background:#b8b8b8;box-shadow:inset 1px 1px 0 #e0e0e0,inset -1px -1px 0 #8a8a8a}
+html[data-theme="light"] .info-item .ii-k{color:#4a4a4a}
+html[data-theme="light"] .info-item .ii-v{color:#111}
+html[data-theme="light"] .info-item .ii-v.good{color:#2b7a1e}
+html[data-theme="light"] .info-item .ii-v.bad{color:#a52626}
+
+/* ---------- baris path (ikon pensil di ujung kanan) ---------- */
+.path-list{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.path-row .icon-btn{margin-left:auto}
+.path-row{
+  display:flex;align-items:center;gap:8px;padding:6px 8px;
+  border:2px solid #000;background:#3a3a3a;
+  box-shadow:inset 1px 1px 0 #5a5a5a,inset -1px -1px 0 #1c1c1c;
+}
+.path-main{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;overflow:hidden}
+.path-lbl{font-family:var(--pixel);font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#a8a8a8}
+.path-val{font-family:var(--mono);font-size:11px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.path-row .icon-btn{flex:0 0 auto}
+html[data-theme="light"] .path-row{background:#b8b8b8;box-shadow:inset 1px 1px 0 #e0e0e0,inset -1px -1px 0 #8a8a8a}
+html[data-theme="light"] .path-lbl{color:#4a4a4a}
+html[data-theme="light"] .path-val{color:#111}
+
+/* ---------- dropdown: opsi selalu putih + teks hitam ---------- */
+select.input,
+input[list]{color-scheme:light}
+select.input option,
+select.input optgroup{background-color:#fff!important;color:#000!important}
+.input[aria-invalid="true"]{border-color:var(--red)!important}
+
+/* ---------- panel Full (config per seksi TOML) ---------- */
+#cfgPanels > [data-cfg="full"]{grid-column:1/-1;order:9}
+.card{min-width:0}
+.cfg-card .card-h h3{font-family:var(--mono);font-size:11px;letter-spacing:.2px;text-transform:none}
+.cfg-card .card-h h3 .bracket{color:var(--accent)}
+.cfg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.cfg-field{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cfg-field > span{font-family:var(--pixel);font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#a8a8a8}
+.cfg-field .input{font-size:11px;min-height:34px}
+html[data-theme="light"] .cfg-field > span{color:#4a4a4a}
+
+/* ---------- bahasa: tombol bendera SVG ---------- */
+.lang-switch{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:11px;background:rgba(255,255,255,.045);border:1px solid var(--line2)}
+.lang-switch button{display:grid;place-items:center;width:27px;height:24px;border-radius:8px;background:transparent;border:0;opacity:.55;padding:0}
+.lang-switch button:hover{opacity:.9}
+.lang-switch button.active{opacity:1;background:rgba(255,255,255,.10);box-shadow:0 0 0 1px var(--line2) inset}
+.lang-switch .flag{width:21px;height:14px;border-radius:2.5px;display:block;overflow:hidden}
+html[data-theme="light"] .lang-switch{background:rgba(0,0,0,.04)}
+
+/* ---------- dropdown kustom ---------- */
+.dd{position:relative;min-width:0}
+.dd-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;cursor:pointer}
+.dd-btn .dd-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-btn .ic{width:15px;height:15px;opacity:.65;flex:0 0 auto}
+.dd-menu{position:absolute;z-index:95;left:0;right:0;top:calc(100% + 4px);display:none;padding:4px;max-height:250px;overflow:auto;
+  background:#fff;border:1px solid #c9d2df;border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.4)}
+.dd.open .dd-menu{display:block}
+.dd-opt{display:flex;align-items:center;width:100%;padding:9px 10px;border:0;border-radius:8px;background:#fff;color:#111;
+  font-size:13px;text-align:left;cursor:pointer}
+.dd-opt:hover,.dd-opt:focus{background:#eef2f8;color:#000}
+/* opsi terpilih: putih + teks hitam, beda jelas dari field yang harus diisi manual */
+.dd-opt.active{background:#fff;color:#000;font-weight:700;box-shadow:inset 0 0 0 2px #111, inset 3px 0 0 var(--accent)}
+.dd-opt.active::after{content:'✓';margin-left:auto;padding-left:8px;font-weight:700;color:#111}
+
+/* ---------- ringkasan bawah: world, traffic, saran ---------- */
+.home-bottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-top:14px}
+.metric-xl{font-size:27px;font-weight:750;letter-spacing:-.6px;line-height:1.1;margin-top:4px}
+.metric-xl small{font-size:12px;font-weight:600;color:var(--muted2);margin-left:3px}
+.net-line{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px dashed var(--line2)}
+.net-line:first-of-type{border-top:0}
+.net-lbl{font-size:11px;color:var(--muted2)}
+.net-val{font-family:var(--mono);font-size:14px;font-weight:650}
+.net-val.down{color:var(--green)}
+.net-val.up{color:var(--blue)}
+.tips{display:grid;gap:2px;margin-top:4px}
+.tip{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--muted);line-height:1.45;padding:6px 0}
+.tip:first-child{padding-top:0}
+.tip .ic{width:14px;height:14px;margin-top:1px;color:var(--accent);flex:0 0 auto}
+.tip b{color:var(--txt)}
+
+/* ---------- banner ringkas ---------- */
+.banner.compact{align-items:center;gap:8px;padding:7px 10px;margin-bottom:8px;border-radius:12px;font-size:12px;line-height:1.25}
+.banner.compact .ic{width:15px;height:15px;margin:0}
+.banner.compact .hint{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.banner.compact .btn{min-height:30px;padding:0 10px;font-size:11.5px}
+
+/* Dropdown tertutup menampilkan nilai terpilih: putih + teks hitam, jelas beda dari field isian manual. */
+html[data-theme] .dd > .dd-btn{background:#fff;color:#000;border-color:#111}
+html[data-theme] .dd > .dd-btn .ic{color:#111;opacity:1}
+
+/* ---------- menu terpilih: putih + teks hitam (semua tema) ---------- */
+.nav-item.active{background:#fff;color:#000}
+.nav-item.active .ic{color:#000}
+.nav-item.active::before{background:#111;width:4px;height:20px;border-radius:0}
+.seg button.active{background:#fff;color:#000;text-shadow:none;box-shadow:inset 0 0 0 2px #111}
+.tab.active{color:#000;text-shadow:none}
+.tab.active .tab-ico{background:#fff;border-color:#111;
+  box-shadow:inset 2px 2px 0 #e2e2e2,inset -2px -2px 0 #9a9a9a,0 0 0 2px #111}
+.tab.active .ic{stroke:#000}
+
+/* ---------- console: input di atas log ---------- */
+.term-input{border-top:0;border-bottom:1px solid rgba(255,255,255,.07)}

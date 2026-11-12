@@ -1,0 +1,7 @@
+# Normalize line endings so shell scripts stay runnable after cloning on Windows.
+* text=auto eol=lf
+*.sh text eol=lf
+*.png binary
+*.jpg binary
+*.apk binary
+*.keystore binary

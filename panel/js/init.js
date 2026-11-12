@@ -1,0 +1,91 @@
+'use strict';
+/* ================================ init ================================ */
+/* menu native APK: tombol di topbar + kartu di Pengaturan */
+function hasAppMenu() {
+  try { return !!(window.PanelNative && typeof PanelNative.openMenu === 'function'); }
+  catch (e) { return false; }
+}
+function openAppMenu() {
+  try {
+    if (hasAppMenu()) { PanelNative.openMenu(); return; }
+  } catch (e) {}
+  toast('Menu aplikasi hanya tersedia di APK', 'err');
+}
+const nativeMenu = hasAppMenu();
+const appMenuBtn = $('#btnAppMenu');
+if (appMenuBtn) {
+  appMenuBtn.style.display = nativeMenu ? '' : 'none';
+  appMenuBtn.addEventListener('click', openAppMenu);
+}
+const appCard = $('#appCard');
+if (appCard) appCard.style.display = nativeMenu ? '' : 'none';
+if ($('#btnAppMenu2')) $('#btnAppMenu2').addEventListener('click', openAppMenu);
+if ($('#btnSwapBin')) $('#btnSwapBin').addEventListener('click', openAppMenu);
+
+applyTheme();
+$('#btnAutoScroll').classList.toggle('on', S.autoscroll);
+paintConn();
+setTab('home');
+renderPlayers();
+renderBackups();
+
+/* Backup = menu rahasia: tersembunyi sampai kartu "Tentang & catatan" ditekan lama. */
+function applySecretBackup() {
+  const on = LS.get('pp.menu.backup', '') === '1';
+  ['btnBackup', 'backupCard'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.hidden = !on;
+  });
+  const q = document.querySelector('#view-home .quick');
+  if (q) q.classList.toggle('two', !on);
+}
+applySecretBackup();
+(function () {
+  const card = document.getElementById('aboutCard');
+  if (!card) return;
+  let timer = null, sx = 0, sy = 0;
+  function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
+  card.addEventListener('pointerdown', (e) => {
+    sx = e.clientX; sy = e.clientY;
+    /* Gestur baru: selalu reset penanda long-press sebelumnya. */
+    delete card.dataset.held;
+    cancel();
+    timer = setTimeout(() => {
+      timer = null;
+      /* Penanda dipasang di kedua cabang supaya klik setelah tekan lama tidak membuka popup. */
+      card.dataset.held = '1';
+      if (LS.get('pp.menu.backup', '') === '1') return;
+      LS.set('pp.menu.backup', '1');
+      applySecretBackup();
+      toast('Menu backup dibuka');
+    }, 900);
+  });
+  card.addEventListener('pointermove', (e) => {
+    if (timer && (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10)) cancel();
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => card.addEventListener(ev, cancel));
+})();
+
+bootstrap();
+startNet();
+
+/* Watchdog koneksi: kalau status sempat macet "offline" (mis. SSE diam setelah layar
+   mati), satu request ringan akan langsung memulihkan banner tanpa menunggu user. */
+setInterval(() => {
+  if (document.hidden || S.online) return;
+  api('/api/ping', { timeout: 3000 }).catch(() => {});
+}, 4000);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  api('/api/ping', { timeout: 3000 })
+    .then(() => { if (!S.es) connect(); })
+    .catch(() => {});
+});
+
+setInterval(() => {
+  if (S.status && S.status.running) {
+    const u = fmtDur(uptimeSec());
+    if ($('#hUptime')) $('#hUptime').textContent = u;
+  }
+}, 1000);

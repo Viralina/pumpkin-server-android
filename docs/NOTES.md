@@ -29,7 +29,7 @@ ApiServer (Java, replacement for server.js)
 
 ## Build
 
-### Termux (used for this release APK)
+### Command line (used for this release APK)
 
 ```bash
 cd pumpkin-server-android

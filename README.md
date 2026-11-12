@@ -138,13 +138,13 @@ Locations scanned by the import button:
 
 ## Build
 
-### Termux (no Gradle)
+### Command line (no Gradle)
 
-Termux provides `aapt2`, `d8`, and `apksigner` for arm64:
+You need JDK 17 (`javac`, `keytool`), Android SDK Build-Tools 34.0.0 (`aapt2`, `d8`,
+`apksigner`), `zip`, and `android.jar` from platform 34. Put the build-tools folder on `PATH`,
+or set `ANDROID_JAR` if your SDK lives elsewhere.
 
 ```bash
-pkg install aapt2 d8 apksigner openjdk-17 zip
-
 # android.jar (once only)
 mkdir -p ~/android-build && cd ~/android-build
 curl -LO https://dl.google.com/android/repository/platform-34-ext7_r03.zip

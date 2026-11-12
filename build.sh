@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build an APK without Android Studio / Gradle / SDK manager.
-# Requirements: aapt2, d8, apksigner, keytool, javac, zip (Termux packages) + android.jar.
-#   pkg install aapt2 d8 apksigner openjdk-17 zip
+# Requirements: aapt2, d8, apksigner, keytool, javac, zip + android.jar
+#   (Android SDK Build-Tools 34.0.0 and JDK 17)
 #   ANDROID_JAR=~/android-build/sdk/android-34/android.jar ./build.sh
 #
 # Two variants:

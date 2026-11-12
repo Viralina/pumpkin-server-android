@@ -71,7 +71,7 @@ details[open] > summary{text-shadow:var(--shadow-txt)}
   .btn:hover{transform:none}
 }
 
-/* ---------- penyesuaian tema terang ---------- */
+/* ---------- light theme adjustments ---------- */
 html[data-theme="light"] .hero.on{background-color:color-mix(in srgb,var(--mc-grass) 22%,#e7e7e7);background-image:linear-gradient(rgba(0,0,0,.03) 50%,transparent 50%)}
 html[data-theme="light"] .nav-item{color:#3a3a3a;text-shadow:none}
 html[data-theme="light"] .nav-item:hover{background:#a8a8a8;color:#111}
@@ -94,7 +94,7 @@ html[data-theme="light"] .banner.ok{background:#c9edc9;color:#0a4f0a;box-shadow:
 html[data-theme="light"] .toast{color:#fff}
 .platform-hint{font-family:var(--pixel);font-size:9.5px;color:var(--ink-dim)}
 
-/* ---------- pengaman layout: cegah teks/objek tumpang tindih ---------- */
+/* ---------- layout guard: prevent text/objects from overlapping ---------- */
 body{max-width:100%}
 .btn{white-space:normal;line-height:1.14;text-align:center;overflow-wrap:anywhere}
 .btn .ic{flex:0 0 auto}
@@ -122,7 +122,7 @@ body{max-width:100%}
   .tab{font-size:8.5px}
 }
 
-/* ---------- pemilih IP + kartu game (Java / Bedrock) ---------- */
+/* ---------- IP picker + game cards (Java / Bedrock) ---------- */
 .ip-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
 .ip-chip{
   display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;
@@ -173,7 +173,7 @@ html[data-theme="light"] .ip-chip .ipn{color:#4a4a4a}
 html[data-theme="light"] .ip-chip.active{background:#4f8f2f;color:#fff}
 html[data-theme="light"] .ip-chip.active .ipa{color:#fff}
 
-/* ---------- aksi pemain ---------- */
+/* ---------- player actions ---------- */
 .icon-btn.sm{width:34px;height:34px}
 .icon-btn.sm .ic{width:15px;height:15px}
 .li-actions{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
@@ -182,7 +182,7 @@ html[data-theme="light"] .ip-chip.active .ipa{color:#fff}
   .li-actions{width:100%;margin-left:0;justify-content:flex-start}
 }
 
-/* ---------- kartu alamat per edisi Minecraft ---------- */
+/* ---------- address cards per Minecraft edition ---------- */
 .game-card{
   margin-top:9px;border:2px solid #000;background:#3f3f3f;
   box-shadow:inset 2px 2px 0 #5a5a5a,inset -2px -2px 0 #222;
@@ -213,7 +213,7 @@ html[data-theme="light"] .addr-row{background:#4a4a4a}
 html[data-theme="light"] .addr-row:hover{background:#565656}
 html[data-theme="light"] .game-card .gname{color:#222;text-shadow:none}
 
-/* ---------- informasi server (beranda) ---------- */
+/* ---------- server info (home) ---------- */
 .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
 .info-item{
   display:flex;flex-direction:column;gap:2px;padding:6px 8px;min-width:0;
@@ -233,7 +233,7 @@ html[data-theme="light"] .info-item .ii-v{color:#111}
 html[data-theme="light"] .info-item .ii-v.good{color:#2b7a1e}
 html[data-theme="light"] .info-item .ii-v.bad{color:#a52626}
 
-/* ---------- baris path (ikon pensil di ujung kanan) ---------- */
+/* ---------- path row (pencil icon at the right edge) ---------- */
 .path-list{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .path-row .icon-btn{margin-left:auto}
 .path-row{
@@ -249,14 +249,14 @@ html[data-theme="light"] .path-row{background:#b8b8b8;box-shadow:inset 1px 1px 0
 html[data-theme="light"] .path-lbl{color:#4a4a4a}
 html[data-theme="light"] .path-val{color:#111}
 
-/* ---------- dropdown: opsi selalu putih + teks hitam ---------- */
+/* ---------- dropdown: options always white + black text ---------- */
 select.input,
 input[list]{color-scheme:light}
 select.input option,
 select.input optgroup{background-color:#fff!important;color:#000!important}
 .input[aria-invalid="true"]{border-color:var(--red)!important}
 
-/* ---------- panel Full (config per seksi TOML) ---------- */
+/* ---------- Full panel (config per TOML section) ---------- */
 #cfgPanels > [data-cfg="full"]{grid-column:1/-1;order:9}
 .card{min-width:0}
 .cfg-card .card-h h3{font-family:var(--mono);font-size:11px;letter-spacing:.2px;text-transform:none}
@@ -267,7 +267,7 @@ select.input optgroup{background-color:#fff!important;color:#000!important}
 .cfg-field .input{font-size:11px;min-height:34px}
 html[data-theme="light"] .cfg-field > span{color:#4a4a4a}
 
-/* ---------- bahasa: tombol bendera SVG ---------- */
+/* ---------- language: SVG flag buttons ---------- */
 .lang-switch{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:11px;background:rgba(255,255,255,.045);border:1px solid var(--line2)}
 .lang-switch button{display:grid;place-items:center;width:27px;height:24px;border-radius:8px;background:transparent;border:0;opacity:.55;padding:0}
 .lang-switch button:hover{opacity:.9}
@@ -275,7 +275,7 @@ html[data-theme="light"] .cfg-field > span{color:#4a4a4a}
 .lang-switch .flag{width:21px;height:14px;border-radius:2.5px;display:block;overflow:hidden}
 html[data-theme="light"] .lang-switch{background:rgba(0,0,0,.04)}
 
-/* ---------- dropdown kustom ---------- */
+/* ---------- custom dropdown ---------- */
 .dd{position:relative;min-width:0}
 .dd-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;cursor:pointer}
 .dd-btn .dd-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -286,11 +286,11 @@ html[data-theme="light"] .lang-switch{background:rgba(0,0,0,.04)}
 .dd-opt{display:flex;align-items:center;width:100%;padding:9px 10px;border:0;border-radius:8px;background:#fff;color:#111;
   font-size:13px;text-align:left;cursor:pointer}
 .dd-opt:hover,.dd-opt:focus{background:#eef2f8;color:#000}
-/* opsi terpilih: putih + teks hitam, beda jelas dari field yang harus diisi manual */
+/* selected option: white + black text, clearly distinct from manually filled fields */
 .dd-opt.active{background:#fff;color:#000;font-weight:700;box-shadow:inset 0 0 0 2px #111, inset 3px 0 0 var(--accent)}
 .dd-opt.active::after{content:'✓';margin-left:auto;padding-left:8px;font-weight:700;color:#111}
 
-/* ---------- ringkasan bawah: world, traffic, saran ---------- */
+/* ---------- bottom summary: world, traffic, tips ---------- */
 .home-bottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-top:14px}
 .metric-xl{font-size:27px;font-weight:750;letter-spacing:-.6px;line-height:1.1;margin-top:4px}
 .metric-xl small{font-size:12px;font-weight:600;color:var(--muted2);margin-left:3px}
@@ -306,17 +306,17 @@ html[data-theme="light"] .lang-switch{background:rgba(0,0,0,.04)}
 .tip .ic{width:14px;height:14px;margin-top:1px;color:var(--accent);flex:0 0 auto}
 .tip b{color:var(--txt)}
 
-/* ---------- banner ringkas ---------- */
+/* ---------- compact banner ---------- */
 .banner.compact{align-items:center;gap:8px;padding:7px 10px;margin-bottom:8px;border-radius:12px;font-size:12px;line-height:1.25}
 .banner.compact .ic{width:15px;height:15px;margin:0}
 .banner.compact .hint{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .banner.compact .btn{min-height:30px;padding:0 10px;font-size:11.5px}
 
-/* Dropdown tertutup menampilkan nilai terpilih: putih + teks hitam, jelas beda dari field isian manual. */
+/* Closed dropdown shows the selected value: white + black text, clearly distinct from manual input fields. */
 html[data-theme] .dd > .dd-btn{background:#fff;color:#000;border-color:#111}
 html[data-theme] .dd > .dd-btn .ic{color:#111;opacity:1}
 
-/* ---------- menu terpilih: putih + teks hitam (semua tema) ---------- */
+/* ---------- selected menu item: white + black text (all themes) ---------- */
 .nav-item.active{background:#fff;color:#000}
 .nav-item.active .ic{color:#000}
 .nav-item.active::before{background:#111;width:4px;height:20px;border-radius:0}
@@ -326,5 +326,5 @@ html[data-theme] .dd > .dd-btn .ic{color:#111;opacity:1}
   box-shadow:inset 2px 2px 0 #e2e2e2,inset -2px -2px 0 #9a9a9a,0 0 0 2px #111}
 .tab.active .ic{stroke:#000}
 
-/* ---------- console: input di atas log ---------- */
+/* ---------- console: input above the log ---------- */
 .term-input{border-top:0;border-bottom:1px solid rgba(255,255,255,.07)}

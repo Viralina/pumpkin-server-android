@@ -26,7 +26,7 @@ function closeModal(v) {
   if (modalResolve) { const r = modalResolve; modalResolve = null; r(v); }
 }
 
-/* dialog pilihan (dipakai untuk gamemode & sejenisnya) */
+/* choice dialog (used for gamemode and similar) */
 let choiceResolve = null;
 function choiceDlg({ title, msg = '', options = [] }) {
   $('#choiceTitle').textContent = title;
@@ -83,7 +83,7 @@ async function withBusy(btn, fn) {
   try { await fn(); }
   finally {
     btn.disabled = false;
-    /* kalau status server sudah mengganti label tombol, jangan ditimpa label lama */
+    /* if server status already changed the button label, do not overwrite it with the old one */
     if (btn.querySelector('.spin')) btn.innerHTML = html;
   }
 }

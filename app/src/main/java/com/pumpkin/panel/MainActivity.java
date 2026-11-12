@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 
     private static final String BIN_URL =
             "https://github.com/Pumpkin-MC/Pumpkin/releases/download/0.2.2%2B26.3-26.60/pumpkin-aarch64-android";
-    /** Ada hanya di APK "full"; APK polosan tidak punya aset ini. */
+    /** Present only in the "full" APK; the plain APK has no such asset. */
     private static final String BUNDLED_BIN = "pumpkin-aarch64-android";
     private static final String BUNDLED_ID = "bundled-bin-id";
     private static final int REQ_STORAGE = 1;
@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
                 "Pumpkin installed - restart the server to use the new binary");
     }
 
-    /** Terjemahan teks native (ID -> EN). */
+    /** Native text translations (ID -> EN). */
     private String tr(String s) {
         if (!"en".equals(lang)) return s;
         String v = EN.get(s);
@@ -222,7 +222,7 @@ public class MainActivity extends Activity {
                 String host = uri.getHost() == null ? "" : uri.getHost();
                 if ("127.0.0.1".equals(host) || "localhost".equals(host)) return false;
                 if (host.equals(panelHost())) return false;
-                // Sepenuhnya offline: jangan buka tautan keluar dari panel.
+                // Fully offline: never open links that leave the panel.
                 return true;
             }
 
@@ -233,7 +233,7 @@ public class MainActivity extends Activity {
                 if (!scheme.startsWith("http")) return null;
                 String host = uri.getHost() == null ? "" : uri.getHost();
                 if ("127.0.0.1".equals(host) || "localhost".equals(host) || host.equals(panelHost())) return null;
-                // Hanya panel lokal yang boleh dimuat; aset eksternal diblokir.
+                // Only the local panel may load; external assets are blocked.
                 return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(new byte[0]));
             }
 
@@ -445,7 +445,7 @@ public class MainActivity extends Activity {
         return g;
     }
 
-    /** Simpan bahasa, bangun ulang layar native, dan samakan bahasa panel web. */
+    /** Save the language, rebuild the native screen, and sync the web panel language. */
     private void setLanguage(String code) {
         st.setLang(code);
         lang = st.lang();
@@ -473,7 +473,7 @@ public class MainActivity extends Activity {
         setup.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    /* --------------------------------------------------------------- alur */
+    /* --------------------------------------------------------------- flow */
 
     @Override
     protected void onResume() {
@@ -487,7 +487,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** ID binary bawaan (md5), atau kosong untuk APK polosan. */
+    /** Bundled binary ID (md5), or empty for the plain APK. */
     private String bundledId() {
         try (InputStream in = getAssets().open(BUNDLED_ID)) {
             byte[] b = new byte[128];
@@ -500,10 +500,10 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * APK "full" membawa binary Pumpkin di assets. Binary diekstrak sekali per
-     * ID binary (md5 yang ditulis saat build), jadi update full bisa mengganti
-     * binary lama, tetapi binary yang diimpor pengguna setelahnya tidak
-     * tertimpa. APK "polosan" tidak punya aset ini dan langsung dilewati.
+     * The "full" APK carries the Pumpkin binary in assets. The binary is extracted
+     * once per binary ID (md5 written at build time), so a full update can replace
+     * an old binary, but a binary imported by the user afterwards is not
+     * overwritten. The "plain" APK has no such asset and is skipped immediately.
      */
     private boolean ensureBundledBinary() {
         if (bundledBusy) return true;
@@ -606,7 +606,7 @@ public class MainActivity extends Activity {
         probe(0);
     }
 
-    /** Host yang benar-benar dipakai panel (127.0.0.1 bila bind ke semua antarmuka). */
+    /** Host actually used by the panel (127.0.0.1 when bound to all interfaces). */
     private String panelHost() {
         if (!st.panelOnline()) return "127.0.0.1";
         String h = st.host();
@@ -620,7 +620,7 @@ public class MainActivity extends Activity {
         return "http://" + h + ":" + st.port();
     }
 
-    /** URL panel; token disertakan agar akses lewat IP LAN tetap lolos halaman kunci. */
+    /** Panel URL; the token is included so LAN IP access can pass the lock page. */
     private String panelHomeUrl() {
         String tok = st.token();
         String base = panelBase() + "/";
@@ -628,7 +628,7 @@ public class MainActivity extends Activity {
         return base;
     }
 
-    /** Header token untuk request halaman utama (cadangan bila query hilang). */
+    /** Token header for main-page requests (fallback if the query is lost). */
     private Map<String, String> panelHeaders() {
         Map<String, String> h = new HashMap<>();
         String tok = st.token();
@@ -636,7 +636,7 @@ public class MainActivity extends Activity {
         return h;
     }
 
-    /** Tunggu API lokal siap sebelum menampilkan WebView. */
+    /** Wait for the local API before showing the WebView. */
     private void probe(int attempt) {
         if (!panelStarted) return;
         net.execute(() -> {
@@ -649,7 +649,7 @@ public class MainActivity extends Activity {
                 conn.setUseCaches(false);
                 String tok = st.token();
                 if (tok != null && !tok.isEmpty()) conn.setRequestProperty("x-token", tok);
-                // Hanya terima panel milik proses ini; jangan tertipu panel lain di port yang sama.
+                // Only accept the panel owned by this process; do not trust another panel on the same port.
                 if (conn.getResponseCode() == 200) {
                     java.io.InputStream in = conn.getInputStream();
                     java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
@@ -696,7 +696,7 @@ public class MainActivity extends Activity {
             return;
         }
         if (!Fs.isAndroidArm64Elf(bin)) {
-            // Binary lama/rusak tidak bisa dipakai; tampilkan lagi layar pemasangan.
+            // The old/corrupt binary is unusable; show the setup screen again.
             panelStarted = false;
             showSetup();
             btnDownload.setEnabled(true);
@@ -719,9 +719,9 @@ public class MainActivity extends Activity {
         if (setupStatus != null) setupStatus.setText(text);
     }
 
-    /* ------------------------------------------------------------ menu app */
+    /* ------------------------------------------------------------ app menu */
 
-    /** Jembatan untuk tombol "Menu aplikasi" di HTML panel. */
+    /** Bridge for the "App menu" button in the panel HTML. */
     public class NativeBridge {
         @JavascriptInterface
         public void openMenu() {
@@ -833,7 +833,7 @@ public class MainActivity extends Activity {
         if (bak.isFile()) btnSwap.setText(tr("Tukar dengan cadangan") + " (" + sizeMb(bak) + ")");
     }
 
-    /** Tukar binary aktif dengan cadangan (pumpkin.bak), dua arah. */
+    /** Swap the active binary with the backup (pumpkin.bak), both directions. */
     private void swapBinary() {
         final File bin = st.binFile();
         final File bak = backupFile();
@@ -878,7 +878,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    /* ------------------------------------------------------------- unduhan */
+    /* ------------------------------------------------------------ downloads */
 
     private void startDownload() {
         btnDownload.setEnabled(false);
@@ -985,7 +985,7 @@ public class MainActivity extends Activity {
             boolean keep = Fs.binaryProblem(bin).isEmpty();
             bak.delete();
             if (keep && free > bin.length() + 8L * 1024 * 1024) {
-                // Simpan versi lama supaya bisa ditukar balik dari menu.
+                // Keep the old version so it can be swapped back from the menu.
                 if (!bin.renameTo(bak)) {
                     try {
                         copyFile(bin, bak);
@@ -1026,7 +1026,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Cari semua file binary Pumpkin di /sdcard lalu biarkan pengguna memilih. */
+    /** Find every Pumpkin binary on /sdcard and let the user choose one. */
     private void chooseSdcardBinary() {
         setStatus(tr("Mencari binary di /sdcard..."));
         io.execute(() -> {
@@ -1206,7 +1206,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    /* ------------------------------------------------------- folder internal */
+    /* -------------------------------------------------------- internal folder */
 
     private void useInternalFolder() {
         File dir = new File(getFilesDir(), "server");
@@ -1275,7 +1275,7 @@ public class MainActivity extends Activity {
             return;
         }
         if (panelStarted) {
-            // Back dari panel kembali ke menu native, bukan keluar aplikasi.
+            // Back from the panel returns to the native menu instead of exiting the app.
             showMenu();
             return;
         }

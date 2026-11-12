@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-/** Menyalakan panel (dan server bila autoStart) setelah HP boot. */
+/** Start the panel (and the server if autoStart is on) after the phone boots. */
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {

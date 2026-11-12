@@ -3,7 +3,7 @@ package com.pumpkin.panel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** Helper JSON kecil supaya kode endpoint tidak dipenuhi try/catch. */
+/** Small JSON helper so endpoint code is not cluttered with try/catch. */
 final class J {
     private J() {}
 

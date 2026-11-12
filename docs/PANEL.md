@@ -1,35 +1,35 @@
-# Panel web — struktur modular
+# Web panel — modular structure
 
-Panel adalah HTML + CSS + JavaScript vanilla, tanpa framework, tanpa CDN, dan tanpa
-proses build Node. Saat APK dibangun, semua berkas digabung menjadi **satu** `index.html`
-supaya APK tetap self-contained dan runtime tidak pernah membaca `/sdcard`.
+The panel is vanilla HTML + CSS + JavaScript, with no framework, no CDN, and no Node build
+step. When the APK is built, all files are merged into **one** `index.html` so the APK stays
+self-contained and the runtime never reads `/sdcard`.
 
 ```
 panel/
-├── index.html          template (memakai <link> dan <script src>)
+├── index.html          template (uses <link> and <script src>)
 ├── css/
-│   ├── base.css        variabel tema, reset, shell, sidebar, app bar, tabbar
-│   ├── components.css  kartu, tombol, chip, form, console, toast, modal
-│   ├── responsive.css  penyesuaian layar kecil / landscape
-│   ├── minecraft.css   permukaan, bayangan, dan tekstur gaya Minecraft
-│   └── minecraft-extra.css  aksen, animasi, dan detail tema
+│   ├── base.css        theme variables, reset, shell, sidebar, app bar, tabbar
+│   ├── components.css  cards, buttons, chips, forms, console, toast, modal
+│   ├── responsive.css  small screen / landscape adjustments
+│   ├── minecraft.css   Minecraft-style surfaces, shadows, and textures
+│   └── minecraft-extra.css  accents, animations, and theme details
 ├── js/
-│   ├── core.js         helper `$`, `esc`, localStorage, state awal
-│   ├── api.js          fetch API, token, SSE, deteksi koneksi
-│   ├── ui.js           toast, modal, helper tampilan
-│   ├── status.js       status server, IP, metrik
-│   ├── network.js      panel online + bind server Pumpkin
-│   ├── home.js         kartu beranda dan ringkasan
-│   ├── commands.js     console, perintah, start/stop/restart
-│   ├── toml.js         parser TOML sisi klien
-│   ├── config.js       editor pumpkin.toml
-│   ├── players.js      daftar pemain, OP, whitelist
-│   ├── worlds.js       world dan backup
-│   ├── settings.js     pengaturan panel dan path
-│   ├── events.js       semua handler klik/input
-│   ├── init.js         boot, polling, menu native APK
-│   ├── interactions.js suara klik, getar, animasi tekan
-│   └── i18n.js         kamus ID/EN dan dropdown bahasa
+│   ├── core.js         `$`, `esc`, localStorage, initial state helpers
+│   ├── api.js          API fetch, token, SSE, connection detection
+│   ├── ui.js           toast, modal, view helpers
+│   ├── status.js       server status, IP, metrics
+│   ├── network.js      online panel + Pumpkin server bind
+│   ├── home.js         home cards and summary
+│   ├── commands.js     console, commands, start/stop/restart
+│   ├── toml.js         client-side TOML parser
+│   ├── config.js       pumpkin.toml editor
+│   ├── players.js      player list, OP, whitelist
+│   ├── worlds.js       worlds and backups
+│   ├── settings.js     panel settings and paths
+│   ├── events.js       all click/input handlers
+│   ├── init.js         boot, polling, native APK menu
+│   ├── interactions.js click sound, haptics, press animations
+│   └── i18n.js         ID/EN dictionary and language dropdown
 └── ../tools/bundle-panel.sh
 ```
 
@@ -37,42 +37,42 @@ panel/
 
 ```bash
 bash tools/bundle-panel.sh                        # -> app/src/main/assets/index.html
-bash tools/bundle-panel.sh /tmp/preview.html      # -> file lain, untuk diperiksa
+bash tools/bundle-panel.sh /tmp/preview.html      # -> another file, for inspection
 ```
 
-Skrip hanya memakai `bash` + `cat`: setiap baris `<link rel="stylesheet" href="css/...">`
-diganti isi berkas di dalam `<style>`, dan setiap `<script src="js/..."></script>` diganti
-isi berkas di dalam `<script>`. Baris lain disalin apa adanya.
+The script uses only `bash` + `cat`: each `<link rel="stylesheet" href="css/...">` line is
+replaced by the file contents inside `<style>`, and each `<script src="js/..."></script>` line
+is replaced by the file contents inside `<script>`. Every other line is copied as is.
 
-`build.sh` otomatis menjalankan bundler sebelum `aapt2`. Aset hasil bundling
-(`app/src/main/assets/index.html`) **tidak di-commit** — selalu dibuat ulang supaya tidak ada
-dua sumber kebenaran.
+`build.sh` runs the bundler automatically before `aapt2`. The bundled asset
+(`app/src/main/assets/index.html`) is **not committed** — it is always regenerated so there is
+no second source of truth.
 
-## Menambah atau mengubah berkas
+## Adding or changing files
 
-1. Tambahkan berkas di `panel/css/` atau `panel/js/`.
-2. Daftarkan di `panel/index.html` pada urutan yang benar.
-3. Jalankan `bash tools/bundle-panel.sh` lalu buka hasilnya (atau build APK).
+1. Add the file under `panel/css/` or `panel/js/`.
+2. Register it in `panel/index.html` in the correct order.
+3. Run `bash tools/bundle-panel.sh`, then open the result (or build the APK).
 
-Urutan penting:
+Order matters:
 
 - CSS: `base` → `components` → `responsive` → `minecraft` → `minecraft-extra`.
-  Berkas berikutnya boleh menimpa aturan sebelumnya.
-- JS: `core` harus pertama karena menyediakan `$`, `esc`, `LS`, dan state.
-  `i18n` harus terakhir karena memindai DOM dan teks yang sudah dirender.
-  Modul lain boleh berbagi nama fungsi global (tidak memakai ES module).
+  Later files may override earlier rules.
+- JS: `core` must come first because it provides `$`, `esc`, `LS`, and the state.
+  `i18n` must come last because it scans the DOM and already rendered text.
+  Other modules may share global function names (no ES modules).
 
-Sebagian besar modul memakai IIFE atau fungsi global biasa. Kalau menambah `const`/`let`
-di top-level, pastikan namanya unik di seluruh bundel — semuanya berjalan di satu scope.
+Most modules use an IIFE or plain global functions. If you add top-level `const`/`let`, make
+sure the name is unique across the whole bundle — everything runs in one scope.
 
-## Pratinjau di browser
+## Previewing in a browser
 
-`panel/index.html` bisa dibuka langsung dari browser desktop. Tampilan akan muncul, tetapi
-API tidak tersedia sehingga status tetap "belum terhubung". Cara paling akurat tetap build
-APK lalu buka panel dari WebView aplikasi.
+`panel/index.html` can be opened directly in a desktop browser. The layout appears, but the API
+is unavailable so the status stays "not connected". The most accurate approach is still to build
+the APK and open the panel from the app's WebView.
 
-## Menjaga satu berkas
+## Keeping it a single file
 
-Jangan menambahkan aset eksternal (CDN, font, gambar dari internet). Panel harus tetap
-berjalan offline dan seluruh isinya masuk ke satu `index.html`. Suara klik saat ini
-disematkan sebagai data URI di `js/interactions.js`.
+Do not add external assets (CDNs, fonts, images from the internet). The panel must keep working
+offline and all of its content goes into one `index.html`. The click sound is currently embedded
+as a data URI in `js/interactions.js`.

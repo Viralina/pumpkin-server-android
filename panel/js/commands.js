@@ -115,7 +115,7 @@ window.addEventListener('resize', fitConsole);
 window.addEventListener('orientationchange', () => setTimeout(fitConsole, 160));
 if (window.visualViewport) window.visualViewport.addEventListener('resize', fitConsole);
 
-/* Bagian Umum / Eksperimental — selalu kembali ke Umum saat menu dibuka. */
+/* General / Experimental section — always return to General when the menu opens. */
 function showMore(name) {
   const exp = name === 'exp';
   $$('.dd.open').forEach((d) => d.classList.remove('open'));

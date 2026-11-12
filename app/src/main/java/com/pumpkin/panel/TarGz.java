@@ -8,8 +8,8 @@ import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Pembuat arsip .tar.gz sederhana, supaya backup tidak bergantung pada binary
- * tar milik Android.
+ * Simple .tar.gz archive writer so backups do not depend on Android's
+ * tar binary.
  */
 final class TarGz {
     private TarGz() {}
@@ -51,7 +51,7 @@ final class TarGz {
             if (pad > 0) out.write(new byte[pad]);
         }
         if (top) {
-            // tidak ada aksi tambahan
+            // no extra action
         }
     }
 

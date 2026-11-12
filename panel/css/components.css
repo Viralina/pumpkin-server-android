@@ -303,11 +303,11 @@ textarea.input{min-height:120px;resize:vertical;font-family:var(--mono);font-siz
 .term-input input::placeholder{color:#4c596b;font-family:var(--font);font-size:12.5px}
 .term-input .btn{min-height:34px;border-radius:10px;padding:0 12px}
 
-/* console mode: penuhi layar di HP */
+/* console mode: fill the screen on phones */
 @media (max-width:980px){
   body.on-console .content{padding-bottom:0}
-  /* Panel console benar-benar fixed: diukur dari bawah topbar sampai atas tabbar,
-     jadi log tidak pernah menembus navigasi bawah. */
+  /* The console panel is truly fixed: measured from below the topbar to above the tabbar,
+     so logs never overlap the bottom navigation. */
   body.on-console #view-console.active{
     position:fixed;left:0;right:0;
     top:var(--console-top,calc(var(--appbar) + env(safe-area-inset-top)));

@@ -29,8 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Pengendali proses Pumpkin + semua data panel.
- * Ini port dari server.js tanpa Node.js.
+ * Pumpkin process controller + all panel data.
+ * This is a port of server.js without Node.js.
  */
 final class Pumpkin {
 
@@ -87,7 +87,7 @@ final class Pumpkin {
         api = a;
     }
 
-    /* ------------------------------------------------------------- utilitas */
+    /* ------------------------------------------------------------ utilities */
 
     private JSONObject res(boolean ok, String msg) {
         JSONObject o = new JSONObject();
@@ -118,9 +118,9 @@ final class Pumpkin {
     /* ------------------------------------------------------------------ log */
 
     /**
-     * Pecah satu baris log Pumpkin menjadi [waktu, level, pesan].
-     * Format yang ditangani: "[INFO] pesan", "12:00:00 INFO pesan",
-     * "[12:00:00] [INFO] pesan", "INFO pesan".
+     * Split one Pumpkin log line into [time, level, message].
+     * Handled formats: "[INFO] message", "12:00:00 INFO message",
+     * "[12:00:00] [INFO] message", "INFO message".
      */
     static String[] splitLogLine(String clean) {
         String rest = clean.trim();
@@ -156,7 +156,7 @@ final class Pumpkin {
         return new SimpleDateFormat("HH:mm:ss", Locale.US).format(new Date());
     }
 
-    /** Catatan diagnostik ke &lt;serverDir&gt;/panel.log supaya bisa diperiksa dari luar app. */
+    /** Diagnostic note to &lt;serverDir&gt;/panel.log so it can be inspected outside the app. */
     void diag(String text) {
         try {
             File f = new File(st.serverDirFile(), "panel.log");
@@ -233,7 +233,7 @@ final class Pumpkin {
         }
     }
 
-    /* --------------------------------------------------------------- proses */
+    /* --------------------------------------------------------------- process */
 
     private Process child() {
         return proc;
@@ -278,7 +278,7 @@ final class Pumpkin {
         return true;
     }
 
-    /** Cocokkan hanya binary milik panel ini, bukan proses pumpkin lain (mis. Termux). */
+    /** Match only this panel's binary, not other pumpkin processes (e.g. Termux). */
     private static boolean isSelfBinary(String arg, String selfBin) {
         if (arg == null || arg.isEmpty()) return false;
         if (arg.equals(selfBin)) return true;
@@ -300,7 +300,7 @@ final class Pumpkin {
         }
     }
 
-    /** @return [utime+stime, starttime] atau null */
+    /** @return [utime+stime, starttime] or null */
     private long[] procStat(int pid) {
         try {
             String raw = Fs.readText(new File("/proc/" + pid + "/stat"));
@@ -500,7 +500,7 @@ final class Pumpkin {
     JSONObject restart() {
         if (proc == null) {
             if (procList().isEmpty()) return start();
-            // Server dijalankan di luar panel: tidak ada watcher, jadi tunggu manual.
+            // Server runs outside the panel: there is no watcher, so wait manually.
             stop(false);
             restartQueued = false;
             pool.execute(() -> {
@@ -1245,7 +1245,7 @@ final class Pumpkin {
         return o;
     }
 
-    /** Hanya izinkan host yang memang dimiliki perangkat ini. */
+    /** Allow only hosts that actually belong to this device. */
     private static boolean isLocalBindHost(String h) {
         if ("0.0.0.0".equals(h) || "::".equals(h) || "localhost".equals(h)) return true;
         try {
@@ -1287,7 +1287,7 @@ final class Pumpkin {
             }
         }
 
-        // Panel privat: host LAN (termasuk 0.0.0.0) wajib memakai token.
+        // Private panel: a LAN host (including 0.0.0.0) must use a token.
         String tokenAfter = st.token();
         if (d.has("token")) {
             String tv = d.optString("token", "");
@@ -1319,7 +1319,7 @@ final class Pumpkin {
         }
         if (d.has("token")) {
             String v = d.optString("token", "").trim();
-            // Token tidak boleh dikosongkan dari UI; token kosong dibuat ulang otomatis.
+            // The UI must not clear the token; an empty token is regenerated automatically.
             if (!v.isEmpty() && !"***".equals(v)) st.put("token", v);
         }
         if (d.has("autoStart")) st.putBool("autoStart", d.optBoolean("autoStart", false));

@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import java.io.File;
 import java.security.SecureRandom;
 
-/** Pengaturan panel (pengganti config.json). */
+/** Panel settings (replacement for config.json). */
 final class Store {
     private final Context app;
     private final SharedPreferences sp;
@@ -23,14 +23,14 @@ final class Store {
     String name() { return sp.getString("name", "Pumpkin Server"); }
     int port() { return sp.getInt("port", 8087); }
     String host() { return sp.getString("host", "127.0.0.1"); }
-    /** Panel web online = boleh dibuka dari perangkat lain. Default mati. */
+    /** Web panel online = may be opened from other devices. Default off. */
     boolean panelOnline() { return sp.getBoolean("panelOnline", false); }
     String serverDir() { return sp.getString("serverDir", "/sdcard/server"); }
     String backupDir() { return sp.getString("backupDir", "/sdcard/server/backups"); }
     int maxLogLines() { return sp.getInt("maxLogLines", 2500); }
     boolean autoStart() { return sp.getBoolean("autoStart", false); }
     boolean autoRestart() { return sp.getBoolean("autoRestart", false); }
-    /** Token akses selalu ada: dibuat otomatis pada pemakaian pertama. */
+    /** An access token always exists: generated automatically on first use. */
     String token() {
         String t = sp.getString("token", "");
         if (t == null) t = "";
@@ -48,7 +48,7 @@ final class Store {
     String lang() { return sp.getString("lang", "id"); }
     void setLang(String v) { sp.edit().putString("lang", "en".equals(v) ? "en" : "id").apply(); }
     String guestCmd() { return sp.getString("guestCmd", "pumpkin"); }
-    /** ID binary bawaan yang sudah pernah diekstrak dari APK full. */
+    /** ID of the bundled binary already extracted from the full APK. */
     String bundledBinId() { return sp.getString("bundledBinId", ""); }
     void setBundledBinId(String v) { sp.edit().putString("bundledBinId", v).apply(); }
 

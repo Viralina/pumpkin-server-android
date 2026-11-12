@@ -30,12 +30,12 @@ async function api(path, opt = {}) {
     try {
       res = await go(base);
     } catch (e1) {
-      /* alamat tersimpan basi (mis. 0.0.0.1) — coba 127.0.0.1 sekali, lalu pakai itu */
+      /* stale saved address (e.g. 0.0.0.1) — try 127.0.0.1 once, then use it */
       if (e1.name === 'AbortError' || opt.noAlt || base === BASE_URL) throw e1;
       res = await go(BASE_URL);
       adoptBase(BASE_URL);
     }
-    /* Token di halaman (dititipkan server) selalu menang atas token lama di localStorage. */
+    /* The page token (provided by the server) always wins over an old token in localStorage. */
     if (res.status === 401) {
       if (window.__PP_TOKEN && S.token !== window.__PP_TOKEN) {
         S.token = window.__PP_TOKEN;
@@ -43,7 +43,7 @@ async function api(path, opt = {}) {
         req.headers = { ...(opt.body ? { 'content-type': 'application/json' } : {}), 'x-token': S.token };
         res = await go(base);
       }
-      /* Alamat tersimpan bisa menunjuk server lain yang menolak token: pakai origin halaman. */
+      /* The saved address may point to another server that rejects the token: use the page origin. */
       if (res.status === 401 && SERVED && base !== DEFAULT_BASE) {
         adoptBase(DEFAULT_BASE);
         res = await go(DEFAULT_BASE);
@@ -54,7 +54,7 @@ async function api(path, opt = {}) {
     try { data = txt ? JSON.parse(txt) : {}; } catch (e) { throw new Error('Respon bukan JSON (HTTP ' + res.status + ')'); }
     if (!res.ok || data.ok === false) throw new Error(data.msg || ('HTTP ' + res.status));
     lastConnErr = '';
-    /* Satu request sukses berarti panel memang terhubung, apa pun hasil bootstrap/SSE. */
+    /* One successful request means the panel is connected, regardless of bootstrap/SSE. */
     if (S.online !== true) setOnline(true);
     return data;
   } catch (e) {
@@ -64,10 +64,10 @@ async function api(path, opt = {}) {
   } finally { clearTimeout(timer); }
 }
 
-/* Status koneksi.
-   Banner merah sengaja ditahan beberapa detik: saat panel baru dibuka, WebView masih
-   memuat halaman + token, dan SSE bisa putus-nyambung sebentar. Tanpa tenggang waktu,
-   pengguna melihat "Panel belum terhubung" padahal panel justru sedang berjalan. */
+/* Connection status.
+   The red banner is deliberately delayed for a few seconds: when the panel just opened,
+   the WebView is still loading the page + token, and SSE may reconnect briefly. Without
+   that grace period, users see "Panel not connected" while the panel is actually running. */
 let connBannerOn = false;
 let connBannerTimer = null;
 let connEverOk = false;
@@ -177,8 +177,8 @@ function connect() {
     try { es.close(); } catch (e) {}
     S.es = null;
     sseFails++;
-    /* SSE bisa putus tanpa berarti panel mati (WebView menunda stream saat layar
-       mati/pindah tab). Jangan langsung menyalakan banner merah: cek API dulu. */
+    /* SSE can drop without meaning the panel is dead (WebView pauses the stream when the
+       screen is off/tab changes). Do not show the red banner immediately: check the API first. */
     api('/api/ping', { timeout: 3000, noAlt: true })
       .then(() => {
         setOnline(true);
@@ -207,7 +207,7 @@ async function bootstrap() {
   try {
     await api('/api/ping', { timeout: 6000 });
   } catch (e) {
-    /* cari alamat yang benar-benar hidup: origin halaman, 127.0.0.1, localhost */
+    /* find an address that is actually alive: page origin, 127.0.0.1, localhost */
     for (const b of baseCandidates()) {
       if (normBase(S.base, '') === b) continue;
       if (await pingBase(b, S.token)) { adoptBase(b); break; }

@@ -45,7 +45,7 @@ async function editPath(key) {
 }
 
 /* ============================== appearance ============================== */
-/* Gradasi hijau: limau → hijau → teal. Default = hijau tengah (#22c55e). */
+/* Green gradient: lime → green → teal. Default = middle green (#22c55e). */
 const ACCENTS = ['#a3e635', '#4ade80', '#22c55e', '#10b981', '#14b8a6', '#06b6d4'];
 const ACCENT_ID = ['Hijau limau', 'Hijau muda', 'Hijau', 'Hijau teal', 'Teal', 'Sian'];
 const ACCENT_EN = ['Lime green', 'Light green', 'Green', 'Emerald', 'Teal', 'Cyan'];
@@ -54,7 +54,7 @@ function hexA(hex, a) {
   const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
   return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
 }
-/* Campur ke arah putih (amt > 0) atau hitam (amt < 0). */
+/* Blend toward white (amt > 0) or black (amt < 0). */
 function shade(hex, amt) {
   const h = hex.replace('#', '');
   const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
@@ -85,7 +85,7 @@ window.ppOnLang = renderAccentPicker;
 function applyTheme() {
   document.documentElement.dataset.theme = S.theme;
   const me = document.documentElement.style;
-  /* Semua permukaan "Minecraft green" ikut warna aksen yang dipilih. */
+  /* Every "Minecraft green" surface follows the selected accent color. */
   me.setProperty('--accent', S.accent);
   me.setProperty('--accent-soft', hexA(S.accent, 0.14));
   me.setProperty('--accent-line', hexA(S.accent, 0.38));

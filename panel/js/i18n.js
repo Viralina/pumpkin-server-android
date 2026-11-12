@@ -1,12 +1,12 @@
 /* ==================================================================
-   Bahasa (ID/EN) + dropdown kustom.
-   Semua teks asli disimpan, jadi bisa bolak-balik tanpa kehilangan teks.
+   Language (ID/EN) + custom dropdown.
+   All original text is stored so it can be toggled back and forth without losing text.
    ================================================================== */
 (function () {
   'use strict';
 
   var EN = {
-    /* navigasi & kerangka */
+    /* navigation & shell */
     'Ringkasan': 'Overview',
     'Konfigurasi': 'Configuration',
     'Pemain': 'Players',
@@ -38,7 +38,7 @@
     'Semua': 'All',
     'Info': 'Info',
     'Config': 'Config',
-    /* home dinamis */
+    /* dynamic home */
     'Server online': 'Server online',
     'Server offline': 'Server offline',
     'Dikelola panel · siap menerima pemain': 'Managed by panel · ready for players',
@@ -139,7 +139,7 @@
     'Matikan paksa (SIGKILL)': 'Force kill (SIGKILL)',
     'Muat ulang semua data': 'Reload all data',
     'Panel v1 · dibuat untuk Pumpkin Server · semua kontrol berjalan lokal di perangkat ini.': 'Panel v1 · built for Pumpkin Server · all controls run locally on this device.',
-    /* bagian pengaturan + jaringan eksperimental */
+    /* settings + experimental network section */
     'Bagian pengaturan': 'Settings sections',
     'Hijau limau': 'Lime green',
     'Hijau muda': 'Light green',
@@ -179,7 +179,7 @@
     'Buka Console': 'Open Console',
     'Menunggu aktivitas…': 'Waiting for activity…',
     'Belum ada aktivitas.': 'No activity yet.',
-    /* popup tentang */
+    /* about popup */
     'Tentang Pumpkin Panel': 'About Pumpkin Panel',
     'Panel lokal untuk mengatur server Pumpkin langsung dari HP ini.': 'A local panel to manage your Pumpkin server right from this phone.',
     'Satu tempat untuk server': 'One place for your server',
@@ -281,7 +281,7 @@
     'Unduh log': 'Download log'
   };
 
-  /* teks dinamis berpola */
+  /* pattern-based dynamic text */
   var EN_PAT = [
     [/^(Online|Offline) · (\d+) pemain · (.+)$/, '$1 · $2 players · $3'],
     [/^(\d+) MB dipakai world (.+)$/, '$1 MB used by world $2'],
@@ -313,7 +313,7 @@
     }
     return null;
   }
-  /* Dipakai untuk teks dinamis yang diset setelah bahasa aktif (toast, hint, status). */
+  /* Used for dynamic text set after the active language changes (toast, hint, status). */
   window.ppT = function (s) { return lookup(String(s == null ? '' : s)) || String(s == null ? '' : s); };
 
   var SKIP = 'script,style,#logList,#knownNames';
@@ -398,11 +398,11 @@
   window.ppLang = function () { return lang; };
   window.ppApplyLang = applyLang;
 
-  /* ---------- dropdown kustom ---------- */
+  /* ---------- custom dropdown ---------- */
   var ddId = 0;
-  /* Klik di luar dropdown menutup semua menu .dd (menu ini dibuat dinamis). */
+  /* Clicking outside a dropdown closes every .dd menu (these menus are created dynamically). */
   document.addEventListener('click', function (ev) {
-    /* Ketuk area kosong di dalam menu juga menutupnya (bukan memilih opsi). */
+    /* Tapping an empty area inside the menu also closes it (without selecting an option). */
     if (ev.target && ev.target.closest && ev.target.closest('.dd-menu') && !ev.target.closest('.dd-opt')) {
       var all = document.querySelectorAll('.dd.open');
       for (var j = 0; j < all.length; j++) all[j].classList.remove('open');
@@ -520,7 +520,7 @@
     });
   };
 
-  /* ---------- observer: elemen baru ikut diterjemahkan & select baru ---------- */
+  /* ---------- observer: translate new elements and new selects ---------- */
   var pending = null;
   function onMutations(list) {
     for (var i = 0; i < list.length; i++) {

@@ -31,8 +31,8 @@ android {
     }
 }
 
-// Catatan penting:
-// targetSdk 28 dipilih dengan sengaja. Android 10+ melarang aplikasi dengan
-// targetSdk >= 29 mengeksekusi file dari folder datanya sendiri (SELinux W^X).
-// Pumpkin dijalankan dari /data/data/com.pumpkin.panel/files/pumpkin,
-// persis seperti cara Termux menjalankan binary-nya.
+// Important note:
+// targetSdk 28 is intentional. Android 10+ forbids apps with
+// targetSdk >= 29 from executing files from their own data directory (SELinux W^X).
+// Pumpkin runs from /data/data/com.pumpkin.panel/files/pumpkin,
+// exactly like Termux runs its binary.

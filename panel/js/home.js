@@ -1,5 +1,5 @@
 'use strict';
-/* ---- informasi server (beranda): dari status + pumpkin.toml, bukan teks console ---- */
+/* ---- server info (home): from status + pumpkin.toml, not console text ---- */
 function renderHomeInfo() {
   const box = $('#homeInfo');
   if (!box) return;
@@ -123,7 +123,7 @@ function renderTips(st) {
     '<div class="tip"><svg class="ic"><use href="#i-' + t[0] + '"/></svg><span>' + esc(t[1]) + '</span></div>').join('');
 }
 
-/* traffic real-time: sampel tetap 100 ms, tanpa opsi ubah */
+/* real-time traffic: fixed 100 ms sample, no configurable option */
 const NET_MS = 100;
 let netPrev = null, netTimer = null;
 const netSession = { rx: 0, tx: 0 };

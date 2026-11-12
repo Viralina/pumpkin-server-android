@@ -22,14 +22,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** HTTP API lokal, pengganti server.js. */
+/** Local HTTP API, a replacement for server.js. */
 final class ApiServer {
 
     private final Context ctx;
     private final Store st;
     private final Pumpkin pk;
     private final ExecutorService pool = Executors.newCachedThreadPool();
-    /** Penulisan SSE tidak boleh di main thread (NetworkOnMainThreadException). */
+    /** SSE writes must not run on the main thread (NetworkOnMainThreadException). */
     private final ExecutorService tx = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "sse-tx");
         t.setDaemon(true);
@@ -76,9 +76,9 @@ final class ApiServer {
     private void openListener() throws IOException {
         String host = st.host();
         int port = st.port();
-        // Panel web online default MATI: paksa loopback supaya tidak terbuka ke LAN.
+        // Web panel online defaults to OFF: force loopback so it is not exposed to the LAN.
         if (!st.panelOnline()) host = "127.0.0.1";
-        // Panel privat: tanpa token LAN, paksa bind ke loopback walau setelan lama memakai LAN.
+        // Private panel: without a LAN token, force loopback even if an old setting used the LAN.
         String token = st.token();
         boolean hasToken = token != null && !token.trim().isEmpty();
         if (!hasToken && host != null && !host.isEmpty()
@@ -178,7 +178,7 @@ final class ApiServer {
                 }
             });
         } catch (Exception ignored) {
-            /* executor sudah berhenti saat service dimatikan */
+            /* executor has already shut down when the service is destroyed */
         }
     }
 
@@ -258,7 +258,7 @@ final class ApiServer {
         }
 
         if ("/".equals(path) || "/index.html".equals(path)) {
-            // Panel privat: HTML hanya dikirim ke pemanggil yang tahu token.
+            // Private panel: only send the HTML to callers that know the token.
             if (!tokenOK(headers, params)) {
                 serveLocked(s);
                 return;
@@ -524,7 +524,7 @@ final class ApiServer {
         }
     }
 
-    /** Token wajib untuk semua akses panel (termasuk localhost). */
+    /** Token required for every panel request (including localhost). */
     private boolean tokenOK(Map<String, String> headers, Map<String, String> params) {
         String token = st.token();
         if (token == null || token.isEmpty()) return false;
@@ -533,7 +533,7 @@ final class ApiServer {
         return token.equals(h);
     }
 
-    /** Halaman kunci: tidak memuat HTML panel sama sekali. */
+    /** Lock page: does not load the panel HTML at all. */
     private void serveLocked(Socket s) throws IOException {
         String html = "<!doctype html><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
@@ -600,7 +600,7 @@ final class ApiServer {
             }
         }
         if (body != null) {
-            // Token yang benar ditanam di halaman, jadi JS tidak bergantung pada ?token= di URL.
+            // The correct token is embedded in the page, so JS does not depend on ?token= in the URL.
             String tok = st.token();
             if (tok != null && !tok.isEmpty()) {
                 String html = new String(body, StandardCharsets.UTF_8);
@@ -713,7 +713,7 @@ final class ApiServer {
         return out;
     }
 
-    /** Dipakai untuk test internal. */
+    /** Used for internal tests. */
     String baseUrl() {
         return "http://" + st.host() + ":" + st.port();
     }

@@ -9,7 +9,7 @@ const LS = {
 const BASE_URL = 'http://127.0.0.1:8087';
 const SERVED = /^https?:$/.test(location.protocol);
 
-/* Alamat tersimpan bisa rusak (mis. 0.0.0.0 / 0.0.0.1) — selalu dibersihkan. */
+/* The saved address may be invalid (e.g. 0.0.0.0 / 0.0.0.1) — always sanitize it. */
 function normBase(v, fb) {
   let s = String(v == null ? '' : v).trim();
   if (!s) return fb;
@@ -26,9 +26,9 @@ const DEFAULT_BASE = SERVED ? normBase(location.origin, BASE_URL) : BASE_URL;
 const STORED_BASE = normBase(LS.get('pp.base', ''), '');
 
 const S = {
-  /* Kalau halaman ini dilayani server panel, alamat API selalu = origin halaman.
-     Alamat tersimpan bisa basi (IP LAN lama / port lama) dan membuat banner
-     "belum terhubung" muncul padahal panel justru terbuka dari server yang sama. */
+  /* If this page is served by the panel server, the API address is always the page origin.
+     A saved address can be stale (old LAN IP / old port) and show the "not connected"
+     banner even though the panel was opened from the same server. */
   base: SERVED ? DEFAULT_BASE : (STORED_BASE || DEFAULT_BASE),
   token: LS.get('pp.token', ''),
   tab: 'home',
@@ -46,7 +46,7 @@ const S = {
   busy: false, logSeen: 0
 };
 
-/* Token dari server (dititipkan di halaman) atau ?token= di URL. */
+/* Token from the server (embedded in the page) or ?token= in the URL. */
 (function () {
   let q = '';
   try { q = new URLSearchParams(location.search).get('token') || ''; } catch (e) {}
@@ -63,7 +63,7 @@ const S = {
   }
 })();
 
-/* Dipanggil APK setelah halaman selesai dimuat: pastikan token selalu sinkron. */
+/* Called by the APK after the page loads: keep the token in sync. */
 window.ppSetToken = function (t) {
   if (!t || t === S.token) return;
   S.token = t;
@@ -75,7 +75,7 @@ window.ppSetToken = function (t) {
   bootstrap();
 };
 
-/* pindah alamat API dengan aman (dipakai saat alamat tersimpan ternyata mati) */
+/* safely switch the API address (used when the saved address is dead) */
 function adoptBase(b) {
   const v = normBase(b, '');
   if (!v) return false;

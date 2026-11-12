@@ -7,7 +7,7 @@ function ipLabel(a) {
   if (/^(ccmni|rmnet|wwan|pdp|data|cell)/.test(n)) return n + ' · data';
   return n || 'jaringan';
 }
-/* ---- alamat panel: Localhost / IP saat ini / Custom ---- */
+/* ---- panel address: Localhost / current IP / Custom ---- */
 const fmtAddr = (h, p) => (String(h).includes(':') ? '[' + h + ']:' + p : h + ':' + p);
 function cleanHost(v) {
   return String(v == null ? '' : v).trim().replace(/^[a-z]+:\/\//i, '').split('/')[0].replace(/:\d+$/, '');
@@ -42,7 +42,7 @@ function addrRow(lbl, tag, host, port, v6) {
 function allAddrs(st) {
   const list = (st && st.ips && st.ips.length) ? st.ips.slice() : currentIps(st);
   const v4 = list.filter((a) => a.family === 'IPv4' || /^\d+\.\d+\.\d+\.\d+$/.test(a.address));
-  // Panel hanya memakai IPv4; alamat IPv6 tidak ditampilkan.
+  // The panel uses IPv4 only; IPv6 addresses are not shown.
   return { v4, v6: [] };
 }
 function splitAddr(v, defPort) {
@@ -50,29 +50,29 @@ function splitAddr(v, defPort) {
   /* [IPv6]:port */
   let m = s.match(/^\[(.*)\]:(\d+)$/);
   if (m) return { host: m[1], port: Number(m[2]) || defPort };
-  /* host:port (host tanpa titik dua, mis. IPv4 / hostname) */
+  /* host:port (host without a colon, e.g. IPv4 / hostname) */
   m = s.match(/^([^:]+):(\d+)$/);
   if (m) return { host: m[1], port: Number(m[2]) || defPort };
-  /* host tanpa port (termasuk IPv6 tanpa kurung) */
+  /* host without a port (including IPv6 without brackets) */
   return { host: s.replace(/^\[|\]$/g, '') || '0.0.0.0', port: defPort };
 }
 function bindModeOf(host) {
   const h = String(host || '').trim();
   if (!h || h === '127.0.0.1' || h === 'localhost' || h === '::1') return 'localhost';
   if (h === '0.0.0.0' || h === '::') return 'current';
-  /* IP perangkat saat ini: anggap mode "IP saat ini", bukan custom. */
+  /* current device IP: treat as "current IP" mode, not custom. */
   try {
     if (currentIps(S.status).some((a) => a.address === h)) return 'current';
   } catch (e) {}
   return 'custom';
 }
-/* Host yang benar-benar dipakai server Pumpkin (dari pumpkin.toml), bukan host panel. */
+/* Host actually used by the Pumpkin server (from pumpkin.toml), not the panel host. */
 function serverBindHost() {
   const sb = S.serverBind;
   if (sb) return sb.host;
   return effHost();
 }
-/* Alamat 0.0.0.0/:: tidak bisa diketik di HP lain; tampilkan IP perangkat. */
+/* 0.0.0.0/:: cannot be typed on another phone; show the device IP. */
 function dialHost(host, st) {
   const h = String(host == null ? '' : host).trim();
   if (h && h !== '0.0.0.0' && h !== '::') return h;
@@ -107,7 +107,7 @@ function applyAddrs() {
   } else {
     add('localhost', 'LOCAL', '127.0.0.1');
   }
-  // IPv4 unik saja, maksimal 2 alamat per edisi (Java/Bedrock).
+  // Unique IPv4 only, at most 2 addresses per edition (Java/Bedrock).
   const list = rows.slice(0, 2);
   const paint = (port) => list.map((r) => addrRow(r.lbl, r.tag, r.host, port)).join('');
   const empty = '<div class="addr-empty">Atur alamat server di Pengaturan &rarr; Eksperimental</div>';

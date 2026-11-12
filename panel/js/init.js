@@ -1,6 +1,6 @@
 'use strict';
 /* ================================ init ================================ */
-/* menu native APK: tombol di topbar + kartu di Pengaturan */
+/* native APK menu: topbar button + card in Settings */
 function hasAppMenu() {
   try { return !!(window.PanelNative && typeof PanelNative.openMenu === 'function'); }
   catch (e) { return false; }
@@ -29,7 +29,7 @@ setTab('home');
 renderPlayers();
 renderBackups();
 
-/* Backup = menu rahasia: tersembunyi sampai kartu "Tentang & catatan" ditekan lama. */
+/* Backup = secret menu: hidden until the "About & notes" card is long-pressed. */
 function applySecretBackup() {
   const on = LS.get('pp.menu.backup', '') === '1';
   ['btnBackup', 'backupCard'].forEach((id) => {
@@ -47,12 +47,12 @@ applySecretBackup();
   function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
   card.addEventListener('pointerdown', (e) => {
     sx = e.clientX; sy = e.clientY;
-    /* Gestur baru: selalu reset penanda long-press sebelumnya. */
+    /* New gesture: always reset the previous long-press flag. */
     delete card.dataset.held;
     cancel();
     timer = setTimeout(() => {
       timer = null;
-      /* Penanda dipasang di kedua cabang supaya klik setelah tekan lama tidak membuka popup. */
+      /* The flag is set in both branches so a click after a long press does not open the popup. */
       card.dataset.held = '1';
       if (LS.get('pp.menu.backup', '') === '1') return;
       LS.set('pp.menu.backup', '1');
@@ -69,8 +69,8 @@ applySecretBackup();
 bootstrap();
 startNet();
 
-/* Watchdog koneksi: kalau status sempat macet "offline" (mis. SSE diam setelah layar
-   mati), satu request ringan akan langsung memulihkan banner tanpa menunggu user. */
+/* Connection watchdog: if status gets stuck "offline" (e.g. the SSE stream goes quiet after
+   the screen turns off), one lightweight request restores the banner without waiting for the user. */
 setInterval(() => {
   if (document.hidden || S.online) return;
   api('/api/ping', { timeout: 3000 }).catch(() => {});

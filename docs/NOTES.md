@@ -1,222 +1,227 @@
-# Catatan proyek — Pumpkin Panel (Android)
+# Project notes — Pumpkin Panel (Android)
 
-Dokumen ini merangkum hal-hal yang tidak selalu terlihat dari kode: cara build, fitur yang
-tersembunyi di menu native, model keamanan, dan checklist sebelum repo dipublikasikan.
+This document covers things that are not always obvious from the code: how to build, features
+hidden in the native menu, the security model, and a checklist before publishing the repo.
 
-Versi aplikasi: **1.0.0** (`versionCode` 5). Jangan naikkan versi tanpa mengubah
-`build.sh` dan `app/build.gradle.kts` bersamaan.
+App version: **1.0.0** (`versionCode` 5). Do not bump the version without changing
+`build.sh` and `app/build.gradle.kts` together.
 
-## Arsitektur singkat
+## Architecture at a glance
 
 ```
-MainActivity (WebView + menu native)
-        │  HTTP + SSE ke 127.0.0.1:8087
+MainActivity (WebView + native menu)
+        │  HTTP + SSE to 127.0.0.1:8087
         ▼
-ApiServer (Java, pengganti server.js)
+ApiServer (Java, replacement for server.js)
         │
-        ├─ Pumpkin.java   proses, log, world, backup, config, settings
+        ├─ Pumpkin.java   process, log, world, backup, config, settings
         ├─ PanelService   foreground service + wakelock
         └─ Store          SharedPreferences
 ```
 
-- Panel web: `panel/` (HTML/CSS/JS modular) → dibundel menjadi
-  `app/src/main/assets/index.html` — satu file, tanpa framework/CDN, **selalu dari aset APK**.
-  Aset hasil bundling tidak di-commit; `build.sh` membuatnya ulang.
-- Data server: `/sdcard/server` (world, `pumpkin.toml`, logs, plugins).
+- Web panel: `panel/` (modular HTML/CSS/JS) → bundled into
+  `app/src/main/assets/index.html` — one file, no framework/CDN, **always from the APK assets**.
+  The bundled asset is not committed; `build.sh` regenerates it.
+- Server data: `/sdcard/server` (world, `pumpkin.toml`, logs, plugins).
 - Binary: `/data/data/com.pumpkin.panel/files/pumpkin`.
-- Backup: `/sdcard/server/backups`.
-- Log diagnostik panel: `/sdcard/server/panel.log`.
+- Backups: `/sdcard/server/backups`.
+- Panel diagnostic log: `/sdcard/server/panel.log`.
 
 ## Build
 
-### Termux (dipakai untuk APK rilis ini)
+### Termux (used for this release APK)
 
 ```bash
 cd pumpkin-server-android
 
-# APK polosan
+# Plain APK
 ./build.sh
-# hasil: build/apk/pumpkin-panel-plain.apk
+# output: build/apk/pumpkin-panel-plain.apk
 
-# APK full (binary resmi ikut dibundel)
+# Full APK (official binary bundled)
 ./build.sh --with-binary /sdcard/pumpkin-aarch64-android
-# hasil: build/apk/pumpkin-panel-full.apk
+# output: build/apk/pumpkin-panel-full.apk
 ```
 
-`build.sh` memakai `aapt2`, `javac`, `d8`, `zip`, dan `apksigner`; tidak butuh Gradle.
-Keystore debug dibuat otomatis dan **tidak** ikut ke repo (`.gitignore`). Panel dan binary
-ditulis ke folder staging `build/assets/`; binari tidak pernah masuk ke folder sumber/git.
+`build.sh` uses `aapt2`, `javac`, `d8`, `zip`, and `apksigner`; it does not need Gradle. The
+debug keystore is generated automatically and is **not** committed (`.gitignore`). The panel and
+binary are written to the staging folder `build/assets/`; the binary never enters the source
+tree or git.
 
-### Notifikasi service
+### Service notification
 
-Notifikasi foreground hanya tampil selama server Pumpkin berjalan. Saat server berhenti
-(dari panel maupun aksi **Hentikan server** di notifikasi), service keluar dari foreground
-dan notifikasi dibatalkan, tetapi service panel tetap hidup agar API lokal masih bisa
-dipakai. Saat server dimulai lagi, notifikasi muncul kembali.
+The foreground notification is shown only while the Pumpkin server is running. When the server
+stops (from the panel or via the **Stop server** action on the notification), the service leaves
+foreground mode and the notification is cancelled, but the panel service stays alive so the
+local API remains usable. When the server starts again, the notification returns.
 
-### Panel modular
+### Modular panel
 
-Panel tidak lagi berupa satu berkas sumber. Semua HTML/CSS/JS ada di `panel/`; `build.sh`
-menjalankan `tools/bundle-panel.sh` untuk menggabungkannya menjadi satu aset sebelum
-`aapt2`. Untuk melihat hasil bundling saja:
+The panel is no longer a single source file. All HTML/CSS/JS lives in `panel/`; `build.sh` runs
+`tools/bundle-panel.sh` to merge it into one asset before `aapt2`. To inspect just the bundle
+output:
 
 ```bash
 bash tools/bundle-panel.sh /tmp/preview.html
 ```
 
-Detail struktur dan aturan urutan ada di [`docs/PANEL.md`](PANEL.md).
+Structure details and ordering rules are in [`docs/PANEL.md`](PANEL.md).
 
 ### GitHub Actions
 
-Workflow `.github/workflows/build.yml` memakai `build.sh` yang sama di runner Ubuntu
-(JDK 17 + Android SDK 34 + build-tools 34.0.0). APK hasil CI ditandatangani dengan debug
-key milik runner, jadi berbeda dari APK lokal. Uninstal dulu jika berpindah sumber APK.
+The `.github/workflows/build.yml` workflow uses the same `build.sh` on an Ubuntu runner
+(JDK 17 + Android SDK 34 + build-tools 34.0.0). APKs from CI are signed with the runner's debug
+key, so they differ from a local APK. Uninstall first when switching APK sources.
 
-### Setelah mengubah panel
+### After changing the panel
 
-Edit berkas di `panel/` (bukan aset hasil bundling), lalu build ulang. `build.sh`
-otomatis membundel ulang; panel tidak pernah dibaca dari `/sdcard` saat runtime.
+Edit files in `panel/` (not the bundled asset), then rebuild. `build.sh` re-bundles
+automatically; the panel is never read from `/sdcard` at runtime.
 
 ```bash
 ./build.sh
 ```
 
-## Keamanan panel
+## Panel security
 
-Panel bersifat **privat**:
+The panel is **private**:
 
-- **Token akses dibuat otomatis** saat pertama kali aplikasi berjalan (16 byte acak, hex).
-- **Semua** akses panel — HTML maupun `/api/*`, dari localhost atau LAN — wajib menyertakan token:
-  `?token=...` untuk halaman atau header `x-token` untuk API.
-- WebView aplikasi membuka panel dengan token di URL, jadi pengguna tidak perlu mengetik apa pun.
-- Tanpa token yang cocok, server **tidak mengirim HTML panel sama sekali**; yang tampil hanya
-  halaman kunci sederhana berisi form token.
-- Token bisa dilihat/di-salip dari **Pengaturan → Token akses panel → Salin token**.
-- Bind ke `0.0.0.0`/IP LAN tanpa token tetap dipaksa ke `127.0.0.1` sebagai pengaman.
-- WebView memblokir semua request `http`/`https` non-lokal. Panel tidak memuat aset eksternal.
+- **An access token is generated automatically** the first time the app runs (16 random bytes, hex).
+- **Every** panel request — HTML and `/api/*`, from localhost or the LAN — must include the token:
+  `?token=...` for pages or the `x-token` header for the API.
+- The app's WebView opens the panel with the token in the URL, so users do not have to type anything.
+- Without a matching token, the server **does not send the panel HTML at all**; only a simple lock
+  page with a token form appears.
+- The token can be viewed/copied from **Settings → Panel access token → Copy token**.
+- Binding to `0.0.0.0`/a LAN IP without a token is still forced to `127.0.0.1` as a safeguard.
+- The WebView blocks every non-local `http`/`https` request. The panel loads no external assets.
 
-Token disimpan di SharedPreferences perangkat. **Jangan** commit token, keystore, atau file
-`/sdcard/gh-token.txt` ke repo.
+The token is stored in the device's SharedPreferences. **Never** commit a token, keystore, or
+`/sdcard/gh-token.txt` to the repo.
 
-## Fitur yang tidak menonjol di UI
+## Features that are not obvious in the UI
 
-Beberapa fitur sengaja tidak diberi tombol besar, tetapi tersedia:
+Some features deliberately have no large button, but they are available:
 
-1. **Menu native aplikasi** — ikon ponsel di topbar panel, kartu *Aplikasi Android* di
-   Pengaturan, atau tombol **Back** Android saat panel terbuka.
-2. **Tukar binary Pumpkin** — impor dari `/sdcard`, `/sdcard/Download`, `/sdcard/Download/Pumpkin`,
-   atau `/sdcard/server`. Binary lama disimpan sebagai `pumpkin.bak`; tombol *Tukar dengan
-   cadangan* membaliknya dua arah.
-3. **Deteksi binary glibc** — impor/start menolak ELF Linux (`ld-linux-aarch64`) dan hanya
-   menerima build Android (`/system/bin/linker64`).
-4. **Unduh log** dan **salin alamat** — tombol kecil di console dan kartu alamat koneksi.
-5. **Seed world** — simpan/acak seed dari panel Konfigurasi.
-6. **Tema & aksen** — mode gelap/terang dan dropdown warna aksen ringkas di Pengaturan.
-7. **Suara tombol Minecraft** — bisa dimatikan lewat toggle di Pengaturan.
-8. **API JSON lokal** — seluruh aksi panel memakai `/api/*`; berguna untuk otomasi di perangkat
-   yang sama. Lihat daftar route di README.
-9. **Diagnostik `panel.log`** — mencatat `START`, `EXIT`, dan `EXEC GAGAL` beserta interpreter ELF.
-10. **Folder app cadangan** — tombol *Pakai folder app* memindahkan data server ke
-    `/data/data/com.pumpkin.panel/files/server` bila `/sdcard` bermasalah.
-11. **Menu backup rahasia** — kartu *Backup world* dan tombol Backup di Ringkasan disembunyikan
-    sejak awal. Tekan lama kartu **Tentang & catatan** (±900 ms) untuk membukanya. Status
-    disimpan di localStorage `pp.menu.backup`; hapus key itu untuk menyembunyikan lagi.
-12. **Panel web online (eksperimental)** — kartu di bagian **Eksperimental** berisi nama server,
-    alamat panel, port, dan token. Sakelar **Panel web online** default **mati**; saat mati
-    seluruh pengaturan dibuat abu-abu dan read-only, dan server panel dipaksa bind ke
-    `127.0.0.1`. Saat dinyalakan, alamat/port/token baru dipakai.
-13. **Alamat server Pumpkin terpisah (eksperimental)** — pilihan tiga mode (localhost / IP saat
-    ini / custom) untuk bind **server Pumpkin**, terpisah dari alamat panel web. Nilainya ditulis
-    ke `networking.java.address` dan `networking.bedrock.nethernet.address` di `pumpkin.toml`
-    dengan port lama dipertahankan. Restart server agar berlaku.
-14. **Warna aksen gradasi hijau** — dropdown ringkas berisi enam warna limau → hijau → teal,
-    default `#22c55e`. Nilai lama bawaan (`#ffaa00`/`#ff8a3d`) otomatis dimigrasikan ke hijau.
-    Warna aksen juga menggerakkan permukaan "Minecraft green": tombol primer, tombol power,
-    strip/glow hero saat online, toggle, avatar, ikon cepat, chip IP, dan badge merek.
-15. **Tentang & catatan** — sekarang berupa tombol yang membuka popup panduan pengguna
-    (pemakaian, token, akses perangkat lain, alamat server, backup). Catatan build tidak lagi
-    ditampilkan di panel; dokumen ini tetap untuk pengembang.
-16. **Aktivitas terakhir** — kartu di bawah Beranda menampilkan tiga baris log terbaru dan
-    tombol pintas ke Console, mengisi ruang kosong di ujung Beranda.
+1. **Native app menu** — the phone icon in the panel topbar, the *Android app* card in Settings,
+   or the Android **Back** button while the panel is open.
+2. **Swap Pumpkin binary** — import from `/sdcard`, `/sdcard/Download`, `/sdcard/Download/Pumpkin`,
+   or `/sdcard/server`. The old binary is kept as `pumpkin.bak`; the *Swap with backup* button
+   flips them both ways.
+3. **glibc binary detection** — import/start rejects Linux ELFs (`ld-linux-aarch64`) and only
+   accepts Android builds (`/system/bin/linker64`).
+4. **Download log** and **copy address** — small buttons in the console and on the connection
+   address card.
+5. **World seed** — save/randomize the seed from the Configuration panel.
+6. **Theme & accent** — dark/light mode and a compact accent color dropdown in Settings.
+7. **Minecraft button sound** — can be turned off with a toggle in Settings.
+8. **Local JSON API** — every panel action uses `/api/*`; useful for automation on the same
+   device. See the route list in the README.
+9. **`panel.log` diagnostics** — records `START`, `EXIT`, and `EXEC GAGAL` along with the ELF
+   interpreter.
+10. **Fallback app folder** — the *Use app folder* button moves server data to
+    `/data/data/com.pumpkin.panel/files/server` when `/sdcard` has problems.
+11. **Hidden backup menu** — the *World backup* card and the Backup button on Overview are hidden
+    initially. Long-press the **About & notes** card (±900 ms) to reveal them. The state is stored
+    in localStorage `pp.menu.backup`; delete that key to hide it again.
+12. **Online web panel (experimental)** — a card under **Experimental** contains the server name,
+    panel address, port, and token. The **Online web panel** toggle defaults to **off**; while it
+    is off, all its settings are grayed out and read-only, and the panel server is forced to bind
+    to `127.0.0.1`. When turned on, the new address/port/token take effect.
+13. **Separate Pumpkin server address (experimental)** — a three-mode choice (localhost / current
+    IP / custom) for the **Pumpkin server** bind, separate from the web panel address. The value
+    is written to `networking.java.address` and `networking.bedrock.nethernet.address` in
+    `pumpkin.toml` while keeping the old port. Restart the server for it to take effect.
+14. **Green gradient accent colors** — a compact dropdown with six colors from lime → green →
+    teal, default `#22c55e`. Old defaults (`#ffaa00`/`#ff8a3d`) migrate to green automatically.
+    The accent also drives "Minecraft green" surfaces: primary buttons, the power button, the
+    hero strip/glow when online, toggles, avatars, quick icons, IP chips, and the brand badge.
+15. **About & notes** — now a button that opens a user guide popup (usage, token, access from
+    other devices, server address, backup). Build notes are no longer shown in the panel; this
+    document remains for developers.
+16. **Latest activity** — a card below Home shows the three most recent log lines and a shortcut
+    button to the Console, filling the empty space at the end of Home.
 
-## Bagian Umum / Eksperimental
+## General / Experimental sections
 
-Menu **Lainnya** dibagi menjadi dua bagian lewat segmented control. Setiap kali menu dibuka,
-bagian **Umum** selalu aktif kembali. Pengaturan jaringan yang masih dalam pengujian berada di
-**Eksperimental**, sehingga tidak menambah panjang halaman utama pengaturan.
+The **More** menu is split into two sections by a segmented control. Every time the menu opens,
+the **General** section is active again. Network settings still under test live in
+**Experimental**, so they do not make the main settings page longer.
 
-## Panel web online vs server Pumpkin
+## Online web panel vs Pumpkin server
 
-Dua alamat ini sengaja dipisah:
+These two addresses are deliberately separate:
 
-| Kebutuhan | Penyimpanan | Default |
+| Purpose | Storage | Default |
 |---|---|---|
-| Bind panel web (HP lain membuka panel) | SharedPreferences `host` + `panelOnline` | `127.0.0.1`, online **mati** |
-| Bind server Pumpkin (pemain masuk) | `pumpkin.toml` → `networking.java.address`, `networking.bedrock.nethernet.address` | `0.0.0.0` |
+| Web panel bind (another phone opens the panel) | SharedPreferences `host` + `panelOnline` | `127.0.0.1`, online **off** |
+| Pumpkin server bind (players connect) | `pumpkin.toml` → `networking.java.address`, `networking.bedrock.nethernet.address` | `0.0.0.0` |
 
-- `Store.panelOnline()` default `false`; `ApiServer.openListener()` memaksa loopback selama mati.
-- `PUT /api/settings` menerima `panelOnline` dan memicu `relisten()` bila nilainya berubah.
-- `MainActivity.panelHost()` memakai `127.0.0.1` selama panel offline, jadi WebView tetap aman.
-- Alamat di Beranda dihitung dari bind **server Pumpkin** (TOML), bukan dari alamat panel.
-- Alamat bind `0.0.0.0`/`::` ditampilkan sebagai IP perangkat di kartu alamat dan subtitle Beranda,
-  karena alamat wildcard tidak bisa dipakai pemain untuk menyambung.
-- Mode bind server selalu diturunkan dari isi `pumpkin.toml` saat data dimuat; pilihan yang belum
-  disimpan tetap dipertahankan saat berpindah bagian Umum/Eksperimental.
-- Saat panel online dinyalakan dengan host custom yang kosong atau sudah tidak aktif di perangkat,
-  panel otomatis memakai IP saat ini dan memberi tahu pengguna, supaya sakelar tidak terkunci.
-- Rebase hanya dijadwalkan bila alamat panel benar-benar berubah (mis. loopback → LAN atau
-  sebaliknya); mengaktifkan panel di alamat yang sama tidak memuat ulang halaman.
+- `Store.panelOnline()` defaults to `false`; `ApiServer.openListener()` forces loopback while off.
+- `PUT /api/settings` accepts `panelOnline` and triggers `relisten()` when the value changes.
+- `MainActivity.panelHost()` uses `127.0.0.1` while the panel is offline, so the WebView stays safe.
+- The address on Home is derived from the **Pumpkin server** bind (TOML), not the panel address.
+- A `0.0.0.0`/`::` bind address is shown as the device IP on the address card and the Home
+  subtitle, because a wildcard address cannot be used by players to connect.
+- The server bind mode is always derived from the contents of `pumpkin.toml` when data loads; an
+  unsaved choice is preserved while switching between General/Experimental.
+- When the online panel is enabled with an empty custom host, or one that is no longer active on
+  the device, the panel automatically uses the current IP and informs the user, so the toggle does
+  not get stuck.
+- A rebase is only scheduled when the panel address actually changes (e.g. loopback → LAN or the
+  reverse); enabling the panel at the same address does not reload the page.
 
-## UX console
+## Console UX
 
-Panel console di HP memakai posisi **fixed** yang diukur dari bawah topbar sampai atas tabbar
-(lewat variabel `--console-top`/`--console-bottom` yang diperbarui saat resize/orientasi).
-Log berada di dalam panel bergaris dengan scroll internal, input perintah di atas log, dan baris
-chip perintah tetap terlihat di atas navigasi bawah — log tidak lagi menembus tabbar.
+The console panel on phones uses a **fixed** position measured from below the topbar to above the
+tabbar (via the `--console-top`/`--console-bottom` variables updated on resize/orientation). The
+log lives inside a bordered panel with internal scrolling, the command input sits above the log,
+and the command chip row stays visible above the bottom navigation — the log no longer overlaps
+the tabbar.
 
-## UX koneksi panel
+## Panel connection UX
 
-Banner merah **"Panel belum terhubung"** tidak muncul seketika. Alasannya: saat WebView baru
-membuka panel, halaman + token masih dimuat dan SSE bisa putus-nyambung sebentar.
+The red **"Panel not connected"** banner does not appear instantly. The reason: when the WebView
+just opened the panel, the page + token are still loading and SSE may reconnect briefly.
 
-- Saat pertama membuka panel, banner diberi tenggang **3 detik**; setelah pernah terhubung,
-  tenggangnya **1,5 detik**.
-- Selama tenggang, status pill menampilkan **Menyambung** (kuning), bukan merah.
-- Kalau penyebabnya token, pesannya spesifik: *Token panel tidak cocok*.
-- Alamat API selalu memakai `location.origin` saat halaman dilayani server panel, jadi alamat
-  lama di `localStorage` (IP/port basi) tidak lagi membuat banner muncul palsu.
-- Kalau tetap 401, panel otomatis mencoba token yang ditanam server (`window.__PP_TOKEN`) lalu
-  origin halaman sebelum menyerah.
-- **Status koneksi ditentukan oleh API, bukan SSE.** Satu request `/api/*` yang sukses langsung
-  menandai panel terhubung (dan menyembunyikan banner). SSE yang putus — misalnya saat layar mati
-  atau WebView menunda stream — tidak lagi membuat banner merah; panel mengecek `/api/ping`
-  dulu sebelum menyatakan offline.
-- **Penyebab SSE putus (diperbaiki):** `PanelService` mengirim `status` dari main thread, sehingga
-  penulisan socket SSE melempar `NetworkOnMainThreadException`. Server lalu menutup koneksi dan
-  panel mengira dirinya offline. Sekarang semua tulisan SSE dijalankan di executor `sse-tx`
-  (single thread, daemon), jadi stream bertahan dan banner tidak muncul palsu.
-- Watchdog 4 detik memanggil `/api/ping` saat panel terlihat dan status masih offline, dan
-  `visibilitychange` memeriksa ulang saat aplikasi dibuka kembali.
+- On first opening the panel, the banner gets a **3 second** grace period; after a successful
+  connection it is **1.5 seconds**.
+- During the grace period the status pill shows **Connecting** (yellow), not red.
+- If the cause is the token, the message is specific: *Panel token does not match*.
+- The API address always uses `location.origin` when the page is served by the panel server, so an
+  old address in `localStorage` (stale IP/port) no longer makes the banner appear falsely.
+- If it is still 401, the panel automatically tries the server-embedded token (`window.__PP_TOKEN`)
+  and then the page origin before giving up.
+- **Connection status is determined by the API, not SSE.** One successful `/api/*` request
+  immediately marks the panel as connected (and hides the banner). A dropped SSE — for example
+  when the screen turns off or the WebView pauses the stream — no longer triggers the red banner;
+  the panel checks `/api/ping` first before declaring itself offline.
+- **Cause of the SSE drops (fixed):** `PanelService` sent `status` from the main thread, so the SSE
+  socket write threw `NetworkOnMainThreadException`. The server then closed the connection and the
+  panel thought it was offline. All SSE writes now run on the `sse-tx` executor (single thread,
+  daemon), so the stream survives and the banner does not appear falsely.
+- A 4 second watchdog calls `/api/ping` while the panel is visible and the status is still
+  offline, and `visibilitychange` rechecks when the app is reopened.
 
-Menu/opsi yang sedang dipilih memakai **latar putih + teks hitam** dengan garis dan tanda centang,
-agar jelas berbeda dari field yang harus diisi manual. Aturan ini berlaku untuk dropdown,
-segmented control, sidebar, dan tab bar di semua tema.
+The currently selected menu/option uses a **white background + black text** with a border and check
+mark, so it is clearly distinct from fields that must be filled in manually. This rule applies to
+dropdowns, segmented controls, the sidebar, and the tab bar in all themes.
 
-## Perilaku yang disengaja
+## Intentional behavior
 
-- `targetSdk 28` supaya binary ELF boleh dieksekusi dari folder data aplikasi (kebijakan W^X
-  Android 10+). Ini juga memberi akses legacy ke `/sdcard`.
-- Panel hanya menampilkan **IPv4**, unik (tanpa duplikat), maksimal **2 alamat per edisi**
-  (Java dan Bedrock).
-- Traffic real-time memakai sampel **100 ms tetap** dan hanya membaca `/proc/net/dev`.
-- Console hanya merender ±400 baris terakhir; log penuh tetap tersedia lewat unduhan.
-- Semua data panel berjalan lokal; tidak ada telemetri.
+- `targetSdk 28` so the ELF binary may be executed from the app data folder (Android 10+ W^X
+  policy). It also grants legacy access to `/sdcard`.
+- The panel only shows **IPv4**, unique (no duplicates), at most **2 addresses per edition**
+  (Java and Bedrock).
+- Real-time traffic uses a **fixed 100 ms** sample and only reads `/proc/net/dev`.
+- The console renders only the last ±400 lines; the full log is still available via download.
+- All panel data stays local; there is no telemetry.
 
-## Checklist sebelum publikasi GitHub
+## Checklist before publishing to GitHub
 
-- [ ] `versionName` tetap `1.0.0`, `versionCode` 5 (atau ubah keduanya sekaligus).
-- [ ] `app/src/main/assets/index.html` dihasilkan ulang dari `panel/` (`bash tools/bundle-panel.sh`).
-- [ ] Tidak ada token/keystore/path pribadi di repo (`git status`, `git grep -i token`).
-- [ ] README menjelaskan dua varian (polosan dan full) serta kebutuhan internet untuk unduhan.
-- [ ] Repo publik; `LICENSE` (Apache-2.0) dan `NOTICE` (atribusi Pumpkin/Mojang) sudah sesuai.
-- [ ] APK `pumpkin-panel-plain.apk` dan `pumpkin-panel-full.apk` diuji pasang di perangkat bersih.
+- [ ] `versionName` stays `1.0.0`, `versionCode` 5 (or change both together).
+- [ ] `app/src/main/assets/index.html` is regenerated from `panel/` (`bash tools/bundle-panel.sh`).
+- [ ] No tokens/keystores/personal paths in the repo (`git status`, `git grep -i token`).
+- [ ] The README explains both variants (plain and full) and the internet requirement for downloads.
+- [ ] The repo is public; `LICENSE` (Apache-2.0) and `NOTICE` (Pumpkin/Mojang attribution) are correct.
+- [ ] The `pumpkin-panel-plain.apk` and `pumpkin-panel-full.apk` APKs are tested on a clean device.

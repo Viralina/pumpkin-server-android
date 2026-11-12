@@ -1,6 +1,6 @@
 /* ================================================================
-   MINECRAFT SKIN — GUI batu, tombol bevel, teks pixel
-   (semua vanilla CSS, tanpa gambar/font eksternal)
+   MINECRAFT SKIN — stone GUI, beveled buttons, pixel text
+   (all vanilla CSS, no external images/fonts)
    ================================================================ */
 :root{
   --font:"Segoe UI",system-ui,-apple-system,sans-serif;
@@ -59,7 +59,7 @@ html[data-theme="light"] body::before{
 }
 .ripple{display:none!important}
 
-/* ---------- tipografi pixel ---------- */
+/* ---------- pixel typography ---------- */
 .topbar h2,.brand h1,.card-h h3,.sec-title,.nav-item,.nav-label,
 .btn,.chip,.tab,.pill,.seg button,.hstat .k,.hstat .v,.stat-top,.stat .val,.stat .lbl,
 .con-lbl,.con-val,.li-name,.li-sub,.tbtn,.term-title,.hero-status,.modal-box h3,
@@ -77,7 +77,7 @@ html[data-theme="light"] body::before{
 .field > span{text-transform:uppercase;font-size:9.5px;letter-spacing:.6px;color:var(--ink-dim)}
 .hint{color:var(--ink-dim)}
 
-/* ---------- panel / kartu ---------- */
+/* ---------- panel / cards ---------- */
 .card{
   background-color:var(--panel);
   background-image:linear-gradient(rgba(255,255,255,.022) 50%,transparent 50%);
@@ -88,7 +88,7 @@ html[data-theme="light"] body::before{
 }
 .sep{height:2px;background:#000;box-shadow:0 1px 0 rgba(255,255,255,.06)}
 
-/* ---------- tombol ---------- */
+/* ---------- buttons ---------- */
 .btn{
   border-radius:0;border:2px solid #000;background:var(--mc-btn);
   box-shadow:inset 2px 2px 0 var(--mc-btn-l),inset -2px -2px 0 var(--mc-btn-d);
@@ -142,7 +142,7 @@ html[data-theme="light"] body::before{
 }
 .power-fab:active{transform:translateY(2px);box-shadow:inset -2px -2px 0 var(--mc-btn-l),inset 2px 2px 0 var(--mc-btn-d)}
 
-/* ---------- chip / segmen / pill ---------- */
+/* ---------- chip / segment / pill ---------- */
 .chip{
   border-radius:0;border:2px solid #000;background:#4a4a4a;color:#e0e0e0;
   box-shadow:inset 1px 1px 0 #6a6a6a,inset -1px -1px 0 #2a2a2a;
@@ -186,7 +186,7 @@ html[data-theme="light"] body::before{
 .more-seg .exp-dot{
   width:7px;height:7px;background:var(--accent);border:1px solid #000;flex:0 0 auto;
 }
-/* panel web nonaktif: abu-abu & tidak bisa disentuh */
+/* web panel disabled: grayed out & non-interactive */
 .net-lock{transition:opacity .18s}
 .net-lock[data-ro="1"]{opacity:.4;pointer-events:none;filter:grayscale(.75);user-select:none}
 .net-toggle{
@@ -199,7 +199,7 @@ html[data-theme="light"] body::before{
 .net-toggle .nt-txt small{color:var(--muted2);font-size:10.5px}
 .net-toggle .nt-state{font-family:var(--pixel);font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2)}
 .net-toggle:has(input:checked) .nt-state{color:var(--accent)}
-/* pemilih aksen ringkas */
+/* compact accent picker */
 .accent-pick .accent-dot{
   width:16px;height:16px;flex:0 0 auto;border:2px solid #000;background:var(--accent);
   box-shadow:inset 1px 1px 0 rgba(255,255,255,.5),inset -1px -1px 0 rgba(0,0,0,.45);
@@ -214,7 +214,7 @@ html[data-theme="light"] body::before{
 .about-body .about-item b{display:block;color:var(--txt);font-size:13px;margin-bottom:2px}
 .about-body .about-item span{color:var(--muted);font-size:12.5px;line-height:1.5}
 .modal-actions.one{grid-template-columns:1fr}
-/* aktivitas terakhir di beranda */
+/* latest activity on home */
 .act-list{margin-top:10px;border:2px solid #000;background:#191919;box-shadow:inset 1px 1px 0 #000,inset -1px -1px 0 #4a4a4a}
 .act-row{display:flex;gap:8px;align-items:baseline;padding:7px 9px;border-bottom:1px solid #2a2a2a;font-family:var(--pixel);font-size:9.5px;line-height:1.45}
 .act-row:last-child{border-bottom:0}
@@ -287,7 +287,7 @@ html[data-theme="light"] .exp-badge{color:#0a4f0a}
 .bar{height:6px;border-radius:0;background:#141414;border:1px solid #000;overflow:hidden}
 .bar > i{border-radius:0}
 
-/* ---------- koneksi / list ---------- */
+/* ---------- connection / list ---------- */
 .con-row{padding:8px 0}
 .con-row + .con-row{border-top:2px dotted #1f1f1f}
 html[data-theme="light"] .con-row + .con-row{border-top-color:#9a9a9a}
@@ -366,7 +366,7 @@ textarea.input{font-size:11.5px;line-height:1.7}
 }
 .actions-bar .msg{color:var(--ink-dim);font-family:var(--pixel);font-size:9.5px}
 
-/* ---------- konsol ---------- */
+/* ---------- console ---------- */
 .term{
   border-radius:0;border:2px solid #000;background:#0a0a0a;
   box-shadow:inset 2px 2px 0 #2a2a2a,inset -2px -2px 0 #000,0 6px 0 rgba(0,0,0,.4);

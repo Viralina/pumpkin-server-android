@@ -12,7 +12,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
 
-/** Service foreground: menjalankan HTTP API + proses Pumpkin. */
+/** Foreground service: runs the HTTP API + Pumpkin process. */
 public class PanelService extends Service {
 
     public static final String ACTION_BOOT = "com.pumpkin.panel.BOOT";
@@ -29,7 +29,7 @@ public class PanelService extends Service {
     private Handler handler;
     private PowerManager.WakeLock wakeLock;
     private String lastNotifiedText;
-    /** false = service tetap hidup (panel API) tetapi tanpa notifikasi. */
+    /** false = service stays alive (panel API) but without a notification. */
     private boolean notificationShown = true;
 
     @Override
@@ -180,7 +180,7 @@ public class PanelService extends Service {
         return b.build();
     }
 
-    /** Tampilkan/segarkan notifikasi hanya saat server berjalan. */
+    /** Show/refresh the notification only while the server is running. */
     private void updateNotification(boolean running) {
         if (!running) {
             hideNotification();
@@ -192,7 +192,7 @@ public class PanelService extends Service {
         String text = "Server berjalan · Java :" + javaPort + " · Bedrock :" + bedrockPort;
 
         if (!notificationShown) {
-            // Server dimulai lagi: kembalikan service ke foreground.
+            // Server started again: return the service to the foreground.
             try {
                 startForeground(NOTIF_ID, buildNotification(text));
                 notificationShown = true;
@@ -209,8 +209,8 @@ public class PanelService extends Service {
     }
 
     /**
-     * Lepas status foreground dan hapus notifikasi. Service tetap hidup agar
-     * panel API masih bisa dipakai; notifikasi muncul lagi saat server mulai.
+     * Leave foreground mode and remove the notification. The service stays alive
+     * so the panel API remains usable; the notification returns when the server starts.
      */
     private void hideNotification() {
         if (!notificationShown) return;

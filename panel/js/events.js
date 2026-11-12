@@ -306,7 +306,7 @@ $('#wlToggle').addEventListener('change', async (ev) => {
   }
 });
 
-/* jaringan panel: Localhost / IP saat ini / Custom */
+/* panel network: Localhost / current IP / Custom */
 function repaintHost() {
   syncHostUi();
   applyAddrs();
@@ -360,7 +360,7 @@ $('#btnSaveNet').addEventListener('click', async () => {
       LS.set('pp.hostMode', mode);
       if (mode === 'custom') { S.hostCustom = host; LS.set('pp.hostCustom', host); }
       if (r.needRelisten && scheduleRebase(host, port)) {
-        /* halaman akan dimuat ulang ke alamat baru */
+        /* the page will reload at the new address */
       } else {
         try { S.settings = await api('/api/settings'); fillSettings(); } catch (e) {}
         toast('Pengaturan panel disimpan');
@@ -369,10 +369,10 @@ $('#btnSaveNet').addEventListener('click', async () => {
   });
 });
 
-/* panel web online: toggle di atas pengaturan */
+/* web panel online: toggle above settings */
 $('#panelOnlineToggle').addEventListener('change', (ev) => { setPanelOnline(ev.target.checked); });
 
-/* alamat server Pumpkin: tiga mode, terpisah dari alamat panel */
+/* Pumpkin server address: three modes, separate from the panel address */
 $('#srvBindMode').addEventListener('change', (ev) => {
   S.srvMode = ev.target.value; S.srvEditing = true; syncSrvUi();
 });
@@ -384,13 +384,13 @@ $('#srvBindCustom').addEventListener('input', (ev) => {
 });
 $('#btnSaveSrv').addEventListener('click', saveServerBind);
 
-/* bagian Umum / Eksperimental */
+/* General / Experimental section */
 $('#moreSeg').addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-more]');
   if (b) showMore(b.dataset.more);
 });
 
-/* tentang: tombol membuka popup, kartu tetap bisa ditekan lama untuk backup */
+/* about: button opens the popup; the card still supports long-press for backup */
 $('#btnAbout').addEventListener('click', () => {
   const card = document.getElementById('aboutCard');
   if (card && card.dataset.held === '1') { delete card.dataset.held; return; }

@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/** Pengeditan pumpkin.toml berbasis teks, port dari server.js. */
+/** Text-based pumpkin.toml editing, ported from server.js. */
 final class Toml {
     private Toml() {}
 
@@ -98,7 +98,7 @@ final class Toml {
         return sb.toString();
     }
 
-    /* --------------------------------------------------------- pembacaan */
+    /* ------------------------------------------------------------- reading */
 
     static String grabSection(String toml, String section, String key) {
         if (toml == null || toml.isEmpty() || section == null || section.isEmpty()) return null;

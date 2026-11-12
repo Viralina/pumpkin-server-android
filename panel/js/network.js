@@ -1,5 +1,5 @@
 'use strict';
-/* ---------- panel web online (eksperimental) ---------- */
+/* ---------- web panel online (experimental) ---------- */
 function syncPanelOnline() {
   const on = !!S.panelOnline;
   const lock = $('#netLock');
@@ -46,7 +46,7 @@ async function setPanelOnline(on) {
     host = '127.0.0.1';
   }
   const altHost = (pickedIp(S.status) || {}).address || '127.0.0.1';
-  /* Jangan pernah mengunci toggle: host custom kosong/kedaluwarsa → pakai IP saat ini. */
+  /* Never lock the toggle: empty/stale custom host → use the current IP. */
   if (!host) {
     host = altHost; mode = 'current';
     toast('Host custom kosong — memakai IP saat ini');
@@ -68,7 +68,7 @@ async function setPanelOnline(on) {
       try { S.settings = await api('/api/settings'); fillSettings(); } catch (e) {}
     }
   } catch (e) {
-    /* Host bisa saja sudah kedaluwarsa: ambil status segar lalu coba sekali dengan IP saat ini. */
+    /* The host may be stale: fetch fresh status, then retry once with the current IP. */
     try { const fresh = await api('/api/status'); if (fresh) S.status = fresh; } catch (e2) {}
     const alt = (pickedIp(S.status) || {}).address || '';
     if (mode === 'custom' && alt && alt !== host && alt !== '127.0.0.1') {
@@ -125,7 +125,7 @@ function renderHostPick(st) {
   applyAddrs();
 }
 
-/* ---------- alamat server Pumpkin (pumpkin.toml) ---------- */
+/* ---------- Pumpkin server address (pumpkin.toml) ---------- */
 function srvHostFromUi() {
   const m = $('#srvBindMode');
   const mode = m ? m.value : 'localhost';
@@ -183,7 +183,7 @@ function loadServerBind() {
   const b = splitAddr(getPath(S.cfgParsed, 'networking.bedrock.nethernet.address'), 19132);
   const be = getPath(S.cfgParsed, 'networking.bedrock.enabled');
   S.serverBind = { host: j.host, java: j.port, bedrock: b.port, bedrockEnabled: be !== false };
-  /* Mode selalu mengikuti isi pumpkin.toml, bukan pilihan lama yang tersimpan. */
+  /* Mode always follows pumpkin.toml, not a previously saved choice. */
   if (!S.srvEditing) S.srvMode = bindModeOf(j.host);
   renderServerBind();
   applyAddrs();

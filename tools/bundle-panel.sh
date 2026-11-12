@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Bundel panel modular (panel/index.html + css/ + js/) menjadi satu file HTML
-# yang siap dimasukkan ke APK. Tidak butuh Node/Python — hanya bash + cat.
+# Bundle the modular panel (panel/index.html + css/ + js/) into one HTML file
+# ready to be packed into the APK. No Node/Python needed — just bash + cat.
 #
 #   bash tools/bundle-panel.sh                 # -> app/src/main/assets/index.html
-#   bash tools/bundle-panel.sh /path/out.html  # -> file lain (mis. untuk dites)
+#   bash tools/bundle-panel.sh /path/out.html  # -> another file (e.g. for testing)
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -11,7 +11,7 @@ TPL="$ROOT/panel/index.html"
 OUT=${1:-$ROOT/app/src/main/assets/index.html}
 TMP="$OUT.tmp.$$"
 
-[ -f "$TPL" ] || { echo "panel/index.html tidak ditemukan" >&2; exit 1; }
+[ -f "$TPL" ] || { echo "panel/index.html not found" >&2; exit 1; }
 mkdir -p "$(dirname "$OUT")"
 trap 'rm -f "$TMP"' EXIT
 
@@ -22,7 +22,7 @@ while IFS= read -r line || [ -n "$line" ]; do
       rel=${line#*href=\"}
       rel=${rel%\"\>}
       src="$ROOT/panel/$rel"
-      [ -f "$src" ] || { echo "CSS tidak ditemukan: $rel" >&2; exit 1; }
+      [ -f "$src" ] || { echo "CSS not found: $rel" >&2; exit 1; }
       printf '<style>\n' >> "$TMP"
       cat "$src" >> "$TMP"
       printf '</style>\n' >> "$TMP"
@@ -31,7 +31,7 @@ while IFS= read -r line || [ -n "$line" ]; do
       rel=${line#*src=\"}
       rel=${rel%\"\></script>}
       src="$ROOT/panel/$rel"
-      [ -f "$src" ] || { echo "JS tidak ditemukan: $rel" >&2; exit 1; }
+      [ -f "$src" ] || { echo "JS not found: $rel" >&2; exit 1; }
       printf '<script>\n' >> "$TMP"
       cat "$src" >> "$TMP"
       printf '</script>\n' >> "$TMP"
@@ -44,4 +44,4 @@ done < "$TPL"
 
 mv "$TMP" "$OUT"
 trap - EXIT
-printf 'Panel dibundel -> %s (%s bytes)\n' "$OUT" "$(wc -c < "$OUT" | tr -d ' ')"
+printf 'Panel bundled -> %s (%s bytes)\n' "$OUT" "$(wc -c < "$OUT" | tr -d ' ')"

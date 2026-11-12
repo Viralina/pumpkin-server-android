@@ -23,7 +23,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-/** Utilitas file, jaringan, dan teks. */
+/** File, network, and text utilities. */
 final class Fs {
     private Fs() {}
 
@@ -88,7 +88,7 @@ final class Fs {
 
     /* ---------------------------------------------------------- ELF binary */
 
-    /** Isi PT_INTERP ("" untuk binary statis atau file yang tidak terbaca). */
+    /** PT_INTERP contents ("" for static binaries or unreadable files). */
     static String elfInterpreter(File f) {
         try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(f, "r")) {
             if (raf.length() < 64) return "";
@@ -124,7 +124,7 @@ final class Fs {
         return "";
     }
 
-    /** ELF 64-bit little-endian, arm64, dan bukan build Linux/glibc. */
+    /** 64-bit little-endian arm64 ELF that is not a Linux/glibc build. */
     static boolean isAndroidArm64Elf(File f) {
         byte[] head = new byte[20];
         try (FileInputStream in = new FileInputStream(f)) {
@@ -140,7 +140,7 @@ final class Fs {
         return interp.isEmpty() || interp.contains("linker64");
     }
 
-    /** Penjelasan singkat kenapa sebuah file bukan binary Android yang valid. */
+    /** Short explanation of why a file is not a valid Android binary. */
     static String binaryProblem(File f) {
         if (!f.isFile()) return "file tidak ada";
         if (f.length() < 1024 * 1024) return "ukuran file terlalu kecil (" + f.length() + " byte)";
@@ -218,7 +218,7 @@ final class Fs {
         return total;
     }
 
-    /* ---------------------------------------------------------------- teks */
+    /* ----------------------------------------------------------------- text */
 
     static String stripAnsi(String s) {
         if (s == null) return "";
@@ -263,15 +263,15 @@ final class Fs {
         }
     }
 
-    /* ------------------------------------------------------------ jaringan */
+    /* ------------------------------------------------------------- network */
 
     private static volatile JSONArray ipCache;
     private static volatile long ipCacheAt;
     private static final long IP_TTL_MS = 5000;
 
     /**
-     * Total byte jaringan (rx, tx) dari /proc/net/dev. Loopback dilewati supaya
-     * angka mencerminkan trafik pemain, bukan polling panel itu sendiri.
+     * Total network bytes (rx, tx) from /proc/net/dev. Loopback is skipped so the
+     * numbers reflect player traffic rather than the panel's own polling.
      */
     static long[] netBytes() {
         long rx = 0, tx = 0;
@@ -308,7 +308,7 @@ final class Fs {
                 Enumeration<InetAddress> addrs = ni.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     InetAddress ia = addrs.nextElement();
-                    // Hanya IPv4: panel menampilkan alamat yang bisa dipakai pemain.
+                    // IPv4 only: the panel shows addresses players can actually use.
                     if (!(ia instanceof Inet4Address)) continue;
                     String addr = ia.getHostAddress();
                     if (addr == null || addr.isEmpty()) continue;

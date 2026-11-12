@@ -23,18 +23,21 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # Use the SDK that ships with the runner. The setup-android action can fail
+      # because its "tools" package no longer exists in newer cmdline-tools.
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
         run: |
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER=$(find "$SDK_ROOT" -path '*/cmdline-tools/*/bin/sdkmanager' | sort -V | tail -1)
+          if [ -z "$SDKMANAGER" ]; then echo "sdkmanager not found under $SDK_ROOT" >&2; exit 1; fi
+          echo "SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Build plain APK (build.sh)
         run: |
-          export ANDROID_JAR="$ANDROID_HOME/platforms/android-34/android.jar"
-          export PATH="$ANDROID_HOME/build-tools/34.0.0:$PATH"
+          export ANDROID_JAR="$SDK_ROOT/platforms/android-34/android.jar"
+          export PATH="$SDK_ROOT/build-tools/34.0.0:$PATH"
           bash build.sh
 
       - name: Upload APK

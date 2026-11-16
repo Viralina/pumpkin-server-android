@@ -182,6 +182,84 @@ final class ApiServer {
         }
     }
 
+    /* ------------------------------------------------------------- in-process */
+
+    /**
+     * Runs one API request without a TCP connection. The WebView bridge uses this so
+     * the panel works even when the HTTP listener is stopped or its port is taken.
+     *
+     * @return the JSON response body, always a valid object.
+     */
+    String call(String method, String target, String bodyJson) {
+        try {
+            String path = target == null || target.isEmpty() ? "/api/ping" : target;
+            String query = "";
+            int q = path.indexOf('?');
+            if (q >= 0) {
+                query = path.substring(q + 1);
+                path = path.substring(0, q);
+            }
+            // Streaming does not make sense for a synchronous call.
+            if ("/api/stream".equals(path)) return J.obj("ok", false, "msg", "Streaming tidak tersedia di dalam aplikasi").toString();
+
+            Map<String, String> headers = new HashMap<>();
+            String tok = st.token();
+            if (tok != null && !tok.isEmpty()) headers.put("x-token", tok);
+            headers.put("content-type", "application/json");
+
+            MemSocket ms = new MemSocket();
+            route(ms, method == null || method.isEmpty() ? "GET" : method, path,
+                    parseQuery(query), headers, bodyJson == null ? "" : bodyJson);
+            String out = ms.body();
+            return out == null || out.isEmpty() ? J.obj("ok", false, "msg", "Panel tidak merespons").toString() : out;
+        } catch (Throwable t) {
+            return J.obj("ok", false, "msg", String.valueOf(t.getMessage() == null ? t : t.getMessage())).toString();
+        }
+    }
+
+    /** Socket stand-in that captures the response written by {@link #route}. */
+    private static final class MemSocket extends Socket {
+        private final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        private final InputStream empty = new java.io.ByteArrayInputStream(new byte[0]);
+        private volatile boolean closed;
+
+        @Override
+        public OutputStream getOutputStream() {
+            return buf;
+        }
+
+        @Override
+        public InputStream getInputStream() {
+            return empty;
+        }
+
+        @Override
+        public synchronized void close() {
+            closed = true;
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+        @Override
+        public void setSoTimeout(int timeout) {
+        }
+
+        @Override
+        public InetAddress getInetAddress() {
+            return InetAddress.getLoopbackAddress();
+        }
+
+        /** Body part of the captured HTTP response. */
+        String body() {
+            String raw = new String(buf.toByteArray(), StandardCharsets.UTF_8);
+            int at = raw.indexOf("\r\n\r\n");
+            return at < 0 ? "" : raw.substring(at + 4);
+        }
+    }
+
     /* ---------------------------------------------------------------- request */
 
     private void handle(Socket s) {

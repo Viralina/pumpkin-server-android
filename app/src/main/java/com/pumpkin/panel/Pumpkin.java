@@ -81,6 +81,7 @@ final class Pumpkin {
     Pumpkin(Context ctx, Store store) {
         app = ctx.getApplicationContext();
         st = store;
+        Fs.init(app);
     }
 
     void setApi(ApiServer a) {

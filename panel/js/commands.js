@@ -42,7 +42,7 @@ async function doPower(ev) {
       if (/sudah berjalan/i.test(e.message)) {
         toast('Server memang sudah berjalan');
         api('/api/status').then((st) => { setStatus(st); setOnline(true); }).catch(() => {});
-      } else if (!S.online || /failed to fetch|networkerror|load failed|koneksi timeout/i.test(e.message)) {
+      } else if (!NATIVE && (!S.online || /failed to fetch|networkerror|load failed|koneksi timeout/i.test(e.message))) {
         toast('Mencari panel di 127.0.0.1…', 'err');
         if (S.es) { try { S.es.close(); } catch (e2) {} S.es = null; }
         adoptBase(BASE_URL);
@@ -77,8 +77,11 @@ async function doBackup() {
     ok: 'Buat backup'
   });
   if (!ok) return;
-  try { await api('/api/backup', { method: 'POST' }); toast('Backup dimulai'); }
-  catch (e) { toast(e.message, 'err'); }
+  try {
+    const r = await api('/api/backup', { method: 'POST' });
+    toast('Backup dimulai');
+    watchBackup(r && r.name);
+  } catch (e) { toast(e.message, 'err'); }
 }
 function onBackup(ev) {
   const run = $('#backupRun');

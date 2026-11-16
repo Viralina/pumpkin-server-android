@@ -1,5 +1,13 @@
 package com.pumpkin.panel;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.telephony.TelephonyManager;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,8 +27,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -270,12 +282,203 @@ final class Fs {
     private static volatile long ipCacheAt;
     private static final long IP_TTL_MS = 5000;
 
+    private static Context appCtx;
+
+    /** Needs the app context for carrier names and the default internet network. */
+    static void init(Context ctx) {
+        if (ctx != null) appCtx = ctx.getApplicationContext();
+    }
+
+    /** Wi-Fi / carrier name for a label; raw interface names are never shown. */
+    private static String labelFor(String name, String carrier) {
+        String n = name == null ? "" : name.toLowerCase(Locale.US);
+        if (n.startsWith("ap") || n.startsWith("wlan") || n.startsWith("wifi") || n.startsWith("swlan"))
+            return "Wi-Fi";
+        if (n.startsWith("ccmni") || n.startsWith("rmnet") || n.startsWith("wwan")
+                || n.startsWith("pdp") || n.startsWith("data") || n.startsWith("cell"))
+            return carrier == null || carrier.isEmpty() ? "Data seluler" : carrier;
+        if (n.startsWith("eth")) return "Ethernet";
+        if (n.startsWith("tun") || n.startsWith("ppp") || n.startsWith("wg")) return "VPN";
+        return "Jaringan";
+    }
+
+    private static TelephonyManager telephony() {
+        Context c = appCtx;
+        if (c == null) return null;
+        try {
+            return (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /** Trim a name reported by the system; empty when unknown. */
+    private static String cleanName(String s) {
+        if (s == null) return "";
+        s = s.replace('\n', ' ').replace('\r', ' ').trim();
+        return s.length() > 32 ? s.substring(0, 32).trim() : s;
+    }
+
+    /** SIM / network operator name as reported by Android (works in any country). */
+    private static String carrierName() {
+        TelephonyManager tm = telephony();
+        if (tm == null) return "";
+        try {
+            String s = cleanName(tm.getSimOperatorName());
+            if (s.isEmpty()) s = cleanName(tm.getNetworkOperatorName());
+            return s;
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    /** Carrier for one SIM slot (dual-SIM data connections). */
+    private static String subCarrier(int subId) {
+        TelephonyManager tm = telephony();
+        if (tm == null || subId < 0) return "";
+        try {
+            TelephonyManager s = tm.createForSubscriptionId(subId);
+            String n = cleanName(s.getSimOperatorName());
+            if (n.isEmpty()) n = cleanName(s.getNetworkOperatorName());
+            return n;
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    /** SIM slot behind a cellular network (API 30+, reflection so older devices stay safe). */
+    private static String subCarrierOf(NetworkCapabilities nc) {
+        if (android.os.Build.VERSION.SDK_INT < 29) return "";
+        try {
+            Object info = nc.getTransportInfo();
+            if (info == null) return "";
+            Class<?> cls = Class.forName("android.telephony.TelephonyNetworkSpecifier");
+            if (!cls.isInstance(info)) return "";
+            Object id = cls.getMethod("getSubscriptionId").invoke(info);
+            return id instanceof Integer ? subCarrier((Integer) id) : "";
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    /** Interface name -> label ("Wi-Fi", SIM/operator name, "Ethernet"). */
+    private static Map<String, String> ifaceLabels() {
+        Map<String, String> out = new HashMap<>();
+        Context c = appCtx;
+        if (c == null) return out;
+        try {
+            ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return out;
+            String carrier = carrierName();
+            for (Network n : cm.getAllNetworks()) {
+                NetworkCapabilities nc = cm.getNetworkCapabilities(n);
+                LinkProperties lp = cm.getLinkProperties(n);
+                if (nc == null || lp == null) continue;
+                String ifn = lp.getInterfaceName();
+                if (ifn == null || ifn.isEmpty()) continue;
+                String car = carrier;
+                String sub = subCarrierOf(nc);
+                if (!sub.isEmpty()) car = sub;
+                String lbl = null;
+                if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) lbl = "Wi-Fi";
+                else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+                    lbl = car.isEmpty() ? "Data seluler" : car;
+                else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) lbl = "Ethernet";
+                else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) lbl = "VPN";
+                if (lbl != null) out.put(ifn, lbl);
+            }
+            /* Two SIMs with the same operator name: keep them distinguishable. */
+            Map<String, Integer> seen = new HashMap<>();
+            for (Map.Entry<String, String> e : out.entrySet()) {
+                String lbl = e.getValue();
+                Integer n = seen.get(lbl);
+                if (n == null) seen.put(lbl, 1);
+                else {
+                    seen.put(lbl, n + 1);
+                    e.setValue(lbl + " " + (n + 1));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
+    /** Addresses of the validated default network (the one that actually reaches the internet). */
+    private static Set<String> internetAddrs() {
+        Set<String> out = new HashSet<>();
+        Context c = appCtx;
+        if (c == null) return out;
+        try {
+            ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return out;
+            Network n = cm.getActiveNetwork();
+            if (n == null) return out;
+            NetworkCapabilities nc = cm.getNetworkCapabilities(n);
+            if (nc == null || !nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return out;
+            LinkProperties lp = cm.getLinkProperties(n);
+            if (lp == null) return out;
+            for (LinkAddress la : lp.getLinkAddresses()) {
+                String a = la.getAddress().getHostAddress();
+                int pct = a.indexOf('%');
+                if (pct > 0) a = a.substring(0, pct);
+                out.add(a);
+            }
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
     /**
-     * Total network bytes (rx, tx) from /proc/net/dev. Loopback is skipped so the
-     * numbers reflect player traffic rather than the panel's own polling.
+     * Traffic of this app and its Pumpkin child process (same UID): rx, tx since boot.
+     * Per-UID counters are monotonic, so they do not jump when an interface appears
+     * (a device-wide sum did, which looked like a traffic spike). Other apps' traffic
+     * is not counted. Falls back to per-interface totals only when unsupported.
      */
     static long[] netBytes() {
+        int uid = android.os.Process.myUid();
+        try {
+            long ur = android.net.TrafficStats.getUidRxBytes(uid);
+            long ut = android.net.TrafficStats.getUidTxBytes(uid);
+            if (ur != android.net.TrafficStats.UNSUPPORTED && ut != android.net.TrafficStats.UNSUPPORTED) {
+                return new long[]{Math.max(0, ur), Math.max(0, ut)};
+            }
+        } catch (Throwable ignored) {
+        }
+
         long rx = 0, tx = 0;
+        boolean any = false;
+        try {
+            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
+            while (nis != null && nis.hasMoreElements()) {
+                NetworkInterface ni = nis.nextElement();
+                if (!ni.isUp() || ni.isLoopback()) continue;
+                String name = ni.getName();
+                long r = android.net.TrafficStats.getRxBytes(name);
+                long t = android.net.TrafficStats.getTxBytes(name);
+                if (r != android.net.TrafficStats.UNSUPPORTED && t != android.net.TrafficStats.UNSUPPORTED) {
+                    rx += Math.max(0, r);
+                    tx += Math.max(0, t);
+                    any = true;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        if (any && (rx > 0 || tx > 0)) return new long[]{rx, tx};
+
+        /* Fallback: system-wide counters (includes loopback, but still better than zero). */
+        try {
+            long r = android.net.TrafficStats.getTotalRxBytes();
+            long t = android.net.TrafficStats.getTotalTxBytes();
+            if (r != android.net.TrafficStats.UNSUPPORTED && t != android.net.TrafficStats.UNSUPPORTED
+                    && (r > 0 || t > 0)) {
+                return new long[]{r, t};
+            }
+        } catch (Throwable ignored) {
+        }
+
+        /* Last resort for old/rooted devices where /proc/net/dev is readable. */
+        rx = 0;
+        tx = 0;
         try (java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader("/proc/net/dev"))) {
             String line;
             while ((line = r.readLine()) != null) {
@@ -300,6 +503,8 @@ final class Fs {
         JSONArray cached = ipCache;
         if (cached != null && System.currentTimeMillis() - ipCacheAt < IP_TTL_MS) return cached;
         List<JSONObject> list = new ArrayList<>();
+        Map<String, String> labels = ifaceLabels();
+        Set<String> inet = internetAddrs();
         try {
             Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
             while (nis != null && nis.hasMoreElements()) {
@@ -320,9 +525,11 @@ final class Fs {
                     if (pct > 0) addr = addr.substring(0, pct);
                     JSONObject o = new JSONObject();
                     J.p(o, "name", name);
+                    J.p(o, "label", labels.containsKey(name) ? labels.get(name) : labelFor(name, ""));
                     J.p(o, "address", addr);
                     J.p(o, "family", v6 ? "IPv6" : "IPv4");
                     J.p(o, "internal", ia.isLoopbackAddress());
+                    J.p(o, "net", inet.contains(addr));
                     list.add(o);
                 }
             }
@@ -350,6 +557,8 @@ final class Fs {
         String family = J.str(o, "family", "IPv6");
         boolean internal = J.bool(o, "internal", false);
         String addr = J.str(o, "address", "");
+        /* The address on the validated internet network always comes first. */
+        if (J.bool(o, "net", false)) return -2;
         if (internal) return "IPv6".equals(family) ? 51 : 50;
         if (!"IPv4".equals(family)) {
             String a = addr.toLowerCase(Locale.US);

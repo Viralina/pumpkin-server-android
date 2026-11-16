@@ -10,7 +10,8 @@ App version: **1.1.0** (`versionCode` 6). Do not bump the version without changi
 
 ```
 MainActivity (WebView + native menu)
-        │  HTTP + SSE to 127.0.0.1:8087
+        │  in-process bridge (bundled panel)
+        │  optional HTTP + SSE to 127.0.0.1:8087 (LAN panel)
         ▼
 ApiServer (Java, replacement for server.js)
         │
@@ -22,6 +23,9 @@ ApiServer (Java, replacement for server.js)
 - Web panel: `panel/` (modular HTML/CSS/JS) → bundled into
   `app/src/main/assets/index.html` — one file, no framework/CDN, **always from the APK assets**.
   The bundled asset is not committed; `build.sh` regenerates it.
+- In-app panel: `MainActivity` loads that asset with `loadDataWithBaseURL` and the JS calls
+  `PanelNative.api(...)`; `ApiServer.call()` runs the same routes without a TCP socket, so the
+  panel still works when the HTTP listener is off or its port is taken.
 - Server data: `/sdcard/server` (world, `pumpkin.toml`, logs, plugins).
 - Binary: `/data/data/com.pumpkin.panel/files/pumpkin`.
 - Backups: `/sdcard/server/backups`.
@@ -87,11 +91,12 @@ automatically; the panel is never read from `/sdcard` at runtime.
 The panel is **private**:
 
 - **An access token is generated automatically** the first time the app runs (16 random bytes, hex).
-- **Every** panel request — HTML and `/api/*`, from localhost or the LAN — must include the token:
-  `?token=...` for pages or the `x-token` header for the API.
-- The app's WebView opens the panel with the token in the URL, so users do not have to type anything.
-- Without a matching token, the server **does not send the panel HTML at all**; only a simple lock
-  page with a token form appears.
+- **Every** panel request `/api/*`, from localhost or the LAN, must include the token:
+  `?token=...` or the `x-token` header. The in-app bridge injects the token itself.
+- The app's WebView opens the panel from the APK assets with the token embedded
+  (`window.__PP_TOKEN`), so users do not have to type anything and no URL token is needed.
+- The LAN panel (HTTP) still requires `?token=...`; without it the server **does not send the
+  panel HTML at all**, only a simple lock page with a token form.
 - The token can be viewed/copied from **Settings → Panel access token → Copy token**.
 - Binding to `0.0.0.0`/a LAN IP without a token is still forced to `127.0.0.1` as a safeguard.
 - The WebView blocks every non-local `http`/`https` request. The panel loads no external assets.
@@ -159,7 +164,7 @@ These two addresses are deliberately separate:
 
 - `Store.panelOnline()` defaults to `false`; `ApiServer.openListener()` forces loopback while off.
 - `PUT /api/settings` accepts `panelOnline` and triggers `relisten()` when the value changes.
-- `MainActivity.panelHost()` uses `127.0.0.1` while the panel is offline, so the WebView stays safe.
+- `MainActivity.panelHost()` is only used for LAN panel links; the in-app panel does not use it.
 - The address on Home is derived from the **Pumpkin server** bind (TOML), not the panel address.
 - A `0.0.0.0`/`::` bind address is shown as the device IP on the address card and the Home
   subtitle, because a wildcard address cannot be used by players to connect.
@@ -173,6 +178,10 @@ These two addresses are deliberately separate:
 
 ## Console UX
 
+Clearing the console only clears the view. The log cursor (the newest `id` from `/api/logs`) is
+kept, so the 3-second poll cannot replay lines that were just cleared, while genuinely new lines
+still appear. File-fallback lines (`id=0`) are deduplicated by content for the same reason.
+
 The console panel on phones uses a **fixed** position measured from below the topbar to above the
 tabbar (via the `--console-top`/`--console-bottom` variables updated on resize/orientation). The
 log lives inside a bordered panel with internal scrolling, the command input sits above the log,
@@ -182,8 +191,13 @@ the tabbar.
 ## Panel connection UX
 
 The red **"Panel not connected"** banner does not appear instantly. The reason: when the WebView
-just opened the panel, the page + token are still loading and SSE may reconnect briefly.
+just opened the panel, the page + token are still loading and the connection may still be starting.
 
+- **The in-app panel never uses the HTTP server.** The HTML comes from the APK assets and the JS
+  calls the API in-process through the `PanelNative.api()` bridge. Stopping the web panel, losing
+  the port to another app, or the HTTP service being killed can no longer make the app's own panel
+  show the red banner. The bridge waits up to 8 seconds for the bound service before returning an
+  error, and SSE is replaced by a 3-second poll inside the app.
 - On first opening the panel, the banner gets a **3 second** grace period; after a successful
   connection it is **1.5 seconds**.
 - During the grace period the status pill shows **Connecting** (yellow), not red.
@@ -213,11 +227,17 @@ dropdowns, segmented controls, the sidebar, and the tab bar in all themes.
   policy). It also grants legacy access to `/sdcard`.
 - **Pilih IP** offers **IPv4**, **IPv6**, and **IPv4 + IPv6**. IPv4 binds `0.0.0.0`, IPv6
   binds `::`, and both binds `::` and relies on dual-stack sockets (the panel WebView then uses
-  `127.0.0.1` or `::1`). Address lists are unique and capped at **2 addresses per edition**
-  (Java and Bedrock).
-- Real-time traffic uses a **fixed 100 ms** sample and only reads `/proc/net/dev`.
+  `127.0.0.1` or `::1`). Address labels use **Wi-Fi** or the SIM/operator name reported by Android
+  instead of raw interface names, and the address on the validated internet network is listed
+  first. Address lists are unique and capped at **2 addresses per edition** (Java and Bedrock).
+- Real-time traffic uses a **fixed 100 ms** sample and reads `TrafficStats` counters for this
+  app's UID (the Pumpkin child process shares it), so it shows server traffic only — other
+  apps' downloads are not counted. `/proc/net/dev` is blocked by SELinux on newer Android and
+  is only a fallback.
+- The panel UI has no telemetry and sends nothing. The Pumpkin binary has its own
+  `[telemetry]` heartbeat (default every 300 s) and `[update_checker]`, both configurable in
+  `pumpkin.toml`.
 - The console renders only the last ±400 lines; the full log is still available via download.
-- All panel data stays local; there is no telemetry.
 
 ## Checklist before publishing to GitHub
 

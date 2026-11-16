@@ -35,13 +35,15 @@
 
 ## About
 
-A vanilla web panel (HTML/CSS/JS) runs in a WebView and is served by a small HTTP + SSE server
-written in Java. The whole UI is bundled inside the APK, so the panel keeps working offline and
-never reads HTML from `/sdcard`.
+A vanilla web panel (HTML/CSS/JS) runs in a WebView. The whole UI is bundled inside the APK and
+loads from assets; inside the app it calls the Java API **in-process**, so the panel does not
+depend on the HTTP listener. A small HTTP + SSE server is still available for opening the panel
+from another device on the LAN.
 
 ```mermaid
 flowchart LR
-  A["MainActivity<br/>WebView"] -->|"HTTP + SSE"| B["ApiServer<br/>127.0.0.1:8087"]
+  A["MainActivity<br/>WebView"] -->|"in-process bridge"| B["ApiServer"]
+  A -.->|"optional HTTP + SSE (LAN)"| B
   B --> C["PanelService<br/>foreground + wakelock"]
   B --> D["Pumpkin.java<br/>process · log · world · backup"]
   B --> E["Store<br/>SharedPreferences"]

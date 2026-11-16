@@ -15,6 +15,27 @@ async function pingBase(b, tok, ms) {
 }
 
 async function api(path, opt = {}) {
+  /* Inside the APK the API is called directly (no HTTP server, no fetch). */
+  if (NATIVE) {
+    let txt = '';
+    try {
+      txt = PanelNative.api(opt.method || 'GET', path, opt.body ? JSON.stringify(opt.body) : '');
+    } catch (e) {
+      lastConnErr = e.message || 'gagal';
+      setOnline(false);
+      throw new Error(lastConnErr);
+    }
+    let data = {};
+    try { data = txt ? JSON.parse(txt) : {}; } catch (e) { throw new Error('Respon bukan JSON'); }
+    if (data.ok === false) {
+      const msg = data.msg || 'Permintaan gagal';
+      if (/token/i.test(msg)) lastConnErr = msg;
+      throw new Error(msg);
+    }
+    lastConnErr = '';
+    if (S.online !== true) setOnline(true);
+    return data;
+  }
   const base = String(S.base || '').replace(/\/+$/, '');
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), opt.timeout || 15000);
@@ -114,6 +135,8 @@ function paintConn() {
                               : 'Token panel tidak cocok. Buka ulang aplikasi atau salin token dari Pengaturan.';
       } else if (lastConnErr) {
         hint.textContent = (en ? 'Address ' : 'Alamat ') + hostport + ' · ' + lastConnErr;
+      } else if (NATIVE) {
+        hint.textContent = en ? 'Preparing the in-app panel…' : 'Menyiapkan panel aplikasi…';
       } else if (!connEverOk) {
         hint.textContent = (en ? 'Waiting for the local panel at ' : 'Menunggu panel lokal di ') + hostport;
       } else {
@@ -154,14 +177,43 @@ function startPolling() {
       setStatus(st);
       setOnline(true);
       const r = await api('/api/logs?limit=150');
-      const last = S.logs.length ? (S.logs[S.logs.length - 1].id || 0) : 0;
-      (r.lines || []).forEach((l) => { if ((l.id || 0) > last) addLog(l); });
+      /* Use a cursor that survives "clear console": otherwise S.logs empties and the
+         server tail is replayed. File-fallback lines have id=0, so dedupe them by content. */
+      const fileKeys = {};
+      (r.lines || []).forEach((l) => {
+        const id = l.id || 0;
+        if (id > 0) {
+          if (id > S.logCursor) addLog(l);
+        } else {
+          const k = logKey(l);
+          fileKeys[k] = 1;
+          if (!S.logFileSeen[k]) addLog(l);
+        }
+      });
+      S.logFileSeen = fileKeys;
     } catch (e) { setOnline(false); }
   }, 3000);
 }
 
+/* Native panel has no SSE "backup" event: follow the job until it finishes. */
+function watchBackup(name) {
+  if (!NATIVE || !name) return;
+  try { onBackup({ running: true, name: name }); } catch (e) {}
+  const timer = setInterval(async () => {
+    try {
+      const b = await api('/api/backups');
+      if (b.running) return;
+      clearInterval(timer);
+      const done = (b.backups || []).some((x) => x && x.name === name);
+      try { onBackup({ running: false, ok: done, name: name }); } catch (e) {}
+    } catch (e) {}
+  }, 2500);
+}
+
 function connect() {
   if (S.es) return;
+  /* Native panel: no EventSource available (and no server needed); poll instead. */
+  if (NATIVE) { startPolling(); return; }
   let url;
   try { url = new URL(S.base.replace(/\/+$/, '') + '/api/stream'); } catch (e) { return; }
   if (S.token) url.searchParams.set('token', S.token);
@@ -198,19 +250,35 @@ async function seedLogs() {
   if (S.logs.length) return;
   try {
     const r = await api('/api/logs?limit=400');
-    S.logs = r.lines || [];
-    if (S.tab === 'console') renderConsole(); else updateHomeLogs();
+    /* Seed through addLog so a reconnect after "clear console" only adds lines that
+       are actually newer than the retained cursor, instead of replaying the tail. */
+    const fileKeys = {};
+    (r.lines || []).forEach((l) => {
+      const id = l.id || 0;
+      if (id > 0) {
+        if (id > S.logCursor) addLog(l);
+      } else {
+        const k = logKey(l);
+        fileKeys[k] = 1;
+        if (!S.logFileSeen[k]) addLog(l);
+      }
+    });
+    S.logFileSeen = fileKeys;
+    S.logSeen = 0;
+    updateNavDot();
   } catch (e) {}
 }
 
 async function bootstrap() {
-  try {
-    await api('/api/ping', { timeout: 6000 });
-  } catch (e) {
-    /* find an address that is actually alive: page origin, 127.0.0.1, localhost */
-    for (const b of baseCandidates()) {
-      if (normBase(S.base, '') === b) continue;
-      if (await pingBase(b, S.token)) { adoptBase(b); break; }
+  if (!NATIVE) {
+    try {
+      await api('/api/ping', { timeout: 6000 });
+    } catch (e) {
+      /* find an address that is actually alive: page origin, 127.0.0.1, localhost */
+      for (const b of baseCandidates()) {
+        if (normBase(S.base, '') === b) continue;
+        if (await pingBase(b, S.token)) { adoptBase(b); break; }
+      }
     }
   }
   try {

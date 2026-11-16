@@ -123,7 +123,7 @@ function renderTips(st) {
     '<div class="tip"><svg class="ic"><use href="#i-' + t[0] + '"/></svg><span>' + esc(t[1]) + '</span></div>').join('');
 }
 
-/* real-time traffic: fixed 100 ms sample, no configurable option */
+/* real-time traffic: 100 ms sample (app + Pumpkin server, not the whole phone) */
 const NET_MS = 100;
 let netPrev = null, netTimer = null;
 const netSession = { rx: 0, tx: 0 };
@@ -216,7 +216,12 @@ function lineHTML(e) {
     '<span class="lv">' + esc(label) + '</span>' +
     '<span class="lm">' + esc(e.msg || '') + '</span></div>';
 }
+function logKey(e) {
+  if (e.id && e.id > 0) return 'i' + e.id;
+  return 'f' + (e.time || '') + '|' + (e.level || '') + '|' + (e.msg || '');
+}
 function addLog(e) {
+  if (e.id && e.id > S.logCursor) S.logCursor = e.id;
   S.logs.push(e);
   if (S.logs.length > 1000) S.logs.splice(0, S.logs.length - 1000);
   if (S.tab === 'console') {

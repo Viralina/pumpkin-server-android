@@ -9,11 +9,9 @@ function srvFamily() { return (S.srvFamily === 'ipv6' || S.srvFamily === 'both')
 function familyHost(f) { return f === 'ipv4' ? '0.0.0.0' : '::'; }
 function familyMatches(a, f) { return f === 'both' || ipFamilyOf(a) === f; }
 function ipLabel(a) {
-  if (a.internal) return 'HP ini';
-  const n = String(a.name || '').toLowerCase();
-  if (/^(ap|wlan|wifi|swlan)/.test(n)) return n + ' · wifi/hotspot';
-  if (/^(ccmni|rmnet|wwan|pdp|data|cell)/.test(n)) return n + ' · data';
-  return n || 'jaringan';
+  if (a && a.internal) return 'HP ini';
+  if (a && a.label) return a.label;
+  return 'Jaringan';
 }
 /* ---- panel address: Localhost / current IP / Custom ---- */
 const fmtAddr = (h, p) => (String(h).includes(':') ? '[' + h + ']:' + p : h + ':' + p);
@@ -25,9 +23,23 @@ function cleanHost(v) {
   if (s.indexOf(':') >= 0 && s.split(':').length > 2) return s;
   return s.replace(/:\d+$/, '');
 }
+/* Prefer the address that has internet: hide extra addresses from the same transport
+   (e.g. a second mobile-data PDN), but keep a different transport such as Wi-Fi. */
+function addrKind(a) {
+  const n = String((a && a.name) || '').toLowerCase();
+  if (/^(ap|wlan|wifi|swlan)/.test(n)) return 'wifi';
+  if (/^(ccmni|rmnet|wwan|pdp|data|cell)/.test(n)) return 'cell';
+  return 'other';
+}
+function preferNet(list) {
+  const net = list.filter((a) => !!a.net);
+  if (!net.length) return list;
+  const kinds = new Set(net.map(addrKind));
+  return list.filter((a) => a.net || !kinds.has(addrKind(a)));
+}
 function currentIps(st, fam) {
   fam = fam || ipFamily();
-  const all = ((st && st.ips) || []).filter((a) => !a.internal && familyMatches(a, fam));
+  const all = preferNet(((st && st.ips) || []).filter((a) => !a.internal && familyMatches(a, fam)));
   if (all.length) return all;
   if (fam === 'ipv6') return [{ name: 'loopback', address: '::1', family: 'IPv6', internal: true }];
   return [{ name: 'loopback', address: (st && st.ip) || '127.0.0.1', family: 'IPv4', internal: true }];
@@ -56,9 +68,12 @@ function addrRow(lbl, tag, host, port, v6) {
 }
 function allAddrs(st, fam) {
   const f = fam || srvFamily();
-  const list = (st && st.ips && st.ips.length) ? st.ips.slice() : currentIps(st, f);
-  const v4 = list.filter((a) => ipFamilyOf(a) === 'ipv4' && familyMatches(a, f));
-  const v6 = list.filter((a) => ipFamilyOf(a) === 'ipv6' && familyMatches(a, f));
+  const all = (st && st.ips && st.ips.length) ? st.ips.slice() : currentIps(st, f);
+  /* Loopback is only a fallback; the cards show addresses other devices can reach. */
+  const pub = all.filter((a) => !a.internal);
+  const list = pub.length ? pub : all;
+  const v4 = preferNet(list.filter((a) => ipFamilyOf(a) === 'ipv4' && familyMatches(a, f)));
+  const v6 = preferNet(list.filter((a) => ipFamilyOf(a) === 'ipv6' && familyMatches(a, f)));
   return { v4, v6 };
 }
 /* One IPv4 and one IPv6 first, so "IPv4 + IPv6" shows both families when 2 rows fit. */

@@ -123,9 +123,18 @@ public class PanelService extends Service {
         super.onDestroy();
     }
 
+    /** Exposes the in-process API so the WebView never needs the HTTP listener. */
+    class LocalBinder extends android.os.Binder {
+        ApiServer api() {
+            return api;
+        }
+    }
+
+    private final LocalBinder binder = new LocalBinder();
+
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     /* ---------------------------------------------------------- notification */

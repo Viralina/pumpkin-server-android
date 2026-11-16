@@ -95,6 +95,8 @@ function scheduleRebase(host, port) {
   S.base = next;
   LS.set('pp.base', S.base);
   const b = $('#setBase'); if (b) b.value = S.base;
+  /* Native panel keeps talking to the in-process API; no page reload needed. */
+  if (NATIVE) return true;
   toast('Panel pindah ke ' + S.base + ' — tunggu 2 detik');
   setTimeout(() => { if (S.es) { try { S.es.close(); } catch (e) {} S.es = null; } setOnline(false); bootstrap(); }, 2200);
   return true;

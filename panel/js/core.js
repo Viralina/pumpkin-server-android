@@ -7,7 +7,9 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 const BASE_URL = 'http://127.0.0.1:8087';
-const SERVED = /^https?:$/.test(location.protocol);
+/* The APK loads this page from its own assets and talks to the API in-process. */
+const NATIVE = !!(window.PanelNative && typeof window.PanelNative.api === 'function');
+const SERVED = !NATIVE && /^https?:$/.test(location.protocol);
 
 /* The saved address may be invalid (e.g. 0.0.0.0 / 0.0.0.1) — always sanitize it. */
 function normBase(v, fb) {
@@ -43,7 +45,12 @@ const S = {
     return /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/.test(a) ? a : '#22c55e';
   })(),
   cmdHist: LS.get('pp.cmdhist', []), histIdx: -1,
-  busy: false, logSeen: 0
+  busy: false, logSeen: 0,
+  /* Newest log id seen so far. Kept separately from S.logs so clearing the console
+     does not make /api/logs replay old lines, and so later lines are still detected. */
+  logCursor: 0,
+  /* Signatures of the file-fallback lines (id=0) in the latest poll, to avoid replay. */
+  logFileSeen: {}
 };
 
 /* Token from the server (embedded in the page) or ?token= in the URL. */

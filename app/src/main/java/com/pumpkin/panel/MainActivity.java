@@ -75,12 +75,34 @@ public class MainActivity extends Activity {
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
-    private final ExecutorService net = Executors.newSingleThreadExecutor();
     private int retries;
     private boolean panelStarted;
+    private boolean panelLoaded;
+    private boolean bound;
+    private volatile ApiServer apiRef;
     private boolean menuOpen;
     private boolean bundledBusy;
     private String lang = "id";
+
+    /** Origin used for the bundled panel page (keeps localStorage, no network access). */
+    private static final String PANEL_ORIGIN = "https://panel.local/";
+
+    private final android.content.ServiceConnection panelConn = new android.content.ServiceConnection() {
+        @Override
+        public void onServiceConnected(android.content.ComponentName name, android.os.IBinder service) {
+            if (service instanceof PanelService.LocalBinder) {
+                apiRef = ((PanelService.LocalBinder) service).api();
+            }
+            ui.post(() -> {
+                if (panelStarted) showPanel();
+            });
+        }
+
+        @Override
+        public void onServiceDisconnected(android.content.ComponentName name) {
+            apiRef = null;
+        }
+    };
 
     private static final Map<String, String> EN = new HashMap<>();
 
@@ -219,11 +241,12 @@ public class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
+                String scheme = uri.getScheme() == null ? "" : uri.getScheme();
                 String host = uri.getHost() == null ? "" : uri.getHost();
-                if ("127.0.0.1".equals(host) || "localhost".equals(host)) return false;
-                if (host.equals(panelHost())) return false;
-                // Fully offline: never open links that leave the panel.
-                return true;
+                if ("panel.local".equals(host)) return false;
+                if (!scheme.startsWith("http")) return true;
+                // Only the panel's own address may be opened; external links are ignored.
+                return !isPanelHost(host);
             }
 
             @Override
@@ -232,7 +255,7 @@ public class MainActivity extends Activity {
                 String scheme = uri.getScheme() == null ? "" : uri.getScheme();
                 if (!scheme.startsWith("http")) return null;
                 String host = uri.getHost() == null ? "" : uri.getHost();
-                if ("127.0.0.1".equals(host) || "localhost".equals(host) || host.equals(panelHost())) return null;
+                if ("panel.local".equals(host) || isPanelHost(host)) return null;
                 // Only the local panel may load; external assets are blocked.
                 return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(new byte[0]));
             }
@@ -253,7 +276,7 @@ public class MainActivity extends Activity {
             public void onReceivedError(WebView view, WebResourceRequest request,
                                         android.webkit.WebResourceError error) {
                 if (request == null || !request.isForMainFrame() || !panelStarted) return;
-                if (retries++ < 5) ui.postDelayed(() -> probe(0), 800);
+                // The bundled page has no network dependency; nothing to retry here.
             }
         });
         web.setWebChromeClient(new WebChromeClient());
@@ -602,11 +625,19 @@ public class MainActivity extends Activity {
         Intent svc = new Intent(this, PanelService.class).setAction(PanelService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(svc);
         else startService(svc);
+        try {
+            bindService(new Intent(this, PanelService.class), panelConn,
+                    android.content.Context.BIND_AUTO_CREATE);
+            bound = true;
+        } catch (Exception ignored) {
+        }
         retries = 0;
-        probe(0);
+        // The panel is bundled in the APK, so it opens right away; the bridge reaches
+        // the API in this process and never needs the HTTP listener.
+        showPanel();
     }
 
-    /** Host actually used by the panel (127.0.0.1 when bound to all interfaces). */
+    /** Host actually used by the web panel (127.0.0.1 when bound to all interfaces). */
     private String panelHost() {
         if (!st.panelOnline()) return "127.0.0.1";
         String h = st.host();
@@ -615,79 +646,39 @@ public class MainActivity extends Activity {
         return h;
     }
 
-    private String panelBase() {
-        String h = panelHost();
-        if (h.contains(":")) h = "[" + h + "]";
-        return "http://" + h + ":" + st.port();
-    }
-
-    /** Panel URL; the token is included so LAN IP access can pass the lock page. */
-    private String panelHomeUrl() {
+    /** Load the bundled panel into the WebView (no HTTP server involved). */
+    private void showPanel() {
+        if (!panelStarted || web == null) return;
+        if (!menuOpen) setup.setVisibility(View.GONE);
+        if (panelLoaded) return;
+        String html = readAsset("index.html");
+        if (html == null) {
+            setStatus(("en".equals(lang) ? "Panel HTML is missing from this APK. Reinstall the app." : "HTML panel tidak ada di APK ini. Pasang ulang aplikasi."));
+            return;
+        }
         String tok = st.token();
-        String base = panelBase() + "/";
-        if (tok != null && !tok.isEmpty()) base += "?token=" + Uri.encode(tok);
-        return base;
+        StringBuilder inject = new StringBuilder("<script>window.__PP_NATIVE=1;");
+        if (tok != null && !tok.isEmpty()) {
+            inject.append("window.__PP_TOKEN=").append(org.json.JSONObject.quote(tok)).append(';');
+        }
+        inject.append("</script>");
+        int at = html.indexOf("<head>");
+        html = at >= 0 ? html.substring(0, at + 6) + inject + html.substring(at + 6)
+                : inject + html;
+        panelLoaded = true;
+        web.loadDataWithBaseURL(PANEL_ORIGIN, html, "text/html", "utf-8", null);
     }
 
-    /** Token header for main-page requests (fallback if the query is lost). */
-    private Map<String, String> panelHeaders() {
-        Map<String, String> h = new HashMap<>();
-        String tok = st.token();
-        if (tok != null && !tok.isEmpty()) h.put("x-token", tok);
-        return h;
-    }
-
-    /** Wait for the local API before showing the WebView. */
-    private void probe(int attempt) {
-        if (!panelStarted) return;
-        net.execute(() -> {
-            boolean up = false;
-            HttpURLConnection conn = null;
-            try {
-                conn = (HttpURLConnection) new URL(panelBase() + "/api/ping").openConnection();
-                conn.setConnectTimeout(1200);
-                conn.setReadTimeout(1500);
-                conn.setUseCaches(false);
-                String tok = st.token();
-                if (tok != null && !tok.isEmpty()) conn.setRequestProperty("x-token", tok);
-                // Only accept the panel owned by this process; do not trust another panel on the same port.
-                if (conn.getResponseCode() == 200) {
-                    java.io.InputStream in = conn.getInputStream();
-                    java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
-                    byte[] buf = new byte[4096];
-                    int n;
-                    while ((n = in.read(buf)) > 0 && bo.size() < 16384) bo.write(buf, 0, n);
-                    in.close();
-                    org.json.JSONObject o = new org.json.JSONObject(bo.toString("UTF-8"));
-                    up = o.optInt("panel", 0) == 1
-                            && o.optInt("pid", -1) == android.os.Process.myPid();
-                }
-            } catch (Exception ignored) {
-            } finally {
-                if (conn != null) conn.disconnect();
-            }
-            final boolean ready = up;
-            ui.post(() -> {
-                if (!panelStarted) return;
-                if (ready) {
-                    retries = 0;
-                    if (!menuOpen) setup.setVisibility(View.GONE);
-                    web.loadUrl(panelHomeUrl(), panelHeaders());
-                    return;
-                }
-                if (attempt < 15) {
-                    ui.postDelayed(() -> probe(attempt + 1), 700);
-                } else {
-                    panelDown();
-                }
-            });
-        });
-    }
-
-    private void panelDown() {
-        panelStarted = false;
-        showSetup();
-        setStatus(("en".equals(lang) ? "Panel API is not responding at " : "Panel API tidak merespons di ") + panelHost() + ":" + st.port() + ("en".equals(lang) ? ". The port may be used by another app, or the service failed to start. Close and reopen this app." : ". Port mungkin dipakai aplikasi lain (mis. panel Termux), atau service gagal start. Tutup lalu buka lagi aplikasi ini."));
+    private String readAsset(String name) {
+        try (InputStream in = getAssets().open(name)) {
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[32 * 1024];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     private void onBinaryReady() {
@@ -748,14 +739,41 @@ public class MainActivity extends Activity {
         public void setLang(String code) {
             ui.post(() -> setLanguage(code));
         }
+
+        /**
+         * In-process API used by the bundled panel. No HTTP server, no token in the
+         * request: the token is injected inside the app.
+         */
+        @JavascriptInterface
+        public String api(String method, String path, String body) {
+            ApiServer a = apiRef;
+            long until = System.currentTimeMillis() + 8000;
+            while (a == null && System.currentTimeMillis() < until) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    break;
+                }
+                a = apiRef;
+            }
+            if (a == null) {
+                return "{\"ok\":false,\"msg\":\"Layanan panel belum siap\"}";
+            }
+            return a.call(method, path, body);
+        }
+    }
+
+    private boolean isPanelHost(String host) {
+        if (host == null) return false;
+        if ("127.0.0.1".equals(host) || "localhost".equals(host) || "::1".equals(host)) return true;
+        return host.equals(panelHost());
     }
 
     private boolean isPanelUrl(String url) {
         if (url == null) return false;
+        if (url.startsWith(PANEL_ORIGIN)) return true;
         try {
-            String host = Uri.parse(url).getHost();
-            if (host == null) return false;
-            return "127.0.0.1".equals(host) || "localhost".equals(host) || host.equals(panelHost());
+            return isPanelHost(Uri.parse(url).getHost());
         } catch (Exception e) {
             return false;
         }
@@ -1285,8 +1303,14 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (bound) {
+            try {
+                unbindService(panelConn);
+            } catch (Exception ignored) {
+            }
+            bound = false;
+        }
         io.shutdownNow();
-        net.shutdownNow();
         super.onDestroy();
     }
 }

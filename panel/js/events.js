@@ -208,7 +208,15 @@ $('#cmdInput').addEventListener('keydown', (ev) => {
   }
 });
 $('#logSearch').addEventListener('input', (ev) => { S.q = ev.target.value.trim(); renderConsole(); });
-$('#btnClearLog').addEventListener('click', () => { S.logs = []; $('#logList').innerHTML = ''; toast('Tampilan log dibersihkan'); });
+$('#btnClearLog').addEventListener('click', () => {
+  S.logs = [];
+  S.logSeen = 0;
+  /* Keep S.logCursor / S.logFileSeen: they prevent the poller from replaying lines
+     that were just cleared. Only the displayed history is reset. */
+  $('#logList').innerHTML = '';
+  updateNavDot();
+  toast('Tampilan log dibersihkan');
+});
 $('#btnDownloadLog').addEventListener('click', () => {
   const text = S.logs.map((e) => (e.time ? e.time + ' ' : '') + (e.level || e.src || '') + ' ' + (e.msg || '')).join('\n');
   const blob = new Blob([text || '(kosong)'], { type: 'text/plain' });

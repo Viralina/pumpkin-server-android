@@ -1351,10 +1351,11 @@ final class Pumpkin {
         for (int i = 0; i < ips.length(); i++) {
             JSONObject ip = ips.optJSONObject(i);
             if (ip == null) continue;
-            if (!"IPv4".equals(J.str(ip, "family", ""))) continue;
+            String host = J.str(ip, "address", "");
+            if (host.indexOf(':') >= 0) host = "[" + host + "]";
             JSONObject u = new JSONObject();
             J.p(u, "label", J.str(ip, "name", ""));
-            J.p(u, "url", "http://" + J.str(ip, "address", "") + ":" + st.port());
+            J.p(u, "url", "http://" + host + ":" + st.port());
             J.a(urls, u);
         }
 

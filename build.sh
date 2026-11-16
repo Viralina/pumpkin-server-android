@@ -13,8 +13,8 @@ ROOT=$(cd "$(dirname "$0")" && pwd)
 ANDROID_JAR=${ANDROID_JAR:-$HOME/android-build/sdk/android-34/android.jar}
 MIN_SDK=24
 TARGET_SDK=28
-VERSION_CODE=5
-VERSION_NAME=1.0.0
+VERSION_CODE=6
+VERSION_NAME=1.1.0
 
 BUNDLE_BIN=${BUNDLE_BIN:-}
 APK_NAME=${APK_NAME:-}

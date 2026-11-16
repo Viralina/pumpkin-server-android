@@ -24,7 +24,7 @@
     'Mulai server': 'Start server',
     'Hentikan server': 'Stop server',
     'Alamat koneksi': 'Connection addresses',
-    'IPv4 saja · maksimal 2 alamat per edisi · ketuk untuk menyalin': 'IPv4 only · max 2 addresses per edition · tap to copy',
+    'IPv4 / IPv6 · maksimal 2 alamat per edisi · ketuk untuk menyalin': 'IPv4 / IPv6 · max 2 addresses per edition · tap to copy',
     'Ukuran world': 'World size',
     'penyimpanan': 'storage',
     'Traffic real-time': 'Real-time traffic',

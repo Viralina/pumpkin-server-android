@@ -1,5 +1,13 @@
 'use strict';
 /* ============================== status ============================== */
+/* Address family selector: IPv4, IPv6, or both (IPv6 wildcard with dual-stack). */
+const IP_FAMILY_OPTS = '<option value="ipv4">IPv4</option><option value="ipv6">IPv6</option><option value="both">IPv4 + IPv6</option>';
+function ipFamilyOf(a) { return a && a.family === 'IPv6' ? 'ipv6' : 'ipv4'; }
+function ipFamily() { return (S.ipFamily === 'ipv6' || S.ipFamily === 'both') ? S.ipFamily : 'ipv4'; }
+function srvFamily() { return (S.srvFamily === 'ipv6' || S.srvFamily === 'both') ? S.srvFamily : 'ipv4'; }
+/* 0.0.0.0 = all IPv4 interfaces; :: = all IPv6 interfaces (dual-stack when available). */
+function familyHost(f) { return f === 'ipv4' ? '0.0.0.0' : '::'; }
+function familyMatches(a, f) { return f === 'both' || ipFamilyOf(a) === f; }
 function ipLabel(a) {
   if (a.internal) return 'HP ini';
   const n = String(a.name || '').toLowerCase();
@@ -10,11 +18,19 @@ function ipLabel(a) {
 /* ---- panel address: Localhost / current IP / Custom ---- */
 const fmtAddr = (h, p) => (String(h).includes(':') ? '[' + h + ']:' + p : h + ':' + p);
 function cleanHost(v) {
-  return String(v == null ? '' : v).trim().replace(/^[a-z]+:\/\//i, '').split('/')[0].replace(/:\d+$/, '');
+  const s = String(v == null ? '' : v).trim().replace(/^[a-z]+:\/\//i, '').split('/')[0];
+  const br = s.match(/^\[(.*)\](?::\d+)?$/);
+  if (br) return br[1];
+  /* Bare IPv6 has more than one colon and no port to strip. */
+  if (s.indexOf(':') >= 0 && s.split(':').length > 2) return s;
+  return s.replace(/:\d+$/, '');
 }
-function currentIps(st) {
-  const v4 = ((st && st.ips) || []).filter((a) => a.family === 'IPv4' && !a.internal);
-  return v4.length ? v4 : [{ name: 'loopback', address: (st && st.ip) || '127.0.0.1', family: 'IPv4', internal: true }];
+function currentIps(st, fam) {
+  fam = fam || ipFamily();
+  const all = ((st && st.ips) || []).filter((a) => !a.internal && familyMatches(a, fam));
+  if (all.length) return all;
+  if (fam === 'ipv6') return [{ name: 'loopback', address: '::1', family: 'IPv6', internal: true }];
+  return [{ name: 'loopback', address: (st && st.ip) || '127.0.0.1', family: 'IPv4', internal: true }];
 }
 function hostMode() {
   if (S.hostMode === 'localhost' || S.hostMode === 'current' || S.hostMode === 'custom') return S.hostMode;
@@ -23,14 +39,13 @@ function hostMode() {
   if (h === '0.0.0.0' || h === '::') return 'current';
   return 'custom';
 }
-function pickedIp(st) {
-  const list = currentIps(st);
-  return list.find((a) => a.address === S.ipPick) || list[0];
+function pickedIp(st, fam) {
+  return currentIps(st, fam)[0];
 }
 function effHost() {
   const mode = hostMode();
   if (mode === 'custom') return cleanHost(S.hostCustom) || '127.0.0.1';
-  if (mode === 'current') return pickedIp(S.status).address;
+  if (mode === 'current') return familyHost(ipFamily());
   return '127.0.0.1';
 }
 function addrRow(lbl, tag, host, port, v6) {
@@ -39,11 +54,22 @@ function addrRow(lbl, tag, host, port, v6) {
     '</span><span class="ar-val">' + esc(a) + '</span></span><span class="ar-tag">' + esc(tag) +
     '</span><svg class="ic"><use href="#i-copy"/></svg></button>';
 }
-function allAddrs(st) {
-  const list = (st && st.ips && st.ips.length) ? st.ips.slice() : currentIps(st);
-  const v4 = list.filter((a) => a.family === 'IPv4' || /^\d+\.\d+\.\d+\.\d+$/.test(a.address));
-  // The panel uses IPv4 only; IPv6 addresses are not shown.
-  return { v4, v6: [] };
+function allAddrs(st, fam) {
+  const f = fam || srvFamily();
+  const list = (st && st.ips && st.ips.length) ? st.ips.slice() : currentIps(st, f);
+  const v4 = list.filter((a) => ipFamilyOf(a) === 'ipv4' && familyMatches(a, f));
+  const v6 = list.filter((a) => ipFamilyOf(a) === 'ipv6' && familyMatches(a, f));
+  return { v4, v6 };
+}
+/* One IPv4 and one IPv6 first, so "IPv4 + IPv6" shows both families when 2 rows fit. */
+function interleave(a, b) {
+  const out = [];
+  const n = Math.max(a.length, b.length);
+  for (let i = 0; i < n; i++) {
+    if (a[i]) out.push(a[i]);
+    if (b[i]) out.push(b[i]);
+  }
+  return out;
 }
 function splitAddr(v, defPort) {
   let s = String(v == null ? '' : v).trim().replace(/^["']+|["']+$/g, '');
@@ -62,7 +88,7 @@ function bindModeOf(host) {
   if (h === '0.0.0.0' || h === '::') return 'current';
   /* current device IP: treat as "current IP" mode, not custom. */
   try {
-    if (currentIps(S.status).some((a) => a.address === h)) return 'current';
+    if (currentIps(S.status, 'both').some((a) => a.address === h)) return 'current';
   } catch (e) {}
   return 'custom';
 }
@@ -76,7 +102,7 @@ function serverBindHost() {
 function dialHost(host, st) {
   const h = String(host == null ? '' : host).trim();
   if (h && h !== '0.0.0.0' && h !== '::') return h;
-  const a = pickedIp(st || S.status);
+  const a = pickedIp(st || S.status, srvFamily());
   return (a && a.address) || '127.0.0.1';
 }
 function applyAddrs() {
@@ -86,7 +112,8 @@ function applyAddrs() {
   const bp = (st.ports && st.ports.bedrock) || (S.serverBind && S.serverBind.bedrock) || 19132;
   const off = (st.ports && st.ports.bedrockEnabled === false) || (S.serverBind && S.serverBind.bedrockEnabled === false);
   const mode = S.serverBind ? bindModeOf(S.serverBind.host) : hostMode();
-  const { v4 } = allAddrs(st);
+  const { v4, v6 } = allAddrs(st, srvFamily());
+  const all = interleave(v4, v6);
   const seen = new Set();
   const rows = [];
   const add = (lbl, tag, host) => {
@@ -97,19 +124,19 @@ function applyAddrs() {
   };
   if (mode === 'current') {
     const bound = S.serverBind && S.serverBind.host;
-    const a = (bound && bound !== '0.0.0.0' && bound !== '::' && v4.find((x) => x.address === bound)) || pickedIp(st);
-    add(ipLabel(a), 'IP', a.address);
-    v4.filter((x) => x.address !== a.address)
+    const a = (bound && bound !== '0.0.0.0' && bound !== '::' && all.find((x) => x.address === bound)) || pickedIp(st, srvFamily());
+    add(ipLabel(a), ipFamilyOf(a) === 'ipv6' ? 'IPv6' : 'IP', a.address);
+    all.filter((x) => x.address !== a.address)
       .sort((x, y) => Number(x.internal) - Number(y.internal))
-      .forEach((x) => add(ipLabel(x), 'IP', x.address));
+      .forEach((x) => add(ipLabel(x), ipFamilyOf(x) === 'ipv6' ? 'IPv6' : 'IP', x.address));
   } else if (mode === 'custom') {
     add('custom', 'CUSTOM', S.serverBind ? S.serverBind.host : cleanHost(S.hostCustom));
   } else {
     add('localhost', 'LOCAL', '127.0.0.1');
   }
-  // Unique IPv4 only, at most 2 addresses per edition (Java/Bedrock).
+  // At most 2 addresses per edition (Java/Bedrock).
   const list = rows.slice(0, 2);
-  const paint = (port) => list.map((r) => addrRow(r.lbl, r.tag, r.host, port)).join('');
+  const paint = (port) => list.map((r) => addrRow(r.lbl, r.tag, r.host, port, r.host.indexOf(':') >= 0)).join('');
   const empty = '<div class="addr-empty">Atur alamat server di Pengaturan &rarr; Eksperimental</div>';
   const jl = $('#javaAddrList');
   if (jl) jl.innerHTML = list.length ? paint(jp) : empty;
@@ -150,7 +177,7 @@ function paintNet() {
   const portEl = $('#setPort');
   const port = Number(portEl && portEl.value) || (S.settings && S.settings.settings && S.settings.settings.port) || 8087;
   let hosts = [];
-  if (mode === 'current') hosts = currentIps(S.status).map((a) => a.address);
+  if (mode === 'current') hosts = currentIps(S.status, ipFamily()).map((a) => a.address);
   else if (mode === 'custom' && cleanHost(S.hostCustom)) hosts = [cleanHost(S.hostCustom)];
   nu.innerHTML = hosts.map((h) => '<span class="inline-code" style="display:inline-block;margin:2px 4px 0 0">' + esc('http://' + fmtAddr(h, port)) + '</span>').join('');
 }

@@ -715,6 +715,8 @@ final class ApiServer {
 
     /** Used for internal tests. */
     String baseUrl() {
-        return "http://" + st.host() + ":" + st.port();
+        String h = st.host();
+        if (h != null && h.indexOf(':') >= 0) h = "[" + h + "]";
+        return "http://" + h + ":" + st.port();
     }
 }

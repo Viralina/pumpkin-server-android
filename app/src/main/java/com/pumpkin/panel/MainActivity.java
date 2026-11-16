@@ -610,7 +610,8 @@ public class MainActivity extends Activity {
     private String panelHost() {
         if (!st.panelOnline()) return "127.0.0.1";
         String h = st.host();
-        if (h == null || h.isEmpty() || "0.0.0.0".equals(h) || "::".equals(h)) return "127.0.0.1";
+        if (h == null || h.isEmpty() || "0.0.0.0".equals(h)) return "127.0.0.1";
+        if ("::".equals(h)) return "::1";
         return h;
     }
 

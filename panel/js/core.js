@@ -18,7 +18,7 @@ function normBase(v, fb) {
     const u = new URL(s);
     if (!/^https?:$/.test(u.protocol)) return fb;
     const h = String(u.hostname || '').replace(/^\[|\]$/g, '').toLowerCase();
-    if (!h || h === '0.0.0.0' || h === '0.0.0.1' || h === '::' || h === '::1') u.hostname = '127.0.0.1';
+    if (!h || h === '0.0.0.0' || h === '0.0.0.1' || h === '::') u.hostname = '127.0.0.1';
     return u.origin.replace(/\/+$/, '');
   } catch (e) { return fb; }
 }
@@ -34,8 +34,8 @@ const S = {
   tab: 'home',
   status: null, logs: [], cfgToml: '', cfgParsed: {}, cfgOriginal: {}, players: null,
   backups: [], settings: null, online: false, es: null,
-  level: 'ALL', q: '', autoscroll: LS.get('pp.autoscroll', true), ipPick: LS.get('pp.ip', ''), hostMode: LS.get('pp.hostMode', ''), hostCustom: LS.get('pp.hostCustom', ''), paths: {},
-  panelOnline: false, serverBind: null, srvMode: '', srvIp: LS.get('pp.srvIp', ''), srvCustom: LS.get('pp.srvCustom', ''), srvEditing: false,
+  level: 'ALL', q: '', autoscroll: LS.get('pp.autoscroll', true), ipFamily: LS.get('pp.ipFamily', 'ipv4'), srvFamily: LS.get('pp.srvFamily', ''), hostMode: LS.get('pp.hostMode', ''), hostCustom: LS.get('pp.hostCustom', ''), paths: {},
+  panelOnline: false, serverBind: null, srvMode: '', srvCustom: LS.get('pp.srvCustom', ''), srvEditing: false,
   theme: LS.get('pp.theme', 'dark'),
   accent: (function () {
     const a = String(LS.get('pp.accent', '') || '').trim().toLowerCase();

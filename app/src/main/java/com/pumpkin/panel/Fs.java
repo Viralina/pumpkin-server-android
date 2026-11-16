@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
@@ -308,8 +309,11 @@ final class Fs {
                 Enumeration<InetAddress> addrs = ni.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     InetAddress ia = addrs.nextElement();
-                    // IPv4 only: the panel shows addresses players can actually use.
-                    if (!(ia instanceof Inet4Address)) continue;
+                    boolean v6 = ia instanceof Inet6Address;
+                    // Show usable addresses: IPv4/IPv6, without link-local or multicast.
+                    if (!(ia instanceof Inet4Address) && !v6) continue;
+                    if (ia.isMulticastAddress()) continue;
+                    if (v6 && ia.isLinkLocalAddress()) continue;
                     String addr = ia.getHostAddress();
                     if (addr == null || addr.isEmpty()) continue;
                     int pct = addr.indexOf('%');
@@ -317,7 +321,7 @@ final class Fs {
                     JSONObject o = new JSONObject();
                     J.p(o, "name", name);
                     J.p(o, "address", addr);
-                    J.p(o, "family", "IPv4");
+                    J.p(o, "family", v6 ? "IPv6" : "IPv4");
                     J.p(o, "internal", ia.isLoopbackAddress());
                     list.add(o);
                 }
@@ -346,8 +350,11 @@ final class Fs {
         String family = J.str(o, "family", "IPv6");
         boolean internal = J.bool(o, "internal", false);
         String addr = J.str(o, "address", "");
-        if (!"IPv4".equals(family)) return 100 + (internal ? 9 : 5);
-        if (internal) return 50;
+        if (internal) return "IPv6".equals(family) ? 51 : 50;
+        if (!"IPv4".equals(family)) {
+            String a = addr.toLowerCase(Locale.US);
+            return (a.startsWith("fc") || a.startsWith("fd")) ? 4 : 5;
+        }
         if (addr.startsWith("192.168.")) return 0;
         if (addr.startsWith("10.")) return 1;
         if (addr.startsWith("172.16.") || addr.startsWith("172.17.") || addr.startsWith("172.18.")

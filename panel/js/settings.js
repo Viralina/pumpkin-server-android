@@ -19,9 +19,12 @@ function fillSettings() {
   const ps = $('#setPort');
   if (ps) ps.value = st.port || 8087;
   const h = st.host || '127.0.0.1';
-  if (h !== '0.0.0.0' && h !== '127.0.0.1' && h !== 'localhost' && h !== '::' && h !== '::1') {
+  if (h === '0.0.0.0') {
+    if (S.ipFamily !== 'ipv4') { S.ipFamily = 'ipv4'; LS.set('pp.ipFamily', 'ipv4'); }
+  } else if (h === '::') {
+    if (S.ipFamily !== 'ipv6' && S.ipFamily !== 'both') { S.ipFamily = 'both'; LS.set('pp.ipFamily', 'both'); }
+  } else if (h !== '127.0.0.1' && h !== 'localhost' && h !== '::1') {
     if (!S.hostCustom) { S.hostCustom = h; LS.set('pp.hostCustom', h); }
-    if (S.ipPick && S.ipPick !== h) { S.ipPick = h; LS.set('pp.ip', h); }
   }
   renderHostPick(S.status);
   S.panelOnline = st.panelOnline === true;

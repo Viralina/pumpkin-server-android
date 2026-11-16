@@ -60,7 +60,7 @@ It is meant for running a Pumpkin server straight from a phone: download the bin
 | World | Use, rename, regenerate with a seed, delete |
 | Players | Online list, OP/deop, whitelist, kick, ban/unban, gamemode |
 | Backup | Create `.tar.gz` of the world folder, list, delete (hidden menu) |
-| Network | Online panel toggle, 3-mode panel bind, separate Pumpkin bind |
+| Network | Online panel toggle, 3-mode panel bind, IPv4/IPv6 selection, separate Pumpkin bind |
 | Appearance | ID/EN language, dark/light theme, green accent, guide popups |
 | Security | Private token for the HTML page and every `/api/*` route |
 

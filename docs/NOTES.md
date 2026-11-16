@@ -3,7 +3,7 @@
 This document covers things that are not always obvious from the code: how to build, features
 hidden in the native menu, the security model, and a checklist before publishing the repo.
 
-App version: **1.0.0** (`versionCode` 5). Do not bump the version without changing
+App version: **1.1.0** (`versionCode` 6). Do not bump the version without changing
 `build.sh` and `app/build.gradle.kts` together.
 
 ## Architecture at a glance
@@ -211,7 +211,9 @@ dropdowns, segmented controls, the sidebar, and the tab bar in all themes.
 
 - `targetSdk 28` so the ELF binary may be executed from the app data folder (Android 10+ W^X
   policy). It also grants legacy access to `/sdcard`.
-- The panel only shows **IPv4**, unique (no duplicates), at most **2 addresses per edition**
+- **Pilih IP** offers **IPv4**, **IPv6**, and **IPv4 + IPv6**. IPv4 binds `0.0.0.0`, IPv6
+  binds `::`, and both binds `::` and relies on dual-stack sockets (the panel WebView then uses
+  `127.0.0.1` or `::1`). Address lists are unique and capped at **2 addresses per edition**
   (Java and Bedrock).
 - Real-time traffic uses a **fixed 100 ms** sample and only reads `/proc/net/dev`.
 - The console renders only the last ±400 lines; the full log is still available via download.
@@ -219,7 +221,7 @@ dropdowns, segmented controls, the sidebar, and the tab bar in all themes.
 
 ## Checklist before publishing to GitHub
 
-- [ ] `versionName` stays `1.0.0`, `versionCode` 5 (or change both together).
+- [ ] `versionName` stays `1.1.0`, `versionCode` 6 (or change both together).
 - [ ] `app/src/main/assets/index.html` is regenerated from `panel/` (`bash tools/bundle-panel.sh`).
 - [ ] No tokens/keystores/personal paths in the repo (`git status`, `git grep -i token`).
 - [ ] The README explains both variants (plain and full) and the internet requirement for downloads.

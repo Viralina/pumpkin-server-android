@@ -41,18 +41,16 @@ async function setPanelOnline(on) {
     host = cleanHost(S.hostCustom) || cleanHost($('#setHostCustom').value) ||
       cleanHost(S.settings && S.settings.settings && S.settings.settings.host);
   } else if (mode === 'current') {
-    host = ($('#setHostPick').value || '').trim() || (pickedIp(S.status) || {}).address || '';
+    host = familyHost(ipFamily());
   } else {
     host = '127.0.0.1';
   }
-  const altHost = (pickedIp(S.status) || {}).address || '127.0.0.1';
-  /* Never lock the toggle: empty/stale custom host → use the current IP. */
+  const altHost = familyHost(ipFamily());
+  /* Never lock the toggle: empty/stale custom host → use the chosen address family. */
   if (!host) {
     host = altHost; mode = 'current';
     toast('Host custom kosong — memakai IP saat ini');
-  } else if (host === '0.0.0.0' || host === '::') {
-    host = altHost; mode = 'current';
-  } else if (mode === 'custom' && !currentIps(S.status).some((a) => a.address === host)) {
+  } else if (mode === 'custom' && !currentIps(S.status, 'both').some((a) => a.address === host)) {
     host = altHost; mode = 'current';
     toast('Host custom tidak aktif — memakai IP saat ini');
   }
@@ -70,7 +68,7 @@ async function setPanelOnline(on) {
   } catch (e) {
     /* The host may be stale: fetch fresh status, then retry once with the current IP. */
     try { const fresh = await api('/api/status'); if (fresh) S.status = fresh; } catch (e2) {}
-    const alt = (pickedIp(S.status) || {}).address || '';
+    const alt = familyHost(ipFamily());
     if (mode === 'custom' && alt && alt !== host && alt !== '127.0.0.1') {
       try {
         await api('/api/settings', { method: 'PUT', body: { panelOnline: true, host: alt, port } });
@@ -87,7 +85,11 @@ async function setPanelOnline(on) {
   }
 }
 function scheduleRebase(host, port) {
-  const hn = (host === '0.0.0.0' || host === '::') ? ((location.hostname && location.hostname !== '0.0.0.0') ? location.hostname : '127.0.0.1') : host;
+  let hn = host;
+  if (host === '0.0.0.0' || host === '::') {
+    hn = (location.hostname && location.hostname !== '0.0.0.0') ? location.hostname : '127.0.0.1';
+    hn = hn.replace(/^\[|\]$/g, '');
+  }
   const next = 'http://' + fmtAddr(hn, port);
   if (next === String(S.base || '').replace(/\/+$/, '')) return false;
   S.base = next;
@@ -112,13 +114,11 @@ function syncHostUi() {
 function renderHostPick(st) {
   const sel = $('#setHostPick');
   if (sel) {
-    const list = currentIps(st);
-    const key = list.map((a) => a.address + '|' + a.name).join(',');
-    if (sel.dataset.key !== key) {
-      sel.dataset.key = key;
-      sel.innerHTML = list.map((a) => '<option value="' + esc(a.address) + '">' + esc(ipLabel(a) + ' \u00b7 ' + a.address) + '</option>').join('');
+    if (sel.dataset.key !== 'family-v1') {
+      sel.dataset.key = 'family-v1';
+      sel.innerHTML = IP_FAMILY_OPTS;
     }
-    sel.value = pickedIp(st).address;
+    sel.value = ipFamily();
   }
   if (window.ppRefreshSelects) ppRefreshSelects();
   syncHostUi();
@@ -130,10 +130,7 @@ function srvHostFromUi() {
   const m = $('#srvBindMode');
   const mode = m ? m.value : 'localhost';
   if (mode === 'custom') return cleanHost($('#srvBindCustom').value) || '';
-  if (mode === 'current') {
-    const p = $('#srvBindPick');
-    return (p && p.value) || (pickedIp(S.status) || {}).address || '0.0.0.0';
-  }
+  if (mode === 'current') return familyHost(srvFamily());
   return '127.0.0.1';
 }
 function syncSrvUi() {
@@ -141,7 +138,8 @@ function syncSrvUi() {
   const mode = m ? m.value : 'localhost';
   const pw = $('#srvPickWrap'); if (pw) pw.hidden = mode !== 'current';
   const cw = $('#srvCustomWrap'); if (cw) cw.hidden = mode !== 'custom';
-  const host = srvHostFromUi() || '127.0.0.1';
+  const rawHost = srvHostFromUi() || '127.0.0.1';
+  const host = mode === 'current' ? dialHost(rawHost, S.status) : rawHost;
   const sb = S.serverBind || { java: 25565, bedrock: 19132, bedrockEnabled: true };
   const pv = $('#srvAddrPreview');
   if (pv) {
@@ -156,21 +154,13 @@ function renderServerBind() {
   const mode = S.srvMode || bindModeOf(sb.host);
   const sel = $('#srvBindMode');
   if (sel && !S.srvEditing && sel.value !== mode) sel.value = mode;
-  const list = currentIps(S.status);
   const pick = $('#srvBindPick');
   if (pick) {
-    const extra = (mode === 'current' && sb.host && sb.host !== '0.0.0.0' && sb.host !== '::'
-      && !list.some((a) => a.address === sb.host)) ? [{ name: 'bind', address: sb.host, internal: false }] : [];
-    const all = list.concat(extra);
-    const key = all.map((a) => a.address + '|' + a.name).join(',');
-    if (pick.dataset.key !== key) {
-      const prevVal = pick.value;
-      pick.dataset.key = key;
-      pick.innerHTML = all.map((a) => '<option value="' + esc(a.address) + '">' + esc(ipLabel(a) + ' \u00b7 ' + a.address) + '</option>').join('');
-      if (S.srvEditing && prevVal && all.some((a) => a.address === prevVal)) pick.value = prevVal;
+    if (pick.dataset.key !== 'family-v1') {
+      pick.dataset.key = 'family-v1';
+      pick.innerHTML = IP_FAMILY_OPTS;
     }
-    const want = (mode === 'custom' || mode === 'localhost') ? pickedIp(S.status).address : (sb.host === '0.0.0.0' || sb.host === '::' ? pickedIp(S.status).address : sb.host);
-    if (!S.srvEditing) pick.value = want;
+    if (!S.srvEditing) pick.value = srvFamily();
   }
   const ci = $('#srvBindCustom');
   if (ci && !S.srvEditing && ci !== document.activeElement) ci.value = mode === 'custom' ? sb.host : (S.srvCustom || '');
@@ -184,7 +174,16 @@ function loadServerBind() {
   const be = getPath(S.cfgParsed, 'networking.bedrock.enabled');
   S.serverBind = { host: j.host, java: j.port, bedrock: b.port, bedrockEnabled: be !== false };
   /* Mode always follows pumpkin.toml, not a previously saved choice. */
-  if (!S.srvEditing) S.srvMode = bindModeOf(j.host);
+  if (!S.srvEditing) {
+    S.srvMode = bindModeOf(j.host);
+    if (S.srvMode === 'current') {
+      if (j.host === '0.0.0.0') S.srvFamily = 'ipv4';
+      else if (j.host === '::') {
+        if (S.srvFamily !== 'ipv6' && S.srvFamily !== 'both') S.srvFamily = 'both';
+      } else S.srvFamily = j.host.indexOf(':') >= 0 ? 'ipv6' : 'ipv4';
+      LS.set('pp.srvFamily', S.srvFamily);
+    }
+  }
   renderServerBind();
   applyAddrs();
   if (S.tab === 'home') paintPageSub();

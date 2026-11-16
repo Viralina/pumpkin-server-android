@@ -318,8 +318,8 @@ $('#setHostMode').addEventListener('change', (ev) => {
   repaintHost();
 });
 $('#setHostPick').addEventListener('change', (ev) => {
-  S.ipPick = ev.target.value;
-  LS.set('pp.ip', S.ipPick);
+  S.ipFamily = ev.target.value;
+  LS.set('pp.ipFamily', S.ipFamily);
   repaintHost();
 });
 $('#setHostCustom').addEventListener('input', (ev) => {
@@ -338,7 +338,7 @@ $('#btnSaveNet').addEventListener('click', async () => {
   if (!S.panelOnline) { toast('Nyalakan Panel web online dulu', 'err'); return; }
   const mode = $('#setHostMode').value;
   let host;
-  if (mode === 'current') host = ($('#setHostPick').value || '').trim() || '0.0.0.0';
+  if (mode === 'current') host = familyHost(ipFamily());
   else if (mode === 'custom') host = cleanHost($('#setHostCustom').value);
   else host = '127.0.0.1';
   if (!host) { toast('Isi host custom dulu', 'err'); return; }
@@ -377,7 +377,7 @@ $('#srvBindMode').addEventListener('change', (ev) => {
   S.srvMode = ev.target.value; S.srvEditing = true; syncSrvUi();
 });
 $('#srvBindPick').addEventListener('change', (ev) => {
-  S.srvIp = ev.target.value; LS.set('pp.srvIp', S.srvIp); S.srvEditing = true; syncSrvUi();
+  S.srvFamily = ev.target.value; LS.set('pp.srvFamily', S.srvFamily); S.srvEditing = true; syncSrvUi();
 });
 $('#srvBindCustom').addEventListener('input', (ev) => {
   S.srvCustom = ev.target.value; LS.set('pp.srvCustom', S.srvCustom); S.srvEditing = true; syncSrvUi();

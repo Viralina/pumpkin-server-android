@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
     private volatile ApiServer apiRef;
     private boolean menuOpen;
     private boolean bundledBusy;
-    private String lang = "id";
+    private String lang = "en";
 
     /** Origin used for the bundled panel page (keeps localStorage, no network access). */
     private static final String PANEL_ORIGIN = "https://panel.local/";
@@ -666,7 +666,9 @@ public class MainActivity extends Activity {
         html = at >= 0 ? html.substring(0, at + 6) + inject + html.substring(at + 6)
                 : inject + html;
         panelLoaded = true;
-        web.loadDataWithBaseURL(PANEL_ORIGIN, html, "text/html", "utf-8", null);
+        // historyUrl must equal baseUrl, otherwise getUrl()/onPageFinished report
+        // "about:blank" and NativeBridge.openMenu() silently refuses to open the menu.
+        web.loadDataWithBaseURL(PANEL_ORIGIN, html, "text/html", "utf-8", PANEL_ORIGIN);
     }
 
     private String readAsset(String name) {
@@ -719,8 +721,9 @@ public class MainActivity extends Activity {
         public void openMenu() {
             ui.post(() -> {
                 if (web == null) return;
-                String url = web.getUrl();
-                if (!isPanelUrl(url)) return;
+                // The panel may report "about:blank" as its URL; panelLoaded is the
+                // reliable signal that the bundled panel owns this WebView.
+                if (!panelLoaded && !isPanelUrl(web.getUrl())) return;
                 showMenu();
             });
         }

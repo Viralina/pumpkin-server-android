@@ -5,7 +5,6 @@ function fillSettings() {
   if (!S.settings) return;
   const st = S.settings.settings || {};
   const paths = S.settings.paths || {};
-  const rt = S.settings.runtime || {};
   S.paths = {
     serverDir: st.serverDir || '', guestCmd: st.guestCmd || '',
     launcher: st.launcher || ''
@@ -29,8 +28,6 @@ function fillSettings() {
   renderHostPick(S.status);
   S.panelOnline = st.panelOnline === true;
   syncPanelOnline();
-  $('#runtimeInfo').textContent = (rt.node || 'node') + ' \u00b7 ' + (rt.platform || '') + '/' + (rt.arch || '') +
-    ' \u00b7 panel up ' + fmtDur(rt.uptime || 0);
   $('#brandName').textContent = st.name || 'Pumpkin Panel';
   document.title = (st.name || 'Pumpkin') + ' \u00b7 Panel';
   if (window.ppRefreshSelects) ppRefreshSelects();
@@ -38,7 +35,14 @@ function fillSettings() {
 }
 async function editPath(key) {
   const cur = S.paths[key] || '';
-  const v = await textDlg({ title: PATH_LABELS[key] || key, msg: 'Ubah nilai lalu simpan.', value: cur });
+  /* serverDir = folder, launcher = file, guestCmd = command (no picker). */
+  const mode = key === 'launcher' ? 'file' : (key === 'guestCmd' ? false : 'dir');
+  const v = await textDlg({
+    title: PATH_LABELS[key] || key,
+    msg: mode ? 'Ketik manual, atau pilih lewat tombol Dir.' : 'Ubah nilai lalu simpan.',
+    value: cur,
+    dir: mode
+  });
   if (v === null || v === cur) return;
   try {
     await api('/api/settings', { method: 'PUT', body: { ...S.paths, [key]: v } });
@@ -84,7 +88,18 @@ function renderAccentPicker() {
     '<span class="accent-dot" style="background:' + c + '"></span><span style="margin-left:9px">' + esc(accentName(c)) + '</span></button>'
   ).join('');
 }
-window.ppOnLang = renderAccentPicker;
+window.ppOnLang = function () {
+  renderAccentPicker();
+  /* Programmatic text (status pill, counters, row subtitles) is language-specific.
+     Redraw it after a language switch so going back to Indonesian restores the
+     original source text instead of keeping the English snapshot. */
+  try { if (S.status) setStatus(S.status); } catch (e) {}
+  try { renderPlayers(); } catch (e) {}
+  try { if (S.worlds) renderWorlds(); } catch (e) {}
+  try { renderBackups(); } catch (e) {}
+  try { renderHomeInfo(); } catch (e) {}
+  try { paintNet(); } catch (e) {}
+};
 function applyTheme() {
   document.documentElement.dataset.theme = S.theme;
   const me = document.documentElement.style;

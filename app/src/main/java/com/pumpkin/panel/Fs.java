@@ -220,6 +220,40 @@ final class Fs {
         f.delete();
     }
 
+    /** Copies a file or folder tree; used to duplicate a world folder. */
+    static boolean copyRecursive(File src, File dst) {
+        if (src == null || !src.exists() || dst == null) return false;
+        if (src.isDirectory()) {
+            if (!dst.exists() && !dst.mkdirs()) return false;
+            File[] kids = src.listFiles();
+            if (kids != null) {
+                for (File k : kids) {
+                    if (!copyRecursive(k, new File(dst, k.getName()))) return false;
+                }
+            }
+            return true;
+        }
+        File parent = dst.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs()) return false;
+        FileInputStream in = null;
+        FileOutputStream out = null;
+        try {
+            in = new FileInputStream(src);
+            out = new FileOutputStream(dst);
+            byte[] buf = new byte[65536];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            //noinspection ResultOfMethodCallIgnored
+            dst.setLastModified(src.lastModified());
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try { if (in != null) in.close(); } catch (Exception ignored) { }
+            try { if (out != null) out.close(); } catch (Exception ignored) { }
+        }
+    }
+
     static long sizeOf(File f) {
         if (f == null || !f.exists()) return 0;
         if (f.isFile()) return f.length();
@@ -229,6 +263,39 @@ final class Fs {
             for (File k : kids) total += sizeOf(k);
         }
         return total;
+    }
+
+    /** One directory level for the panel's folder picker (dirs always, files on request). */
+    static JSONObject listDir(File dir, boolean withFiles) {
+        if (dir == null) return J.obj("ok", false, "msg", "Folder tidak diketahui");
+        if (!dir.isDirectory() || !dir.canRead()) {
+            return J.obj("ok", false, "msg", "Folder tidak bisa dibaca: " + dir.getAbsolutePath());
+        }
+        JSONObject o = J.obj("ok", true);
+        J.p(o, "path", dir.getAbsolutePath());
+        File parent = dir.getParentFile();
+        J.p(o, "parent", parent == null || !parent.canRead() ? "" : parent.getAbsolutePath());
+        JSONArray dirs = new JSONArray();
+        JSONArray files = new JSONArray();
+        File[] all = dir.listFiles();
+        if (all != null) {
+            java.util.Arrays.sort(all, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+            for (File f : all) {
+                String name = f.getName();
+                if (name.startsWith(".")) continue;
+                if (f.isDirectory()) {
+                    if (!f.canRead()) continue;
+                    J.a(dirs, J.obj("name", name, "path", f.getAbsolutePath()));
+                    if (dirs.length() >= 500) break;
+                } else if (withFiles && f.isFile()) {
+                    J.a(files, J.obj("name", name, "path", f.getAbsolutePath(), "bytes", f.length()));
+                    if (files.length() >= 500) break;
+                }
+            }
+        }
+        J.p(o, "dirs", dirs);
+        J.p(o, "files", files);
+        return o;
     }
 
     /* ----------------------------------------------------------------- text */

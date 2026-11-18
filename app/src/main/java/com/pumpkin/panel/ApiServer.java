@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -535,6 +536,18 @@ final class ApiServer {
                 json(s, 200, pk.deleteBackup(data.optString("name", "")));
                 return;
             }
+            if ("/api/backup/restore".equals(path) && "POST".equals(method)) {
+                json(s, 200, pk.restoreBackup(data.optString("name", "")));
+                return;
+            }
+            if ("/api/backup/export".equals(path) && "POST".equals(method)) {
+                json(s, 200, pk.exportBackup(data.optString("name", ""), data.optString("dest", "")));
+                return;
+            }
+            if ("/api/backup/import".equals(path) && "POST".equals(method)) {
+                json(s, 200, pk.importBackup(data.optString("path", "")));
+                return;
+            }
 
             /* ---- world ---- */
             if ("/api/worlds".equals(path) && "GET".equals(method)) {
@@ -557,6 +570,18 @@ final class ApiServer {
                 json(s, 200, pk.worldRename(cleanName(data.optString("from", "")), cleanName(data.optString("to", ""))));
                 return;
             }
+            if ("/api/worlds/copy".equals(path)) {
+                json(s, 200, pk.worldCopy(cleanName(data.optString("name", ""))));
+                return;
+            }
+            if ("/api/worlds/export".equals(path)) {
+                json(s, 200, pk.worldExport(cleanName(data.optString("name", "")), data.optString("dest", "")));
+                return;
+            }
+            if ("/api/worlds/move".equals(path)) {
+                json(s, 200, pk.worldMove(cleanName(data.optString("name", "")), data.optString("dest", "")));
+                return;
+            }
 
             /* ---- settings ---- */
             if ("/api/settings".equals(path) && "GET".equals(method)) {
@@ -565,6 +590,21 @@ final class ApiServer {
             }
             if ("/api/settings".equals(path) && "PUT".equals(method)) {
                 json(s, 200, pk.settingsPut(data));
+                return;
+            }
+
+            /* ---- filesystem (folder picker for path fields) ---- */
+            if ("/api/fs".equals(path) && "GET".equals(method)) {
+                String want = params.get("path");
+                File dir = want == null || want.trim().isEmpty()
+                        ? st.serverDirFile() : new File(want.trim());
+                /* Never redirect silently: a wrong path must name itself. */
+                if (!dir.isDirectory()) {
+                    json(s, 200, J.obj("ok", false,
+                            "msg", "Folder tidak ditemukan: " + dir.getAbsolutePath()));
+                    return;
+                }
+                json(s, 200, Fs.listDir(dir, "1".equals(params.get("files"))));
                 return;
             }
 

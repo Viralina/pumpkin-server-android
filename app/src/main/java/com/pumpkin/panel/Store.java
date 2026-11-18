@@ -45,7 +45,7 @@ final class Store {
         }
         return t;
     }
-    String lang() { return sp.getString("lang", "id"); }
+    String lang() { return sp.getString("lang", "en"); }
     void setLang(String v) { sp.edit().putString("lang", "en".equals(v) ? "en" : "id").apply(); }
     String guestCmd() { return sp.getString("guestCmd", "pumpkin"); }
     /** ID of the bundled binary already extracted from the full APK. */

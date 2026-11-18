@@ -58,15 +58,15 @@ It is meant for running a Pumpkin server straight from a phone: download the bin
 | --- | --- |
 | Server | Start, stop, restart, kill; real-time status over SSE |
 | Console | Live log, level filter, send commands, command history |
-| Configuration | `pumpkin.toml` editor by group, world seed, switch active world |
-| World | Use, rename, regenerate with a seed, delete |
+| Configuration | `pumpkin.toml` editor by group, world seed, and world actions (use, move, copy, duplicate, rename, reset, delete) |
+| World | Pick the active world, move or copy it to `/sdcard`, duplicate it, regenerate with a seed, delete it |
 | Players | Online list, OP/deop, whitelist, kick, ban/unban, gamemode |
-| Backup | Create `.tar.gz` of the world folder, list, delete (hidden menu) |
+| Backup | One `.tar.gz` with all worlds; restore, export to `/sdcard`, import from `/sdcard`, delete (visible in Configuration) |
 | Network | Online panel toggle, 3-mode panel bind, IPv4/IPv6 selection, separate Pumpkin bind |
 | Appearance | ID/EN language, dark/light theme, green accent, guide popups |
 | Security | Private token for the HTML page and every `/api/*` route |
 
-Features that are not obvious in the UI — the hidden backup menu, binary swap, and the
+Features that are not obvious in the UI — binary swap and the
 `panel.log` diagnostics — are explained in [`docs/NOTES.md`](docs/NOTES.md).
 
 ## Requirements

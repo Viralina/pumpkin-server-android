@@ -32,6 +32,7 @@
 }
 .icon-btn:hover{color:var(--txt)}
 .icon-btn:active{transform:scale(.92)}
+.icon-btn[disabled]{opacity:.38;pointer-events:none}
 .icon-btn .ic{width:18px;height:18px}
 
 /* ripple */
@@ -183,6 +184,10 @@ html[data-theme="light"] .bar{background:rgba(13,20,30,.08)}
   width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;
   font-weight:750;font-size:13px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);
 }
+/* Known players: scrollable row list instead of a chip cloud (narrow phones). */
+.known-list{max-height:min(46vh,340px);overflow:auto;padding-right:2px}
+.known-row{width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.known-row .ic{color:var(--muted2);flex:0 0 auto}
 .avatar.b{background:var(--blue-soft);color:var(--blue);border-color:var(--blue-line)}
 .avatar.g{background:var(--green-soft);color:var(--green);border-color:var(--green-line)}
 .li-main{flex:1;min-width:0}
@@ -197,6 +202,11 @@ html[data-theme="light"] .bar{background:rgba(13,20,30,.08)}
 /* ============================== forms ============================== */
 .field{display:grid;gap:6px;min-width:0}
 .field > span{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.1px}
+.field-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.field-top > span{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.1px}
+/* World-creation subpanel (seed + chunk type), locked once a world exists. */
+.subpanel{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--surface2);min-width:0}
+.input:disabled,select.input:disabled{opacity:.5;cursor:not-allowed}
 .input,select.input,textarea.input{
   width:100%;min-height:46px;padding:11px 13px;border-radius:14px;font-size:15px;
   background:var(--bg3);border:1px solid var(--line2);color:var(--txt);
@@ -332,6 +342,8 @@ textarea.input{min-height:120px;resize:vertical;font-family:var(--mono);font-siz
 .banner b{font-weight:700}
 .banner .hint{color:inherit;opacity:.75;font-size:11.5px}
 .banner .btn{margin-left:auto;flex:0 0 auto}
+/* Whole banner is tappable when it carries data-restart (Konfigurasi). */
+[data-restart]{cursor:pointer}
 .banner.err{background:var(--red-soft);border-color:var(--red-line);color:#ffc6cd}
 .banner.ok{background:var(--green-soft);border-color:var(--green-line);color:#a9f5d5}
 html[data-theme="light"] .banner{color:#7a5a0c}
@@ -374,6 +386,10 @@ html[data-theme="light"] .toast{background:rgba(255,255,255,.98);color:#111823}
 .modal-box p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
 .modal-box p b{color:var(--txt)}
 .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}
+/* Path editor: Batal / Dir / Simpan in one compact row (labels must not overflow). */
+.modal-actions.three{grid-template-columns:1fr .8fr 1.1fr;gap:7px}
+.modal-actions.three .btn{font-size:12px;padding:0 4px;gap:5px;min-width:0;overflow:hidden}
+.modal-actions.three .btn .ic{width:14px;height:14px;flex:0 0 auto}
 @media (min-width:600px){
   .modal{align-items:center;padding:20px}
   .modal-box{border-radius:24px;border-bottom:1px solid var(--line2);padding:20px;animation:popIn .2s var(--ease)}

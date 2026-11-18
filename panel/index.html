@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
@@ -28,6 +28,7 @@
   <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M15 6V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h1"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h13l-3.2-3.2M20 16H7l3.2 3.2"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.5 6.5h17M9 6.5V4h6v2.5M6 6.5 7 21h10l1-14.5"/><path d="M10 10.5v6M14 10.5v6"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -85,6 +86,11 @@
     <rect x="7" y="13" width="1" height="1" fill="#b0b0b0"/>
   </symbol>
   <symbol id="i-app" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13.5h6M15 13.5l-2.2-2.2M15 13.5l-2.2 2.2"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V6M6 12l6-6 6 6"/></symbol>
+  <symbol id="i-puzzle" viewBox="0 0 24 24"><path d="M10 3h4v3a2 2 0 1 0 4 0V3h3v7h-3a2 2 0 1 0 0 4h3v7h-7v-3a2 2 0 1 0-4 0v3H3v-7h3a2 2 0 1 0 0-4H3V3h7z"/></symbol>
 </svg>
 
 <div id="app">
@@ -119,11 +125,11 @@
       <div class="top-actions">
         <span class="pill" id="statusPill"><span class="dot"></span><span>Offline</span></span>
         <div class="lang-switch" id="langSwitch" role="group" aria-label="Bahasa / Language">
-          <button type="button" data-lang="id" title="Indonesia" aria-label="Bahasa Indonesia" aria-pressed="true"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="8" fill="#e11d2e"/><rect y="8" width="24" height="8" fill="#fff"/></svg></button>
-          <button type="button" data-lang="en" title="English" aria-label="English" aria-pressed="false"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0 24 16M24 0 0 16" stroke="#fff" stroke-width="4"/><path d="M0 0 24 16M24 0 0 16" stroke="#c8102e" stroke-width="2"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="6"/><path d="M12 0v16M0 8h24" stroke="#c8102e" stroke-width="3"/></svg></button>
+          <button type="button" data-lang="id" title="Indonesia" aria-label="Bahasa Indonesia" aria-pressed="false"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="8" fill="#e11d2e"/><rect y="8" width="24" height="8" fill="#fff"/></svg></button>
+          <button type="button" data-lang="en" title="English" aria-label="English" aria-pressed="true"><svg class="flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0 24 16M24 0 0 16" stroke="#fff" stroke-width="4"/><path d="M0 0 24 16M24 0 0 16" stroke="#c8102e" stroke-width="2"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="6"/><path d="M12 0v16M0 8h24" stroke="#c8102e" stroke-width="3"/></svg></button>
         </div>
         <button class="icon-btn" id="btnAppMenu" title="Menu aplikasi" aria-label="Menu aplikasi"><svg class="ic"><use href="#i-app"/></svg></button>
-        <button class="icon-btn" id="btnReload" title="Muat ulang" aria-label="Muat ulang"><svg class="ic"><use href="#i-refresh"/></svg></button>
+        <button class="icon-btn" id="btnRestartTop" title="Restart server" aria-label="Restart server"><svg class="ic"><use href="#i-restart"/></svg></button>
         <button class="power-fab" id="btnPowerTop" title="Mulai / hentikan server" aria-label="Mulai atau hentikan server"><svg class="ic"><use href="#i-power"/></svg></button>
       </div>
     </header>
@@ -214,7 +220,7 @@
             <span class="qico"><svg class="ic"><use href="#i-save"/></svg></span>
             <span>Simpan</span>
           </button>
-          <button class="quick-btn" id="btnBackup" hidden>
+          <button class="quick-btn" id="btnBackup">
             <span class="qico blue"><svg class="ic"><use href="#i-archive"/></svg></span>
             <span>Backup</span>
             <span class="qsub" id="backupHint">tar.gz</span>
@@ -278,7 +284,7 @@
 
       <!-- =========================== CONFIG =========================== -->
       <section class="view" id="view-config">
-        <div class="banner ok" id="cfgSavedBanner" hidden>
+        <div class="banner ok" id="cfgSavedBanner" hidden data-restart title="Restart server">
           <svg class="ic"><use href="#i-check"/></svg>
           <div><b>Tersimpan.</b> Restart server agar perubahan berlaku.</div>
           <button class="btn btn-sm btn-primary" id="btnRestartFromCfg">Restart</button>
@@ -349,13 +355,33 @@
             </div>
           <div class="card" data-cfg="world">
             <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-box"/></svg>World</h3><p id="worldSub">Kelola world & seed</p></div>
-            <label class="field"><span>Seed</span><input class="input mono" id="worldSeed" placeholder="contoh: 1794660286376045931"></label>
-            <div class="row wrap mt-s">
-              <button class="btn btn-primary btn-sm" id="btnSeedSave"><svg class="ic" style="width:15px;height:15px"><use href="#i-save"/></svg>Simpan seed</button>
-              <button class="btn btn-soft btn-sm" id="btnSeedRandom"><svg class="ic" style="width:15px;height:15px"><use href="#i-refresh"/></svg>Acak</button>
+            <div class="subpanel" id="newWorldBox">
+              <div class="row between" style="align-items:center;margin-bottom:10px">
+                <b style="font-size:12.5px">World baru</b>
+                <span class="pill accent" id="newWorldState">siap dibuat</span>
+              </div>
+              <label class="field"><span>Seed</span><input class="input mono" id="worldSeed" placeholder="contoh: 1794660286376045931"></label>
+              <div class="row wrap mt-s">
+                <button class="btn btn-primary btn-sm" id="btnSeedSave"><svg class="ic" style="width:15px;height:15px"><use href="#i-save"/></svg>Simpan seed</button>
+                <button class="btn btn-soft btn-sm" id="btnSeedRandom"><svg class="ic" style="width:15px;height:15px"><use href="#i-refresh"/></svg>Acak</button>
+              </div>
+              <div class="field mt-s">
+                <div class="field-top">
+                  <span>Tipe chunk</span>
+                  <button type="button" class="info-btn" id="btnChunkInfo" title="Apa itu tipe chunk?" aria-label="Apa itu tipe chunk?">?</button>
+                </div>
+                <select class="input" id="chunkTypeSel" data-key="world.chunk.type">
+                  <option value="anvil">Default Minecraft (anvil)</option>
+                  <option value="pump">Pumpkin (pump)</option>
+                </select>
+              </div>
+              <p class="hint mt-s" id="newWorldHint" style="margin-bottom:0">Seed dan tipe chunk dipakai saat world dibuat.</p>
             </div>
-            <p class="hint mt-s">Seed baru berlaku saat world dibuat ulang atau world baru dibuat.</p>
             <div class="sep"></div>
+            <div class="row between" style="align-items:baseline;margin-bottom:8px">
+              <b style="font-size:13px">Daftar world</b>
+              <span class="pill accent" id="worldChunkPill">chunk: ?</span>
+            </div>
             <div id="worldList" class="list"></div>
             <p class="hint mt-s" style="margin-bottom:0">Hapus &amp; regenerate hanya bisa saat server berhenti.</p>
           </div>
@@ -377,6 +403,17 @@
             <button class="btn btn-sm btn-soft" id="btnRefreshPlayers"><svg class="ic" style="width:15px;height:15px"><use href="#i-refresh"/></svg>Muat</button>
           </div>
           <div id="onlineList" class="list"></div>
+        </div>
+
+        <div class="card mt" id="knownCard">
+          <div class="card-h row between">
+            <div>
+              <h3><svg class="ic" style="width:17px;height:17px"><use href="#i-user"/></svg>Pemain dikenal</h3>
+              <p id="knownSub">Dari usercache</p>
+            </div>
+          </div>
+          <p class="hint" style="margin:0 0 8px">Ketuk nama untuk mengisi kolom OP atau whitelist.</p>
+          <div class="list known-list" id="knownList"></div>
         </div>
 
         <div class="grid g2 mt">
@@ -420,10 +457,6 @@
           <div id="banList" class="list mt"></div>
         </div>
 
-        <div class="card mt">
-          <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-user"/></svg>Pemain dikenal</h3><p>Dari usercache — ketuk untuk mengisi nama</p></div>
-          <div class="row wrap" id="knownList" style="gap:8px"></div>
-        </div>
         <datalist id="knownNames"></datalist>
       </section>
 
@@ -467,16 +500,24 @@
             <p class="hint mt-s" style="margin-bottom:0">Binary aktif bisa diganti kapan saja dari menu ini (impor dari /sdcard atau file lain). Versi lama disimpan sebagai cadangan dan bisa ditukar balik. Tombol Back Android juga membuka menu ini.</p>
           </div>
 
+          <div class="card" id="pluginCard">
+            <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-puzzle"/></svg>Plugin</h3><p>Pasang &amp; kelola plugin server</p></div>
+            <p class="hint" style="margin:0 0 10px">Kelola plugin langsung dari panel: pasang, aktifkan, dan hapus tanpa menyentuh folder server.</p>
+            <button class="btn btn-soft" id="btnPlugins"><svg class="ic" style="width:16px;height:16px"><use href="#i-puzzle"/></svg>Buka Plugin</button>
+          </div>
+
           <div class="card" id="aboutCard">
             <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-shield"/></svg>Tentang &amp; catatan</h3><p>Panduan singkat untuk pengguna</p></div>
             <p class="hint" style="margin:0 0 10px">Cara memakai panel, keamanan token, akses dari HP lain, dan tips merawat world.</p>
             <button class="btn btn-primary" id="btnAbout"><svg class="ic" style="width:16px;height:16px"><use href="#i-shield"/></svg>Baca tentang &amp; catatan</button>
           </div>
 
-          <div class="card" id="backupCard" hidden>
+          <div class="card" id="backupCard">
             <div class="card-h"><h3><svg class="ic" style="width:17px;height:17px"><use href="#i-archive"/></svg>Backup world</h3><p id="backupSub">Belum ada backup</p></div>
-            <div class="row">
+            <p class="hint" style="margin:0 0 10px">Backup berisi folder world dalam satu file .tar.gz. Hentikan server dulu agar isinya konsisten; backup bisa dipulihkan, disalin ke /sdcard, atau diimpor dari /sdcard.</p>
+            <div class="row wrap">
               <button class="btn btn-primary" id="btnBackup2"><svg class="ic" style="width:16px;height:16px"><use href="#i-archive"/></svg>Buat backup</button>
+              <button class="btn btn-soft" id="btnBackupImport"><svg class="ic" style="width:16px;height:16px"><use href="#i-folder"/></svg>Impor .tar.gz</button>
               <span class="hint" id="backupRun" hidden><svg class="ic spin" style="width:14px;height:14px;vertical-align:-2px"><use href="#i-restart"/></svg> berjalan…</span>
             </div>
             <div id="backupList" class="list mt"></div>
@@ -498,9 +539,6 @@
                 <button class="icon-btn" data-path="launcher" title="Ubah launcher" aria-label="Ubah launcher"><svg class="ic" style="width:15px;height:15px"><use href="#i-edit"/></svg></button>
               </div>
             </div>
-            <div class="row between mt">
-              <span class="hint" id="runtimeInfo">—</span>
-            </div>
           </div>
         </div>
 
@@ -510,8 +548,6 @@
             <button class="btn btn-danger" id="btnKill">Matikan paksa (SIGKILL)</button>
             <button class="btn btn-ghost" id="btnReloadCfg"><svg class="ic" style="width:16px;height:16px"><use href="#i-refresh"/></svg>Muat ulang semua data</button>
           </div>
-          <div class="sep"></div>
-          <p class="hint" style="margin:0">Panel v1 · dibuat untuk Pumpkin Server · semua kontrol berjalan lokal di perangkat ini.</p>
         </div>
         </div><!-- /moreUmum -->
 
@@ -609,7 +645,24 @@
     <input class="input mono" id="textInput" autocomplete="off" spellcheck="false">
     <div class="modal-actions">
       <button class="btn btn-ghost" id="textCancel">Batal</button>
+      <button class="btn btn-soft" id="textDir" hidden title="Pilih direktori" aria-label="Pilih direktori"><svg class="ic" style="width:15px;height:15px"><use href="#i-folder"/></svg>Dir</button>
       <button class="btn btn-primary" id="textOk">Simpan</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="dirModal">
+  <div class="modal-box">
+    <div class="sheet-handle"></div>
+    <h3 id="dirTitle">Pilih folder</h3>
+    <p class="hint mono" id="dirPath" style="margin:0 0 10px;word-break:break-all">/sdcard</p>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-soft btn-sm" id="dirUp"><svg class="ic" style="width:15px;height:15px"><use href="#i-up"/></svg>Naik</button>
+      <button class="btn btn-soft btn-sm" id="dirRoot"><svg class="ic" style="width:15px;height:15px"><use href="#i-home"/></svg>Awal</button>
+    </div>
+    <div class="list" id="dirList" style="max-height:42vh;overflow:auto;margin-top:10px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="dirCancel">Batal</button>
+      <button class="btn btn-primary" id="dirPick">Pilih folder ini</button>
     </div>
   </div>
 </div>

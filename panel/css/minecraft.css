@@ -63,7 +63,7 @@ html[data-theme="light"] body::before{
 .topbar h2,.brand h1,.card-h h3,.sec-title,.nav-item,.nav-label,
 .btn,.chip,.tab,.pill,.seg button,.hstat .k,.hstat .v,.stat-top,.stat .val,.stat .lbl,
 .con-lbl,.con-val,.li-name,.li-sub,.tbtn,.term-title,.hero-status,.modal-box h3,
-.banner b,.field > span,.hero-ver,.quick-btn span,.toast,.log-line .lv{
+.banner b,.field > span,.field-top > span,.hero-ver,.quick-btn span,.toast,.log-line .lv{
   font-family:var(--pixel);
 }
 .topbar h2{text-transform:uppercase;letter-spacing:.2px;font-size:15.5px;text-shadow:var(--shadow-txt)}
@@ -74,7 +74,7 @@ html[data-theme="light"] body::before{
 .card-h h3 .ic{width:16px;height:16px}
 .card-h p{font-family:var(--pixel);font-size:9.5px;letter-spacing:.2px;color:var(--ink-dim)}
 .sec-title{text-transform:uppercase;letter-spacing:1.2px;font-size:10.5px}
-.field > span{text-transform:uppercase;font-size:9.5px;letter-spacing:.6px;color:var(--ink-dim)}
+.field > span,.field-top > span{text-transform:uppercase;font-size:9.5px;letter-spacing:.6px;color:var(--ink-dim)}
 .hint{color:var(--ink-dim)}
 
 /* ---------- panel / cards ---------- */
@@ -130,6 +130,17 @@ html[data-theme="light"] body::before{
 }
 .icon-btn:hover{background:#868686;color:#fff}
 .icon-btn:active{transform:translateY(2px);box-shadow:inset -2px -2px 0 var(--mc-btn-l),inset 2px 2px 0 var(--mc-btn-d)}
+/* Minecraft-style \"?\" button next to a field label. */
+.info-btn{
+  flex:0 0 auto;display:grid;place-items:center;width:24px;height:24px;padding:0;
+  border:2px solid #000;background:var(--mc-btn);color:#fff;
+  box-shadow:inset 1px 1px 0 var(--mc-btn-l),inset -1px -1px 0 var(--mc-btn-d);
+  font-family:var(--pixel);font-size:11px;font-weight:700;line-height:1;
+  text-shadow:1px 1px 0 rgba(0,0,0,.6);cursor:pointer;
+}
+.info-btn:hover{background:#868686}
+.info-btn:active{transform:translateY(1px);box-shadow:inset -1px -1px 0 var(--mc-btn-l),inset 1px 1px 0 var(--mc-btn-d)}
+.subpanel{background:#2c2c2c;border:2px solid #000;border-radius:0;box-shadow:inset 1px 1px 0 #4a4a4a,inset -1px -1px 0 #151515}
 
 .power-fab{
   border-radius:0;border:2px solid #000;background:var(--mc-btn);color:#fff;

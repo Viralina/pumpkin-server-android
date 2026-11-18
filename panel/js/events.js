@@ -1,5 +1,16 @@
 'use strict';
 /* ============================== events ============================== */
+/* Fail loudly: a silent JavaScript error used to look like "tombolnya mati".
+   Any uncaught error or rejected promise is surfaced as a red toast. */
+window.addEventListener('error', (ev) => {
+  try { toast('Error panel: ' + ((ev && ev.message) || 'tidak diketahui'), 'err'); } catch (e) {}
+});
+window.addEventListener('unhandledrejection', (ev) => {
+  try {
+    const r = ev && ev.reason;
+    toast('Error panel: ' + ((r && r.message) || r || 'promise ditolak'), 'err');
+  } catch (e) {}
+});
 document.addEventListener('click', (ev) => {
   const t = ev.target;
   const tab = t.closest('[data-tab]');
@@ -129,6 +140,12 @@ document.addEventListener('click', (ev) => {
   }
   const wUse = t.closest('[data-world-use]');
   if (wUse) { genWorldAction('use', wUse.dataset.worldUse); return; }
+  const wExp = t.closest('[data-world-export]');
+  if (wExp) { genWorldAction('export', wExp.dataset.worldExport); return; }
+  const wMove = t.closest('[data-world-move]');
+  if (wMove) { genWorldAction('move', wMove.dataset.worldMove); return; }
+  const wDup = t.closest('[data-world-dup]');
+  if (wDup) { genWorldAction('dup', wDup.dataset.worldDup); return; }
   const wRen = t.closest('[data-world-rename]');
   if (wRen) { genWorldAction('rename', wRen.dataset.worldRename); return; }
   const wReg = t.closest('[data-world-regen]');
@@ -137,6 +154,38 @@ document.addEventListener('click', (ev) => {
   if (wDel) { genWorldAction('del', wDel.dataset.worldDel); return; }
   const pth = t.closest('[data-path]');
   if (pth) { editPath(pth.dataset.path); return; }
+  const rb = t.closest('[data-restorebackup]');
+  if (rb) {
+    if (S.status && S.status.running) { toast('Hentikan server dulu sebelum memulihkan backup', 'err'); return; }
+    const name = rb.dataset.restorebackup;
+    confirmDlg({
+      title: 'Pulihkan backup?',
+      msg: 'Isi <b>' + esc(name) + '</b> akan menimpa world dengan nama yang sama, lalu world itu dijadikan aktif. <b>Tidak bisa dibatalkan.</b>',
+      ok: 'Pulihkan', danger: true
+    }).then(async (ok) => {
+      if (!ok) return;
+      try {
+        const r = await api('/api/backup/restore', { method: 'POST', body: { name } });
+        if (!r.ok) { toast(r.msg || 'Gagal memulihkan backup', 'err'); return; }
+        toast(r.msg || 'Backup dipulihkan');
+        await refreshAll();
+      } catch (e) { toast(e.message, 'err'); }
+    });
+    return;
+  }
+  const eb = t.closest('[data-exportbackup]');
+  if (eb) {
+    const name = eb.dataset.exportbackup;
+    dirDlg('/sdcard', 'dir').then(async (dest) => {
+      if (!dest) return;
+      try {
+        const r = await api('/api/backup/export', { method: 'POST', body: { name, dest } });
+        if (!r.ok) { toast(r.msg || 'Gagal menyalin backup', 'err'); return; }
+        toast(r.msg || 'Backup disalin');
+      } catch (e) { toast(e.message, 'err'); }
+    });
+    return;
+  }
   const del = t.closest('[data-delbackup]');
   if (del) {
     const name = del.dataset.delbackup;
@@ -167,11 +216,21 @@ $('#btnRestart').addEventListener('click', doRestart);
 $('#btnSaveWorld').addEventListener('click', doSaveWorld);
 $('#btnBackup').addEventListener('click', doBackup);
 $('#btnBackup2').addEventListener('click', doBackup);
-$('#btnRestartFromCfg').addEventListener('click', doRestart);
-$('#btnRefreshPlayers').addEventListener('click', refreshPlayers);
-$('#btnReload').addEventListener('click', async () => {
-  try { await refreshAll(); toast('Data dimuat ulang'); } catch (e) { toast(e.message, 'err'); }
+$('#btnBackupImport').addEventListener('click', doBackupImport);
+/* Banner Konfigurasi: dipasang lewat delegasi di document, bukan per-elemen.
+   Baris banner bisa digambar ulang dan tombolnya kecil di layar HP, jadi seluruh
+   banner (data-restart) ikut bisa ditekan. */
+document.addEventListener('click', (ev) => {
+  const el = ev.target.closest && ev.target.closest('#btnRestartFromCfg,[data-restart]');
+  if (!el) return;
+  ev.preventDefault();
+  doRestart();
 });
+$('#btnRefreshPlayers').addEventListener('click', refreshPlayers);
+/* Topbar: ikon ketiga dari kanan dulu "Muat ulang" (panah melingkar) sehingga
+   terbaca sebagai restart, padahal hanya memuat ulang data tanpa menyentuh
+   proses server. Sekarang tombol itu benar-benar restart server. */
+$('#btnRestartTop').addEventListener('click', doRestart);
 $('#btnReloadCfg').addEventListener('click', async () => {
   try { await refreshAll(); toast('Semua data dimuat ulang'); } catch (e) { toast(e.message, 'err'); }
 });
@@ -407,6 +466,27 @@ $('#btnAbout').addEventListener('click', () => {
 });
 $('#aboutClose').addEventListener('click', () => { const m = $('#aboutModal'); if (m) m.classList.remove('show'); });
 $('#aboutModal').addEventListener('click', (ev) => { if (ev.target.id === 'aboutModal') ev.currentTarget.classList.remove('show'); });
+
+/* plugins: panel is intentionally empty for now, the popup says so. */
+$('#btnPlugins').addEventListener('click', () => {
+  infoDlg({
+    title: 'Plugin',
+    msg: '<b>Segera datang.</b><br>Panel plugin belum aktif. Nanti dari sini plugin bisa dipasang, diaktifkan, dan dihapus tanpa membuka folder server.<br><br>Sementara ini plugin masih dikelola lewat folder <span class="mono">plugins/</span> di folder server.',
+    ok: 'Mengerti'
+  });
+});
+
+/* world: what the chunk type means (\"?\" button beside the field). */
+$('#btnChunkInfo').addEventListener('click', () => {
+  infoDlg({
+    title: 'Tipe chunk',
+    msg: '<b>Format penyimpanan world.</b><br><br>' +
+      '<b>Default Minecraft (anvil)</b><br>Format region vanilla. World bisa dibuka server Java/Paper dan alat dunia lain.<br><br>' +
+      '<b>Pumpkin (pump)</b><br>Format khusus Pumpkin. Lebih cepat dan hemat ruang, tetapi tidak bisa dibaca Paper atau Minecraft biasa.<br><br>' +
+      'Tipe hanya dipakai saat world dibuat (atau dibuat ulang), dan world yang sudah ada tidak dikonversi. Jadi pilih dulu sebelum world pertama dibuat.',
+    ok: 'Mengerti'
+  });
+});
 
 $('#accentBtn').addEventListener('click', (ev) => {
   ev.stopPropagation();

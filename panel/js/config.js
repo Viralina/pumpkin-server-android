@@ -6,22 +6,25 @@ function setFieldValue(el, v) {
   else el.value = v === undefined || v === null ? '' : v;
 }
 const isLeaf = (v) => v !== null && (typeof v !== 'object' || Array.isArray(v));
-function fullGroups() {
+function renderFull() {
+  const box = $('#cfgFull');
+  if (!box) return;
+  /* Keys that already have a dedicated field must not be duplicated here: a stale
+     duplicate would win the later-wins patch map and silently cancel the edit. */
+  const staticKeys = new Set(
+    $$('#view-config [data-key]')
+      .filter((el) => !el.closest('#cfgFull'))
+      .map((el) => el.dataset.key)
+  );
   const groups = [];
   (function walk(obj, path) {
-    const keys = Object.keys(obj).filter((k) => isLeaf(obj[k]));
+    const keys = Object.keys(obj).filter((k) => isLeaf(obj[k]) && !staticKeys.has(path ? path + '.' + k : k));
     if (keys.length) groups.push({ path, keys: keys.map((k) => ({ key: path ? path + '.' + k : k, name: k, val: obj[k] })) });
     Object.keys(obj).forEach((k) => {
       const v = obj[k];
       if (v && typeof v === 'object' && !Array.isArray(v)) walk(v, path ? path + '.' + k : k);
     });
   })(S.cfgParsed || {}, '');
-  return groups;
-}
-function renderFull() {
-  const box = $('#cfgFull');
-  if (!box) return;
-  const groups = fullGroups();
   if (!groups.length) { box.innerHTML = '<div class="empty">Belum ada data konfigurasi</div>'; return; }
   box.innerHTML = groups.map((g) => {
     const fields = g.keys.filter((k) => typeof k.val !== 'boolean');
@@ -45,6 +48,8 @@ function fillConfig() {
   if (window.ppRefreshSelects) ppRefreshSelects();
   $('#cfgSavedBanner').hidden = true;
   renderHomeInfo();
+  /* World rows show the chunk type, which lives in the config. */
+  if (S.worlds && typeof renderWorlds === 'function') renderWorlds();
 }
 function cfgPatch() {
   const decided = new Map();

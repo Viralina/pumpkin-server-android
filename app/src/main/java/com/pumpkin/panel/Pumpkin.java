@@ -345,6 +345,9 @@ final class Pumpkin {
             stopping = false;
             stopToken++;
             startedAt = System.currentTimeMillis();
+            // Version comes from the first "Starting Pumpkin <ver>" log line.
+            // Clear it so a swapped binary reports its own version, not the previous one.
+            version = "";
             synchronized (players) {
                 players.clear();
             }
@@ -1073,6 +1076,52 @@ final class Pumpkin {
         return res(true, "Nama world diubah");
     }
 
+    JSONObject worldCopy(String name) {
+        if (!procList().isEmpty()) return res(false, "Hentikan server dulu sebelum menyalin world");
+        if (!worldExists(name)) return res(false, "World tidak ditemukan");
+        String base = name.length() > 55 ? name.substring(0, 55) : name;
+        String target = base + "-copy";
+        int n = 2;
+        while (new File(st.serverDirFile(), target).exists()) {
+            target = base + "-copy-" + n;
+            n++;
+            if (target.length() > 64) return res(false, "Nama world terlalu panjang untuk disalin");
+        }
+        File dst = new File(st.serverDirFile(), target);
+        if (!Fs.copyRecursive(new File(st.serverDirFile(), name), dst)) {
+            Fs.deleteRecursive(dst);
+            return res(false, "Gagal menyalin world (ruang penyimpanan cukup?)");
+        }
+        pushLog("[panel] world \"" + name + "\" disalin menjadi \"" + target + "\"", "panel");
+        refreshWorldSizeAsync();
+        JSONObject o = res(true, "World disalin ke " + target);
+        J.p(o, "name", target);
+        return o;
+    }
+
+    /** Copies a world folder out to a folder on /sdcard (export, not a new world). */
+    JSONObject worldExport(String name, String destPath) {
+        if (!procList().isEmpty()) return res(false, "Hentikan server dulu sebelum menyalin world");
+        if (!worldExists(name)) return res(false, "World tidak ditemukan");
+        File dir = externalDir(destPath);
+        if (dir == null) return res(false, "Pilih folder tujuan di /sdcard");
+        try {
+            if (dir.getCanonicalFile().equals(st.serverDirFile().getCanonicalFile())) {
+                return res(false, "Pilih folder lain, bukan folder server");
+            }
+        } catch (Exception ignored) {
+        }
+        File target = uniqueChild(dir, name);
+        if (!Fs.copyRecursive(new File(st.serverDirFile(), name), target)) {
+            Fs.deleteRecursive(target);
+            return res(false, "Gagal menyalin world (ruang penyimpanan cukup?)");
+        }
+        pushLog("[panel] world \"" + name + "\" disalin ke " + target.getAbsolutePath(), "panel");
+        JSONObject o = res(true, "World disalin ke " + target.getAbsolutePath());
+        J.p(o, "path", target.getAbsolutePath());
+        return o;
+    }
+
     /* --------------------------------------------------------------- backup */
 
     JSONObject backups() {
@@ -1094,6 +1143,7 @@ final class Pumpkin {
             JSONObject o = new JSONObject();
             J.p(o, "name", f.getName());
             J.p(o, "sizeMB", Math.round(f.length() / 1048576.0));
+            J.p(o, "bytes", f.length());
             J.p(o, "at", f.lastModified());
             J.a(arr, o);
         }
@@ -1106,14 +1156,25 @@ final class Pumpkin {
 
     JSONObject startBackup() {
         if (backupJob != null) return res(false, "Backup sedang berjalan");
+        if (!procList().isEmpty()) return res(false, "Hentikan server dulu agar backup konsisten");
         File dir = st.backupDirFile();
         if (!dir.exists() && !dir.mkdirs()) return res(false, "Folder backup tidak bisa dibuat");
 
         final String name = "world-" + Fs.backupStamp() + ".tar.gz";
         final File target = new File(dir, name);
-        final String level = levelName();
-
-        rawCommand("save-all");
+        /* Back up every world, not only the active one: multiple worlds are
+           often kept as manual snapshots of each other. */
+        final List<String> levels = new ArrayList<>();
+        File[] kids = st.serverDirFile().listFiles();
+        if (kids != null) {
+            for (File k : kids) {
+                if (k.isDirectory() && new File(k, "level.dat").isFile() && Fs.validWorldName(k.getName())) {
+                    levels.add(k.getName());
+                }
+            }
+        }
+        if (levels.isEmpty()) return res(false, "Belum ada world untuk dibackup");
+        Collections.sort(levels);
 
         JSONObject job = new JSONObject();
         J.p(job, "name", name);
@@ -1124,12 +1185,12 @@ final class Pumpkin {
         J.p(ev, "running", true);
         J.p(ev, "name", name);
         broadcast("backup", ev);
-        pushLog("[panel] membuat backup " + name + " ...", "panel");
+        pushLog("[panel] membuat backup " + name + " (" + levels.size() + " world) ...", "panel");
 
         pool.execute(() -> {
             String error = null;
             try {
-                TarGz.create(st.serverDirFile(), level, target);
+                TarGz.createMany(st.serverDirFile(), levels, target);
             } catch (Exception e) {
                 error = e.getMessage() == null ? e.toString() : e.getMessage();
             }
@@ -1155,12 +1216,173 @@ final class Pumpkin {
         return o;
     }
 
+    /** Moves a world folder out of the server folder into a folder on /sdcard. */
+    JSONObject worldMove(String name, String destPath) {
+        if (!procList().isEmpty()) return res(false, "Hentikan server dulu sebelum memindahkan world");
+        if (!worldExists(name)) return res(false, "World tidak ditemukan");
+        File dir = externalDir(destPath);
+        if (dir == null) return res(false, "Pilih folder tujuan di /sdcard");
+        File src = new File(st.serverDirFile(), name);
+        try {
+            String dest = dir.getCanonicalPath();
+            String base = st.serverDirFile().getCanonicalPath();
+            String from = src.getCanonicalPath();
+            if (dest.equals(base) || dest.startsWith(base + File.separator)) {
+                return res(false, "Pilih folder di luar folder server");
+            }
+            if (dest.equals(from) || dest.startsWith(from + File.separator)) {
+                return res(false, "Folder tujuan tidak boleh di dalam world");
+            }
+        } catch (Exception ignored) {
+        }
+        File target = uniqueChild(dir, name);
+        if (!Fs.copyRecursive(src, target)) {
+            Fs.deleteRecursive(target);
+            return res(false, "Gagal menyalin world (ruang penyimpanan cukup?)");
+        }
+        Fs.deleteRecursive(src);
+        boolean removed = !src.exists();
+        if (!removed) {
+            /* Keep the copy: it is the only complete version left. */
+            JSONObject o = res(false, "World tersalin ke " + target.getAbsolutePath()
+                    + ", tetapi folder asli gagal dihapus");
+            J.p(o, "path", target.getAbsolutePath());
+            return o;
+        }
+        pushLog("[panel] world \"" + name + "\" dipindahkan ke " + target.getAbsolutePath(), "panel");
+        refreshWorldSizeAsync();
+        JSONObject o = res(true, "World dipindahkan ke " + target.getAbsolutePath());
+        J.p(o, "path", target.getAbsolutePath());
+        return o;
+    }
+
     JSONObject deleteBackup(String name) {
-        String base = Fs.safeBasename(name);
-        if (!base.endsWith(".tar.gz")) return res(false, "Nama tidak valid");
-        File f = new File(st.backupDirFile(), base);
-        if (!f.isFile()) return res(false, "Backup tidak ditemukan");
+        File f = backupFile(name);
+        if (f == null) return res(false, "Backup tidak ditemukan");
         return f.delete() ? res(true, "") : res(false, "Gagal menghapus backup");
+    }
+
+    JSONObject exportBackup(String name, String destPath) {
+        if (backupJob != null) return res(false, "Tunggu backup selesai dulu");
+        File f = backupFile(name);
+        if (f == null) return res(false, "Backup tidak ditemukan");
+        File dir = externalDir(destPath);
+        if (dir == null) return res(false, "Pilih folder tujuan di /sdcard");
+        File target = uniqueChild(dir, f.getName());
+        if (!Fs.copyRecursive(f, target)) return res(false, "Gagal menyalin backup (ruang cukup?)");
+        JSONObject o = res(true, "Backup disalin ke " + target.getAbsolutePath());
+        J.p(o, "path", target.getAbsolutePath());
+        return o;
+    }
+
+    JSONObject importBackup(String path) {
+        File src = path == null || path.trim().isEmpty() ? null : new File(path.trim());
+        if (src == null || !src.isFile() || !src.getName().endsWith(".tar.gz")) {
+            return res(false, "Pilih file backup .tar.gz");
+        }
+        if (externalDir(src.getParent()) == null) return res(false, "File backup harus di /sdcard");
+        File dir = st.backupDirFile();
+        if (!dir.exists() && !dir.mkdirs()) return res(false, "Folder backup tidak bisa dibuat");
+        File target = uniqueChild(dir, src.getName());
+        if (!Fs.copyRecursive(src, target)) return res(false, "Gagal mengimpor backup");
+        JSONObject o = res(true, "Backup diimpor: " + target.getName());
+        J.p(o, "name", target.getName());
+        return o;
+    }
+
+    JSONObject restoreBackup(String name) {
+        if (!procList().isEmpty()) return res(false, "Hentikan server dulu sebelum memulihkan backup");
+        File f = backupFile(name);
+        if (f == null) return res(false, "Backup tidak ditemukan");
+        File tmp = new File(st.backupDirFile(), ".restore-" + System.currentTimeMillis());
+        try {
+            TarGz.extract(f, tmp);
+            /* A backup may hold more than one folder (world + nether/end or
+               several worlds). Restore every valid one, then activate the
+               same world that is active now if it was in the archive. */
+            File[] kids = tmp.listFiles();
+            List<File> roots = new ArrayList<>();
+            if (kids != null) {
+                for (File k : kids) {
+                    if (k.isDirectory() && !k.getName().startsWith(".") && Fs.validWorldName(k.getName())) {
+                        roots.add(k);
+                    }
+                }
+            }
+            if (roots.isEmpty()) return res(false, "Backup tidak berisi folder world yang valid");
+
+            String current = levelName();
+            String world = null;
+            List<String> done = new ArrayList<>();
+            for (File root : roots) {
+                File target = new File(st.serverDirFile(), root.getName());
+                if (target.exists()) Fs.deleteRecursive(target);
+                if (!Fs.copyRecursive(root, target)) {
+                    Fs.deleteRecursive(target);
+                    return res(false, "Gagal memulihkan world " + root.getName() + " (ruang cukup?)");
+                }
+                done.add(root.getName());
+                if (world == null || root.getName().equals(current)) world = root.getName();
+            }
+            String cur = toml();
+            if (!cur.isEmpty()) {
+                try {
+                    Fs.writeText(new File(st.tomlFile().getAbsolutePath() + ".bak"), cur);
+                    Fs.writeText(st.tomlFile(), Toml.set(cur, "default_level_name", world));
+                } catch (Exception ignored) {
+                }
+            }
+            pushLog("[panel] backup \"" + f.getName() + "\" dipulihkan: " + done.toString(), "panel");
+            refreshWorldSizeAsync();
+            JSONObject o = res(true, "World " + world + " dipulihkan dan dijadikan aktif");
+            J.p(o, "name", world);
+            J.p(o, "worlds", done.size());
+            return o;
+        } catch (Exception e) {
+            String msg = e.getMessage() == null ? e.toString() : e.getMessage();
+            return res(false, "Gagal memulihkan: " + msg);
+        } finally {
+            Fs.deleteRecursive(tmp);
+        }
+    }
+
+    private File backupFile(String name) {
+        String base = Fs.safeBasename(name);
+        if (!base.endsWith(".tar.gz")) return null;
+        File f = new File(st.backupDirFile(), base);
+        return f.isFile() ? f : null;
+    }
+
+    /** A writable folder on shared storage (/sdcard or an SD card). */
+    private static File externalDir(String path) {
+        if (path == null || path.trim().isEmpty()) return null;
+        File dir = new File(path.trim());
+        if (!dir.isDirectory() || !dir.canWrite()) return null;
+        try {
+            String p = dir.getCanonicalPath();
+            if (!p.equals("/storage") && !p.startsWith("/storage/")) return null;
+        } catch (Exception e) {
+            return null;
+        }
+        return dir;
+    }
+
+    /** Avoid clobbering an existing export/copy. */
+    private static File uniqueChild(File dir, String name) {
+        File f = new File(dir, name);
+        if (!f.exists()) return f;
+        String base = name;
+        String ext = "";
+        if (name.endsWith(".tar.gz")) {
+            base = name.substring(0, name.length() - 7);
+            ext = ".tar.gz";
+        }
+        int n = 2;
+        while (true) {
+            f = new File(dir, base + "-" + n + ext);
+            if (!f.exists()) return f;
+            n++;
+        }
     }
 
     /* --------------------------------------------------------------- config */

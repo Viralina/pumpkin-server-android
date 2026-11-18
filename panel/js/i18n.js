@@ -90,6 +90,47 @@
     'Daftar ban': 'Ban list',
     'Pemain dikenal': 'Known players',
     'Dari usercache — ketuk untuk mengisi nama': 'From usercache — tap to fill the name',
+    'Dari usercache': 'From usercache',
+    'Ketuk nama untuk mengisi kolom OP atau whitelist.': 'Tap a name to fill the OP or whitelist field.',
+    'ketuk untuk mengisi nama': 'tap to fill the name',
+    /* folder picker + path editor */
+    'Direktori': 'Directory',
+    'Pilih folder': 'Choose folder',
+    'Pilih file': 'Choose file',
+    'Pilih folder ini': 'Use this folder',
+    'Pakai folder ini': 'Use this folder',
+    'folder di atas': 'parent folder',
+    'folder': 'folder',
+    'file · ketuk untuk memakai': 'file · tap to use',
+    'Folder ini kosong': 'This folder is empty',
+    'Ketik manual, atau pilih lewat tombol Dir.': 'Type it manually, or pick it with the Dir button.',
+    /* world + plugin */
+    'Plugin': 'Plugins',
+    'Pasang & kelola plugin server': 'Install & manage server plugins',
+    'Buka Plugin': 'Open Plugins',
+    'World baru': 'New world',
+    'siap dibuat': 'ready',
+    'terkunci': 'locked',
+    'Daftar world': 'World list',
+    'Salin world': 'Copy world',
+    'Pindahkan world ke /sdcard': 'Move world to /sdcard',
+    'Pindahkan': 'Move',
+    'Memindahkan': 'Moving',
+    'Salin ke /sdcard': 'Copy to /sdcard',
+    'Duplikat jadi world baru': 'Duplicate as a new world',
+    'Duplikat': 'Duplicate',
+    'Impor .tar.gz': 'Import .tar.gz',
+    'Pulihkan backup': 'Restore backup',
+    'Pulihkan': 'Restore',
+    'Ganti world': 'Switch world',
+    'Sedang aktif': 'Currently active',
+    'Salin': 'Copy',
+    'Default Minecraft (anvil)': 'Minecraft default (anvil)',
+    'Pumpkin (pump)': 'Pumpkin (pump)',
+    'Seed dan tipe chunk dipakai saat world dibuat.': 'Seed and chunk type are used when a world is created.',
+    'Seed dan tipe chunk dipakai saat world dibuat, lalu keduanya terkunci.': 'Seed and chunk type are used when a world is created, then both are locked.',
+    'Terkunci: world sudah ada. Hapus semua world dulu untuk memakai seed/tipe chunk baru.': 'Locked: a world already exists. Delete all worlds first to use a new seed/chunk type.',
+    'Tipe chunk': 'Chunk type',
     /* settings */
     'Jaringan panel': 'Panel network',
     'Nama server, alamat panel, port, dan token': 'Server name, panel address, port, and token',
@@ -144,7 +185,6 @@
     'Aksi ini langsung menghentikan proses server': 'This immediately stops the server process',
     'Matikan paksa (SIGKILL)': 'Force kill (SIGKILL)',
     'Muat ulang semua data': 'Reload all data',
-    'Panel v1 · dibuat untuk Pumpkin Server · semua kontrol berjalan lokal di perangkat ini.': 'Panel v1 · built for Pumpkin Server · all controls run locally on this device.',
     /* settings + experimental network section */
     'Bagian pengaturan': 'Settings sections',
     'Hijau limau': 'Lime green',
@@ -275,7 +315,7 @@
     'Dihapus dari whitelist': 'Removed from whitelist',
     'Dihapus': 'Deleted',
     'Mencari panel di 127.0.0.1…': 'Searching for panel at 127.0.0.1…',
-    'Panel pindah ke ': 'Panel moved to ',
+    'Panel pindah ke': 'Panel moved to',
     'Ubah launcher': 'Change launcher',
     'Ubah folder server': 'Change server folder',
     'Ubah perintah start': 'Change start command',
@@ -284,11 +324,190 @@
     'Mulai / hentikan server': 'Start / stop server',
     'Auto-scroll': 'Auto-scroll',
     'Bersihkan tampilan': 'Clear view',
-    'Unduh log': 'Download log'
+    'Unduh log': 'Download log',
+
+    /* ---- status & overview (extra) ---- */
+    'Terhubung': 'Connected',
+    'Terputus': 'Disconnected',
+    'Terhenti': 'Stopped',
+    'Panel offline': 'Panel offline',
+    'Versi': 'Version',
+    'Max pemain Java': 'Max Java players',
+    'Max pemain Bedrock': 'Max Bedrock players',
+    'Tidak ada log yang cocok': 'No matching logs',
+    'tidak diketahui': 'unknown',
+
+    /* ---- players ---- */
+    'Server sedang offline': 'The server is offline',
+    'Belum ada pemain yang bergabung': 'No players have joined yet',
+    'online sekarang': 'online now',
+    'operator · online': 'operator · online',
+    'Jadikan': 'Make OP',
+    'Jadikan OP': 'Make OP',
+    'Cabut': 'Remove',
+    'Ban dicabut': 'Ban removed',
+    'Belum ada operator': 'No operators yet',
+    'Whitelist kosong': 'Whitelist is empty',
+    'Aktif — hanya pemain terdaftar': 'On — only listed players',
+    'Nonaktif — semua boleh masuk': 'Off — everyone can join',
+    'Belum ada pemain diban': 'No players banned yet',
+    'tanpa alasan': 'no reason',
+    'Tidak ada ban aktif': 'No active bans',
+    'Belum ada data usercache': 'No usercache data yet',
+    'Belum ada data pemain di usercache.': 'No player data in usercache yet.',
+    'Pemain akan dikeluarkan dari server.': 'The player will be kicked from the server.',
+    'Pemain boleh masuk kembali.': 'The player can join again.',
+    'Pemain tidak bisa masuk lagi. Alasan bisa diisi lewat kartu Daftar ban.': 'The player cannot join again. A reason can be added in the Ban list card.',
+    'Pemain ini tidak bisa masuk saat whitelist aktif.': 'This player cannot join while the whitelist is on.',
+    'Pilih mode bermain untuk pemain ini.': 'Choose a game mode for this player.',
+    'Pemain tidak lagi punya akses admin.': 'The player no longer has admin access.',
+    'Pemain mendapat akses perintah admin (level 4).': 'The player gets admin command access (level 4).',
+
+    /* ---- worlds ---- */
+    'Hapus': 'Delete',
+    'Gagal': 'Failed',
+    'Pakai': 'Use',
+    'Belum ada world': 'No worlds yet',
+    'World ini akan dipakai saat server dijalankan.': 'This world will be used when the server starts.',
+    'Gagal memindahkan world': 'Failed to move world',
+    'World dipindahkan': 'World moved',
+    'Salin world ke /sdcard?': 'Copy world to /sdcard?',
+    'Gagal menyalin world': 'Failed to copy world',
+    'World disalin': 'World copied',
+    'Folder world disalin menjadi world baru di folder server. Server harus berhenti dan ruang penyimpanan harus cukup.': 'The world folder will be copied as a new world inside the server folder. The server must be stopped and there must be enough storage.',
+    'Gagal menduplikat world': 'Failed to duplicate world',
+    'World diduplikat': 'World duplicated',
+    'Buat ulang': 'Recreate',
+    'World dibuat ulang': 'World recreated',
+    'World dihapus': 'World deleted',
+    'Folder world beserta seluruh isinya dihapus permanen. Backup dulu bila ragu.': 'The world folder and all its contents will be permanently deleted. Back it up first if unsure.',
+    'Ganti nama': 'Rename',
+    'Buat ulang (reset)': 'Recreate (reset)',
+    'Semua isi world ini dihapus dan dibuat baru saat server dijalankan': 'All contents of this world will be deleted and recreated when the server starts',
+    'dipindahkan ke': 'moved to',
+    'disalin ke': 'copied to',
+    'dengan seed': 'with seed',
+    'Nama baru untuk': 'New name for',
+    '(server harus berhenti).': '(the server must be stopped).',
+    '. World akan hilang dari daftar karena berada di luar folder server. Pastikan server berhenti dan ruang penyimpanan cukup.': '. The world will disappear from the list because it is outside the server folder. Make sure the server is stopped and there is enough storage.',
+    '. Server harus berhenti dan ruang penyimpanan harus cukup.': '. The server must be stopped and there must be enough storage.',
+
+    /* ---- backup & console actions ---- */
+    'Gagal mengirim perintah': 'Failed to send command',
+    'Pemain akan terputus. World akan disimpan otomatis sebelum keluar.': 'Players will be disconnected. The world is saved automatically before shutdown.',
+    'Hentikan': 'Stop',
+    'Menghentikan server…': 'Stopping the server…',
+    'Menjalankan server…': 'Starting the server…',
+    'Server mulai · pantau di Console kapan saja': 'Server started · watch it in Console anytime',
+    'Server akan berhenti, menyimpan world, lalu mulai lagi.': 'The server will stop, save the world, then start again.',
+    'Hentikan server dulu agar backup konsisten': 'Stop the server first so the backup is consistent',
+    '. Proses kompresi bisa memakan waktu dan CPU. Lanjutkan?': '. Compression can take time and CPU. Continue?',
+    'Pilih file .tar.gz': 'Choose a .tar.gz file',
+    'Gagal mengimpor backup': 'Failed to import backup',
+    'Backup diimpor': 'Backup imported',
+    'Backup dipulihkan': 'Backup restored',
+    'Hentikan server dulu sebelum memulihkan backup': 'Stop the server before restoring a backup',
+    'Pulihkan backup?': 'Restore backup?',
+    'Isi': 'The contents of',
+    'akan menimpa world dengan nama yang sama, lalu world itu dijadikan aktif.': 'will overwrite the world with the same name, then that world becomes active.',
+    'Tidak bisa dibatalkan.': 'This cannot be undone.',
+    'Gagal memulihkan backup': 'Failed to restore backup',
+    'Gagal menyalin backup': 'Failed to copy backup',
+    'Backup disalin': 'Backup copied',
+    'Proses server dibunuh tanpa menyimpan world. Data yang belum tersimpan bisa hilang.': 'The server process is killed without saving the world. Unsaved data may be lost.',
+
+    /* ---- messages from the Java backend ---- */
+    'Backup sedang berjalan': 'A backup is already running',
+    'Backup tidak berisi folder world yang valid': 'The backup does not contain a valid world folder',
+    'Backup tidak ditemukan': 'Backup not found',
+    'Belum ada world untuk dibackup': 'There are no worlds to back up',
+    'File backup harus di /sdcard': 'The backup file must be on /sdcard',
+    'Folder backup tidak bisa dibuat': 'The backup folder cannot be created',
+    'Folder tujuan tidak boleh di dalam world': 'The destination cannot be inside the world',
+    'Format tidak dikenal': 'Unknown format',
+    'Gagal mengganti nama folder world': 'Failed to rename the world folder',
+    'Gagal menghapus backup': 'Failed to delete the backup',
+    'Gagal menyalin backup (ruang cukup?)': 'Failed to copy the backup (is there enough space?)',
+    'Gagal menyalin world (ruang penyimpanan cukup?)': 'Failed to copy the world (is there enough storage?)',
+    'Hentikan server dulu sebelum membuat ulang world': 'Stop the server before recreating the world',
+    'Hentikan server dulu sebelum memindahkan world': 'Stop the server before moving the world',
+    'Hentikan server dulu sebelum mengganti nama world': 'Stop the server before renaming the world',
+    'Hentikan server dulu sebelum menghapus world': 'Stop the server before deleting the world',
+    'Hentikan server dulu sebelum menyalin world': 'Stop the server before copying the world',
+    'Host tidak boleh kosong': 'Host cannot be empty',
+    'Isi token akses LAN dulu sebelum membuka panel ke jaringan.': 'Enter a panel access token before opening the panel to the network.',
+    'Nama world diubah': 'World renamed',
+    'Nama world sudah dipakai': 'That world name is already in use',
+    'Nama world terlalu panjang untuk disalin': 'The world name is too long to copy',
+    'Nama world tidak valid': 'Invalid world name',
+    'Perintah kosong': 'Empty command',
+    'Pilih file backup .tar.gz': 'Choose a .tar.gz backup file',
+    'Pilih folder di luar folder server': 'Choose a folder outside the server folder',
+    'Pilih folder lain, bukan folder server': 'Choose another folder, not the server folder',
+    'Pilih folder tujuan di /sdcard': 'Choose a destination folder on /sdcard',
+    'Port tidak valid (1-65535)': 'Invalid port (1-65535)',
+    'Seed disimpan; berlaku saat world dibuat ulang': 'Seed saved; it applies when the world is recreated',
+    'Seed tidak valid': 'Invalid seed',
+    'Seed disimpan': 'Seed saved',
+    'Server sudah berhenti': 'The server is already stopped',
+    'Server sudah berjalan': 'The server is already running',
+    'Server tidak berjalan dari panel ini': 'The server is not running from this panel',
+    'Sudah OP': 'Already OP',
+    'Tunggu backup selesai dulu': 'Wait for the backup to finish first',
+    'World asal tidak ditemukan': 'Source world not found',
+    'World dihapus; akan dibuat baru saat server dijalankan': 'World deleted; it will be recreated when the server starts',
+    'World tidak ditemukan': 'World not found',
+    'pumpkin.toml belum ada. Jalankan server sekali agar file konfigurasi dibuat.': 'pumpkin.toml does not exist yet. Run the server once so the configuration file is created.',
+    'pumpkin.toml tidak ditemukan': 'pumpkin.toml not found',
+
+    /* ---- dialogs, plugin placeholder, chunk help ---- */
+    'Memuat…': 'Loading…',
+    'Folder tidak bisa dibaca': 'Folder cannot be read',
+    'Muat konfigurasi dulu': 'Load the configuration first',
+    'Belum ada data konfigurasi': 'No configuration data yet',
+    'Permintaan gagal': 'Request failed',
+    'Respon bukan JSON': 'Response is not JSON',
+    'Koneksi timeout': 'Connection timed out',
+    'Salin token ini untuk akses LAN:': 'Copy this token for LAN access:',
+    'gagal': 'failed',
+    'Segera datang.': 'Coming soon.',
+    'Panel plugin belum aktif. Nanti dari sini plugin bisa dipasang, diaktifkan, dan dihapus tanpa membuka folder server.': 'The plugin panel is not active yet. Later you will be able to install, enable, and delete plugins from here without opening the server folder.',
+    'Sementara ini plugin masih dikelola lewat folder': 'For now, plugins are still managed through the',
+    'di folder server.': 'folder in the server folder.',
+    'Format penyimpanan world.': 'World storage format.',
+    'Format region vanilla. World bisa dibuka server Java/Paper dan alat dunia lain.': 'Vanilla region format. The world can be opened by Java/Paper servers and other world tools.',
+    'Format khusus Pumpkin. Lebih cepat dan hemat ruang, tetapi tidak bisa dibaca Paper atau Minecraft biasa.': 'Pumpkin-specific format. Faster and more space-efficient, but cannot be read by Paper or regular Minecraft.',
+    'Tipe hanya dipakai saat world dibuat (atau dibuat ulang), dan world yang sudah ada tidak dikonversi. Jadi pilih dulu sebelum world pertama dibuat.': 'The type is only used when a world is created (or recreated), and existing worlds are not converted. Choose it before creating the first world.',
+
+    /* ---- static markup (index.html) ---- */
+    'cuaca cerah': 'clear weather',
+    'Naik': 'Up',
+    'Awal': 'Home',
+    'Mulai atau hentikan server': 'Start or stop the server',
+    'Restart server': 'Restart server',
+    'Cari log': 'Search log',
+    'Perintah server': 'Server command',
+    'Selamat datang!': 'Welcome!',
+    'contoh: 1794660286376045931': 'e.g. 1794660286376045931',
+    'Apa itu tipe chunk?': 'What is a chunk type?',
+    'Pilih direktori': 'Choose directory',
+    'Kelola plugin langsung dari panel: pasang, aktifkan, dan hapus tanpa menyentuh folder server.': 'Manage plugins directly from the panel: install, enable, and delete them without touching the server folder.',
+    'Atur alamat server di Pengaturan \u2192 Eksperimental': 'Set the server address in Settings \u2192 Experimental',
+    'Proyek tidak resmi. Pumpkin \u00a9 Pumpkin-MC (GPLv3); Minecraft \u00a9 Mojang Studios. Tidak berafiliasi.': 'Unofficial project. Pumpkin \u00a9 Pumpkin-MC (GPLv3); Minecraft \u00a9 Mojang Studios. Not affiliated.',
+    'Pastikan server berhenti dan ruang penyimpanan cukup.': 'Make sure the server is stopped and there is enough storage.',
+    'aktif': 'active',
+    'Backup berisi folder world dalam satu file .tar.gz. Hentikan server dulu agar isinya konsisten; backup bisa dipulihkan, disalin ke /sdcard, atau diimpor dari /sdcard.': 'A backup contains the world folders in one .tar.gz file. Stop the server first so the contents are consistent; a backup can be restored, copied to /sdcard, or imported from /sdcard.'
   };
 
   /* pattern-based dynamic text */
   var EN_PAT = [
+    /* counters run first: "2 pemain diban" is a count, not "<name> was banned" */
+    [/^(\d+) pemain online$/, '$1 players online'],
+    [/^(\d+) pemain diban$/, '$1 players banned'],
+    [/^(\d+) pemain di usercache$/, '$1 players in usercache'],
+    [/^(\d+) baris log di Console$/, '$1 log lines in Console'],
+    [/^(\d+) perubahan belum disimpan$/, '$1 unsaved changes'],
+    [/^Aktif: (.+)$/, 'Active: $1'],
     [/^(Online|Offline) · (\d+) pemain · (.+)$/, '$1 · $2 players · $3'],
     [/^(\d+) MB dipakai world (.+)$/, '$1 MB used by world $2'],
     [/^Ukuran world (.+) MB$/, 'World size $1 MB'],
@@ -300,7 +519,8 @@
     [/^Nama diisi: (.+)$/, 'Name filled: $1'],
     [/^Seed acak: (.+)$/, 'Random seed: $1'],
     [/^Gamemode: (.+)$/, 'Gamemode: $1'],
-    [/^Auto-scroll (aktif|nonaktif)$/, 'Auto-scroll $1'],
+    [/^Auto-scroll aktif$/, 'Auto-scroll on'],
+    [/^Auto-scroll nonaktif$/, 'Auto-scroll off'],
     [/^(.+) sekarang OP$/, '$1 is now OP'],
     [/^(.+) di-kick$/, '$1 was kicked'],
     [/^(.+) diban$/, '$1 was banned'],
@@ -308,7 +528,47 @@
     [/^World aktif: (.+)$/, 'Active world: $1'],
     [/^Panel pindah ke (.+) — tunggu 2 detik$/, 'Panel moved to $1 — wait 2 seconds'],
     [/^World diganti nama$/, 'World renamed'],
-    [/^(.+) MB$/, '$1 MB']
+    [/^(.+) MB$/, '$1 MB'],
+
+    /* world actions */
+    [/^Pakai world (.+)\?$/, 'Use world $1?'],
+    [/^Pindahkan world (.+)\?$/, 'Move world $1?'],
+    [/^Duplikat world (.+)\?$/, 'Duplicate world $1?'],
+    [/^Buat ulang world (.+)\?$/, 'Recreate world $1?'],
+    [/^Hapus world (.+)\?$/, 'Delete world $1?'],
+    [/^Hapus (.+) dari whitelist\?$/, 'Delete $1 from the whitelist?'],
+    [/^Cabut OP (.+)\?$/, 'Remove OP from $1?'],
+    [/^Jadikan OP (.+)\?$/, 'Make $1 OP?'],
+    [/^Cabut ban (.+)\?$/, 'Unban $1?'],
+    [/^Kick (.+)\?$/, 'Kick $1?'],
+    [/^Ban (.+)\?$/, 'Ban $1?'],
+    [/^Gamemode — (.+)$/, 'Gamemode — $1'],
+    [/^Nama baru untuk (.+) \(server harus berhenti\)\.$/, 'New name for $1 (the server must be stopped).'],
+    [/^Memindahkan (.+)…$/, 'Moving $1…'],
+    [/^Menyalin (.+)…$/, 'Copying $1…'],
+    [/^Menduplikat (.+)…$/, 'Duplicating $1…'],
+
+    /* panel status + folder picker */
+    [/^Panel web online di (.+)$/, 'Web panel online at $1'],
+    [/^Error panel: (.+)$/, 'Panel error: $1'],
+    [/^Folder tidak ditemukan: (.+)$/, 'Folder not found: $1'],
+    [/^Folder tidak bisa dibaca: (.+)$/, 'Folder cannot be read: $1'],
+
+    /* backend messages that carry a value */
+    [/^Backup diimpor: (.+)$/, 'Backup imported: $1'],
+    [/^Backup disalin ke (.+)$/, 'Backup copied to $1'],
+    [/^Binary pumpkin belum ada: (.+)$/, 'Pumpkin binary not found: $1'],
+    [/^Binary tidak bisa dipakai: (.+)$/, 'Binary cannot be used: $1'],
+    [/^Folder server tidak bisa dibuat: (.+)$/, 'The server folder cannot be created: $1'],
+    [/^Gagal memulihkan world (.+) \(ruang cukup\?\)$/, 'Failed to restore world $1 (is there enough space?)'],
+    [/^Gagal memulihkan: (.+)$/, 'Failed to restore: $1'],
+    [/^Host (.+) bukan alamat perangkat ini$/, 'Host $1 is not an address of this device'],
+    [/^Port (\d+) tidak bisa dipakai: (.+)$/, 'Port $1 cannot be used: $2'],
+    [/^World (.+) dihapus$/, 'World $1 deleted'],
+    [/^World (.+) dipulihkan dan dijadikan aktif$/, 'World $1 restored and set as active'],
+    [/^World dipindahkan ke (.+)$/, 'World moved to $1'],
+    [/^World disalin ke (.+)$/, 'World copied to $1'],
+    [/^World tersalin ke (.+)$/, 'World copied to $1']
   ];
 
   function lookup(s) {
@@ -317,6 +577,14 @@
       var m = EN_PAT[i][0].exec(s);
       if (m) return s.replace(EN_PAT[i][0], EN_PAT[i][1]);
     }
+    /* Relative times are embedded in composed rows such as
+       "229 MB · 2 jam lalu · chunk pump", so replace them anywhere. */
+    var rel = s
+      .replace(/(\d+) menit lalu/g, '$1m ago')
+      .replace(/(\d+) jam lalu/g, '$1h ago')
+      .replace(/(\d+) hari lalu/g, '$1d ago')
+      .replace(/\bbaru saja\b/g, 'just now');
+    if (rel !== s) return rel;
     return null;
   }
   /* Used for dynamic text set after the active language changes (toast, hint, status). */
@@ -372,7 +640,7 @@
     for (var i = 0; i < els.length; i++) trAttrs(els[i], lang);
   }
 
-  var lang = 'id';
+  var lang = 'en';
   function readLang() {
     var saved = LS.get('pp.lang', null);
     if (saved === 'en' || saved === 'id') return saved;
@@ -382,12 +650,16 @@
         if (n === 'en' || n === 'id') return n;
       }
     } catch (e) {}
-    return 'id';
+    return 'en';
   }
   function applyLang(next) {
     lang = next === 'en' ? 'en' : 'id';
     LS.set('pp.lang', lang);
     document.documentElement.lang = lang;
+    /* Redraw programmatic text first, then walk once: the observer is installed
+       after boot, so anything written after walk would stay in the old language. */
+    if (typeof window.ppOnLang === 'function') { try { window.ppOnLang(lang); } catch (e) {} }
+    if (typeof window.paintConn === 'function') { try { window.paintConn(); } catch (e) {} }
     walk(document.body, lang);
     var sw = document.getElementById('langSwitch');
     if (sw) {
@@ -398,8 +670,6 @@
         bs[i].setAttribute('aria-pressed', on ? 'true' : 'false');
       }
     }
-    if (typeof window.ppOnLang === 'function') { try { window.ppOnLang(lang); } catch (e) {} }
-    if (typeof window.paintConn === 'function') { try { window.paintConn(); } catch (e) {} }
   }
   window.ppLang = function () { return lang; };
   window.ppApplyLang = applyLang;

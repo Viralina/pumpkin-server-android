@@ -71,8 +71,18 @@ function renderPlayers() {
 
   const names = known.map((k) => k.name);
   $('#knownNames').innerHTML = names.map((n) => '<option value="' + esc(n) + '"></option>').join('');
+  const ks = $('#knownSub');
+  if (ks) ks.textContent = names.length ? names.length + ' pemain di usercache' : 'Belum ada data usercache';
+  /* Rows, not chips: long names wrap badly in a chip cloud on narrow screens. */
   $('#knownList').innerHTML = names.length
-    ? names.map((n) => '<button class="chip" data-fill="' + esc(n) + '">' + esc(n) + '</button>').join('')
-    : '<span class="hint">Belum ada data pemain di usercache.</span>';
+    ? names.map((n) =>
+      '<button type="button" class="list-item known-row" data-fill="' + esc(n) + '">' +
+      '<div class="avatar">' + esc(String(n).slice(0, 1).toUpperCase()) + '</div>' +
+      '<div class="li-main"><div class="li-name">' + esc(n) + '</div>' +
+      '<div class="li-sub">ketuk untuk mengisi nama</div></div>' +
+      '<svg class="ic" style="width:15px;height:15px"><use href="#i-plus"/></svg>' +
+      '</button>'
+    ).join('')
+    : '<div class="empty">Belum ada data pemain di usercache.</div>';
 }
 

@@ -70,6 +70,7 @@ async function doSaveWorld() {
   toast('Menyimpan world…');
 }
 async function doBackup() {
+  if (S.status && S.status.running) { toast('Hentikan server dulu agar backup konsisten', 'err'); return; }
   const mb = S.status ? S.status.worldMB : 0;
   const ok = await confirmDlg({
     title: 'Buat backup world?',
@@ -81,6 +82,17 @@ async function doBackup() {
     const r = await api('/api/backup', { method: 'POST' });
     toast('Backup dimulai');
     watchBackup(r && r.name);
+  } catch (e) { toast(e.message, 'err'); }
+}
+async function doBackupImport() {
+  const p = await dirDlg('/sdcard', 'file');
+  if (!p) return;
+  if (!/\.tar\.gz$/i.test(p)) { toast('Pilih file .tar.gz', 'err'); return; }
+  try {
+    const r = await api('/api/backup/import', { method: 'POST', body: { path: p } });
+    if (!r.ok) { toast(r.msg || 'Gagal mengimpor backup', 'err'); return; }
+    toast(r.msg || 'Backup diimpor');
+    api('/api/backups').then((b) => { S.backups = b.backups || []; renderBackups(); }).catch(() => {});
   } catch (e) { toast(e.message, 'err'); }
 }
 function onBackup(ev) {

@@ -176,6 +176,17 @@ function startPolling() {
       const st = await api('/api/status');
       setStatus(st);
       setOnline(true);
+      /* Keep the backup job indicator honest even if the panel was reopened
+         while a backup was already running. */
+      const runEl = document.getElementById('backupRun');
+      if (runEl && !runEl.hidden) {
+        try {
+          const b = await api('/api/backups');
+          S.backups = b.backups || [];
+          renderBackups();
+          runEl.hidden = !b.running;
+        } catch (e) {}
+      }
       const r = await api('/api/logs?limit=150');
       /* Use a cursor that survives "clear console": otherwise S.logs empties and the
          server tail is replayed. File-fallback lines have id=0, so dedupe them by content. */
@@ -296,7 +307,12 @@ async function refreshAll() {
   const jobs = [
     api('/api/status').then(setStatus),
     api('/api/players').then((p) => { S.players = p; renderPlayers(); }),
-    api('/api/backups').then((b) => { S.backups = b.backups || []; renderBackups(); }),
+    api('/api/backups').then((b) => {
+      S.backups = b.backups || [];
+      renderBackups();
+      const run = document.getElementById('backupRun');
+      if (run) run.hidden = !b.running;
+    }),
     api('/api/config').then((c) => {
       S.cfgToml = c.toml || ''; S.cfgParsed = parseToml(S.cfgToml); S.cfgOriginal = JSON.parse(JSON.stringify(S.cfgParsed));
       fillConfig();

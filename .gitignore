@@ -23,3 +23,7 @@ captures/
 # Never commit keys or tokens
 *.jks
 *.keystore
+
+# Stray local artifacts (APKs/partial archives must never be uploaded)
+*.apk
+*.part

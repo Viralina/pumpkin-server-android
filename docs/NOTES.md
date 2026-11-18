@@ -3,7 +3,7 @@
 This document covers things that are not always obvious from the code: how to build, features
 hidden in the native menu, the security model, and a checklist before publishing the repo.
 
-App version: **1.1.0** (`versionCode` 6). Do not bump the version without changing
+App version: **1.2.0** (`versionCode` 7). Do not bump the version without changing
 `build.sh` and `app/build.gradle.kts` together.
 
 ## Architecture at a glance
@@ -126,9 +126,10 @@ Some features deliberately have no large button, but they are available:
    interpreter.
 10. **Fallback app folder** — the *Use app folder* button moves server data to
     `/data/data/com.pumpkin.panel/files/server` when `/sdcard` has problems.
-11. **Hidden backup menu** — the *World backup* card and the Backup button on Overview are hidden
-    initially. Long-press the **About & notes** card (±900 ms) to reveal them. The state is stored
-    in localStorage `pp.menu.backup`; delete that key to hide it again.
+11. **World backup** — a visible card in **Configuration** creates one `.tar.gz` containing every
+    world folder. It can be restored (overwrites same-named worlds, then makes the restored world
+    active), exported to `/sdcard`, imported from `/sdcard`, or deleted. Stop the server first;
+    the panel refuses to back up or restore while it is running.
 12. **Online web panel (experimental)** — a card under **Experimental** contains the server name,
     panel address, port, and token. The **Online web panel** toggle defaults to **off**; while it
     is off, all its settings are grayed out and read-only, and the panel server is forced to bind
@@ -146,6 +147,9 @@ Some features deliberately have no large button, but they are available:
     document remains for developers.
 16. **Latest activity** — a card below Home shows the three most recent log lines and a shortcut
     button to the Console, filling the empty space at the end of Home.
+17. **World actions** — each row in **Configuration → World** has icon buttons to move the folder
+    to `/sdcard`, copy it to `/sdcard`, duplicate it inside the server folder, make it active,
+    rename, reset, or delete. Actions that change files require the server to be stopped.
 
 ## General / Experimental sections
 
@@ -241,7 +245,7 @@ dropdowns, segmented controls, the sidebar, and the tab bar in all themes.
 
 ## Checklist before publishing to GitHub
 
-- [ ] `versionName` stays `1.1.0`, `versionCode` 6 (or change both together).
+- [ ] `versionName` stays `1.2.0`, `versionCode` 7 (or change both together).
 - [ ] `app/src/main/assets/index.html` is regenerated from `panel/` (`bash tools/bundle-panel.sh`).
 - [ ] No tokens/keystores/personal paths in the repo (`git status`, `git grep -i token`).
 - [ ] The README explains both variants (plain and full) and the internet requirement for downloads.
